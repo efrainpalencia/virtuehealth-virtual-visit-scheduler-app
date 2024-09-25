@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'rest_framework',
 
     # installed apps
+    'patient_portal',
+    'doctor_dashboard',
 
 ]
 
