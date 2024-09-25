@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'patient_portal',
     'doctor_dashboard',
     'appointments',
+    'lab_tests',
 
 ]
 
