@@ -1,8 +1,7 @@
-# from django.urls import path
-# from . import views
+from django.urls import path
+from .views import LabTestViewSet
 
-# urlpatterns = [
-#     path('lab-tests/', views.LabTestListView.as_view(), name='labtest-list'),
-#     path('lab-tests/<int:pk>/', views.LabTestDetailView.as_view(),
-#          name='labtest-detail'),
-# ]
+
+urlpatterns = [
+    path('', LabTestViewSet.as_view(), name='labtest-list'),
+]

@@ -1,16 +1,9 @@
 from .models import Doctor, MedicalRecord
-from rest_framework import viewsets
-from rest_framework import generics, permissions
+from rest_framework import viewsets, permissions
 from .serializers import DoctorSerializer, MedicalRecordSerializer
 
 
-class DoctorListView(generics.ListAPIView):
-    queryset = Doctor.objects.all()
-    serializer_class = DoctorSerializer
-    permission_classes = [permissions.AllowAny]
-
-
-class DoctorDetailView(generics.RetrieveUpdateAPIView):
+class DoctorViewSet(viewsets.ModelViewSet):
     queryset = Doctor.objects.all()
     serializer_class = DoctorSerializer
     permission_classes = [permissions.AllowAny]
