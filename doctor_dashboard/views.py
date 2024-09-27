@@ -4,7 +4,7 @@ from rest_framework import generics, permissions
 from .serializers import DoctorSerializer, MedicalRecordSerializer
 
 
-class DoctorViewSet(generics.ListAPIView):
+class DoctorListView(generics.ListAPIView):
     queryset = Doctor.objects.all()
     serializer_class = DoctorSerializer
     permission_classes = [permissions.AllowAny]

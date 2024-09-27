@@ -22,6 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/patient/', include('patient_portal.urls')),
     path('api/doctor/', include('doctor_dashboard.urls')),
-    path('api/appointments/', include('appointments.urls')),
-    path('api/lab-tests/', include('lab_tests.urls')),
+    # path('api/appointments/', include('appointments.urls')),
+    # path('api/lab-tests/', include('lab_tests.urls')),
 ]

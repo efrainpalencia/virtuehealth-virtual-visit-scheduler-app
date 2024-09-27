@@ -12,7 +12,7 @@ class Patient(models.Model):
     phone_number = models.CharField(max_length=15, validators=[RegexValidator(
         regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")], null=True, blank=True)
     medical_record = models.OneToOneField(
-        'doctor_dashboard.MedicalRecord', on_delete=models.CASCADE, null=True, blank=True)
+        'doctor_dashboard.MedicalRecord', on_delete=models.CASCADE, null=True, blank=True, related_name='patient_medical_record')
 
     def __str__(self):
         return self.user.email

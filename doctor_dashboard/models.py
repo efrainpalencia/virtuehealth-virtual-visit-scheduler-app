@@ -21,7 +21,7 @@ class Doctor(models.Model):
 
 class MedicalRecord(models.Model):
     patient = models.OneToOneField(
-        'patient_portal.Patient', on_delete=models.CASCADE)
+        'patient_portal.Patient', on_delete=models.CASCADE, related_name='medical_record_detail')
     height = models.DecimalField(
         max_digits=5, decimal_places=2, null=True, blank=True)
     weight = models.DecimalField(
