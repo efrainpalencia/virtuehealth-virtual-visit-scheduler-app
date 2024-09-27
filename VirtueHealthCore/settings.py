@@ -47,8 +47,8 @@ INSTALLED_APPS = [
     # installed apps
     'patient_portal',
     'doctor_dashboard',
-    'appointments',
-    'lab_tests',
+    # 'appointments',
+    # 'lab_tests',
 
 ]
 
