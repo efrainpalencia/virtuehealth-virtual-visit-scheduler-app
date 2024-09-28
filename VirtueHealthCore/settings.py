@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
 
     # installed apps
+    'custom_auth',
     'patient_portal',
     'doctor_dashboard',
     'appointments',
