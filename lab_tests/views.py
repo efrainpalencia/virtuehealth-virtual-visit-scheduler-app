@@ -6,4 +6,4 @@ from .serializers import LabTestSerializer
 class LabTestViewSet(viewsets.ModelViewSet):
     queryset = LabTest.objects.all()
     serializer_class = LabTestSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
