@@ -1,3 +1,48 @@
 from django.test import TestCase
+from django.contrib.auth.models import User
+from patient_portal.models import Patient
+from doctor_dashboard.models import MedicalRecord
 
-# Create your tests here.
+
+class PatientModelTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser', password='testpass', email='testuser@example.com')
+        self.patient = Patient.objects.create(
+            user=self.user,
+            date_of_birth='1990-01-01',
+            ethnicity='Test Ethnicity',
+            location='Test Location',
+            address='Test Address',
+            phone_number='9541234567'
+        )
+        self.medical_record = MedicalRecord.objects.create(
+            patient=self.patient,
+            height=175.5,
+            weight=70.2,
+            physical_activity='Moderate',
+            psychological_assessment='Good',
+            drugs_alcohol='None',
+            medical_condition='Healthy',
+            injury_illness='None',
+            family_history='No significant history',
+            treatment_surgery='None',
+            current_medication='None',
+            allergy='None',
+            side_effects='None'
+        )
+        self.patient.medical_record = self.medical_record
+        self.patient.save()
+
+    def test_patient_creation(self):
+        self.assertEqual(self.patient.user.username, 'testuser')
+        self.assertEqual(self.patient.date_of_birth, '1990-01-01')
+        self.assertEqual(self.patient.ethnicity, 'Test Ethnicity')
+        self.assertEqual(self.patient.location, 'Test Location')
+        self.assertEqual(self.patient.address, 'Test Address')
+        self.assertEqual(self.patient.phone_number, '9541234567')
+        self.assertEqual(self.patient.medical_record, self.medical_record)
+
+    def test_patient_str(self):
+        self.assertEqual(str(self.patient), 'testuser@example.com')
