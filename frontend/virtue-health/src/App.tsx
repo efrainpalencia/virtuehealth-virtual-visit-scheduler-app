@@ -1,14 +1,18 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Layout, Menu } from "antd";
-import Login from "./components/Login/Login";
+import DoctorLogin from "./components/DoctorLogin/DoctorLogin";
+import PatientLogin from "./components/PatientLogin/PatientLogin";
 import PatientPortal from "./components/PatientPortal/PatientPortal";
 import DoctorDashboard from "./components/DoctorDashboard/DoctorDashboard";
+import RequireAuth from "./components/RequireAuth/RequireAuth";
 import "antd/dist/reset.css";
 
 const { Header, Content, Footer } = Layout;
 
 const App: React.FC = () => {
+  const userType = localStorage.getItem("user_type") || "";
+
   return (
     <Router>
       <Layout className="layout">
@@ -21,15 +25,27 @@ const App: React.FC = () => {
           </Menu>
         </Header>
         <Content style={{ padding: "0 50px" }}>
-          <div
-            className="site-layout-content"
-            style={{ padding: "24px", minHeight: "280px" }}
-          >
+          <div className="site-layout-content">
             <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/patient_portal" element={<PatientPortal />} />
-              <Route path="/doctor_dashboard" element={<DoctorDashboard />} />
-              <Route path="/" element={<Login />} />
+              <Route path="/doctor_login" element={<DoctorLogin />} />
+              <Route path="/patient_login" element={<PatientLogin />} />
+              <Route
+                path="/patient_portal"
+                element={
+                  <RequireAuth userType={userType} requiredUserType="patient">
+                    <PatientPortal />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/doctor_dashboard"
+                element={
+                  <RequireAuth userType={userType} requiredUserType="doctor">
+                    <DoctorDashboard />
+                  </RequireAuth>
+                }
+              />
+              <Route path="/" element={<PatientLogin />} />
             </Routes>
           </div>
         </Content>

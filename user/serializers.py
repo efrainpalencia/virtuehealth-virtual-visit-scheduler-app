@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from .models import Doctor, Patient
 
@@ -42,3 +43,25 @@ class DoctorSerializer(serializers.ModelSerializer):
         model = Doctor
         fields = ['id', 'user', 'specialty', 'phone_number',
                   'fax_number', 'languages', 'insurance_provider', 'schedule']
+
+
+class CustomLoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        username = data.get('username')
+        password = data.get('password')
+        user = authenticate(username=username, password=password)
+        if user and user.is_active:
+            data['user'] = user
+        else:
+            raise serializers.ValidationError("Invalid credentials")
+        return data
+
+    def get_user_type(self, user):
+        if user.groups.filter(name='Doctors').exists():
+            return 'doctor'
+        elif user.groups.filter(name='Patients').exists():
+            return 'patient'
+        return 'unknown'

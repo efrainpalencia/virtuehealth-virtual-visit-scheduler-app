@@ -1,11 +1,11 @@
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .models import User
-from .serializers import RegisterSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+from .models import User
+from .serializers import RegisterSerializer, CustomLoginSerializer
 
 
 class RegisterViewSet(viewsets.ModelViewSet):
@@ -23,6 +23,19 @@ class RegisterViewSet(viewsets.ModelViewSet):
 
 class LoginViewSet(TokenObtainPairView):
     serializer_class = TokenObtainPairSerializer
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
+    def login(self, request):
+        serializer = CustomLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        user_type = serializer.get_user_type(user)
+        token = TokenObtainPairSerializer.get_token(user)
+        return Response({
+            'refresh': str(token),
+            'access': str(token.access_token),
+            'user_type': user_type
+        })
 
 
 class RefreshViewSet(TokenRefreshView):
