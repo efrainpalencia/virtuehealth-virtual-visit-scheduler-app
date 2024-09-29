@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Form, Input, Button, Typography } from "antd";
 import axios from "axios";
 
@@ -60,6 +60,20 @@ const PatientLogin: React.FC = () => {
           <Button type="primary" htmlType="submit" block>
             Login as Patient
           </Button>
+        </Form.Item>
+        <Form.Item layout="horizontal">
+          <Link
+            style={{ marginLeft: "20px", marginRight: "40px" }}
+            to="/register"
+          >
+            Create a New Account
+          </Link>
+          <Link
+            style={{ marginLeft: "40px", marginRight: "10px" }}
+            to="/password_reset"
+          >
+            Forgot Password?
+          </Link>
         </Form.Item>
       </Form>
     </div>

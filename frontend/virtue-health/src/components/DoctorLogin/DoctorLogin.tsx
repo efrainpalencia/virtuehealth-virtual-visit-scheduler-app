@@ -1,6 +1,11 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Form, Input, Button, Typography } from "antd";
+import { spaceChildren } from "antd/es/button";
+import { AlignLeftOutlined } from "@ant-design/icons";
+
+const { Title } = Typography;
 
 const DoctorLogin: React.FC = () => {
   const [username, setUsername] = useState<string>("");
@@ -26,21 +31,53 @@ const DoctorLogin: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2>Doctor Login</h2>
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={handleLogin}>Login as Doctor</button>
+    <div style={{ maxWidth: 400, margin: "0 auto", padding: "20px" }}>
+      <Title level={2}>Doctor Login</Title>
+      <Form
+        name="login"
+        initialValues={{ remember: true }}
+        onFinish={handleLogin}
+      >
+        <Form.Item
+          name="username"
+          rules={[{ required: true, message: "Please input your username!" }]}
+        >
+          <Input
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+        </Form.Item>
+        <Form.Item
+          name="password"
+          rules={[{ required: true, message: "Please input your password!" }]}
+        >
+          <Input.Password
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" block>
+            Login as Doctor
+          </Button>
+        </Form.Item>
+        <Form.Item layout="horizontal">
+          <Link
+            style={{ marginLeft: "20px", marginRight: "40px" }}
+            to="/register"
+          >
+            Create a New Account
+          </Link>
+          <Link
+            style={{ marginLeft: "40px", marginRight: "10px" }}
+            to="/password_reset"
+          >
+            Forgot Password?
+          </Link>
+        </Form.Item>
+      </Form>
     </div>
   );
 };
