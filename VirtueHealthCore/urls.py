@@ -19,8 +19,8 @@ from django.urls import path, include
 
 from rest_framework.routers import DefaultRouter
 
-from patient_portal.views import PatientViewSet
-from doctor_dashboard.views import DoctorViewSet, MedicalRecordViewSet
+from doctor_dashboard.views import PatientViewSet, MedicalRecordViewSet
+from patient_portal.views import DoctorViewSet
 from appointments.views import AppointmentViewset
 from lab_tests.views import LabTestViewSet
 

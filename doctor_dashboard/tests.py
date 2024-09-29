@@ -1,37 +1,9 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from doctor_dashboard.models import Doctor, MedicalRecord
-from patient_portal.models import Patient
+from .models import MedicalRecord
+from user.models import Patient
 
 User = get_user_model()
-
-
-class DoctorModelTest(TestCase):
-
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username='doctoruser', password='testpass', email='doctoruser@example.com')
-        self.doctor = Doctor.objects.create(
-            user=self.user,
-            specialty='Cardiology',
-            phone_number='9541234567',
-            fax_number='9541234567',
-            languages='English, Spanish',
-            insurance_provider='Health Insurance Inc.',
-            schedule=[]
-        )
-
-    def test_doctor_creation(self):
-        self.assertEqual(self.doctor.user.username, 'doctoruser')
-        self.assertEqual(self.doctor.specialty, 'Cardiology')
-        self.assertEqual(self.doctor.phone_number, '9541234567')
-        self.assertEqual(self.doctor.fax_number, '9541234567')
-        self.assertEqual(self.doctor.languages, 'English, Spanish')
-        self.assertEqual(self.doctor.insurance_provider,
-                         'Health Insurance Inc.')
-
-    def test_doctor_str(self):
-        self.assertEqual(str(self.doctor), 'doctoruser@example.com')
 
 
 class MedicalRecordModelTest(TestCase):

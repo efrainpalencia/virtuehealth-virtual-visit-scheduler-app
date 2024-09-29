@@ -1,6 +1,5 @@
 from django.db import models
-from patient_portal.models import Patient
-from doctor_dashboard.models import Doctor
+from user.models import Doctor, Patient
 
 
 class Appointment(models.Model):

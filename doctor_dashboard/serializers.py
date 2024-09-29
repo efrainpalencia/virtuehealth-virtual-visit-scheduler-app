@@ -1,21 +1,5 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Doctor, MedicalRecord
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
-
-
-class DoctorSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-
-    class Meta:
-        model = Doctor
-        fields = ['id', 'user', 'specialty', 'phone_number',
-                  'fax_number', 'languages', 'insurance_provider', 'schedule']
+from .models import MedicalRecord
 
 
 class MedicalRecordSerializer(serializers.ModelSerializer):

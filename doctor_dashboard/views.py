@@ -1,11 +1,13 @@
-from .models import Doctor, MedicalRecord
+from .models import MedicalRecord
 from rest_framework import viewsets, permissions
-from .serializers import DoctorSerializer, MedicalRecordSerializer
+from .serializers import MedicalRecordSerializer
+from user.models import Patient
+from user.serializers import PatientSerializer
 
 
-class DoctorViewSet(viewsets.ModelViewSet):
-    queryset = Doctor.objects.all()
-    serializer_class = DoctorSerializer
+class PatientViewSet(viewsets.ModelViewSet):
+    queryset = Patient.objects.all()
+    serializer_class = PatientSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 

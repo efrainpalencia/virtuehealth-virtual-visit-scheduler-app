@@ -1,5 +1,5 @@
 from django.db import models
-from patient_portal.models import Patient
+from user.models import Patient
 
 
 class LabTest(models.Model):
