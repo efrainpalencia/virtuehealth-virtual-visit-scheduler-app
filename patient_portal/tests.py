@@ -1,7 +1,9 @@
 from django.test import TestCase
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from patient_portal.models import Patient
 from doctor_dashboard.models import MedicalRecord
+
+User = get_user_model()
 
 
 class PatientModelTest(TestCase):

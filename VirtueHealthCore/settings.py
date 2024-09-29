@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'corsheaders',
 
     # installed apps
-    'custom_auth',
+    'user',
     'patient_portal',
     'doctor_dashboard',
     'appointments',

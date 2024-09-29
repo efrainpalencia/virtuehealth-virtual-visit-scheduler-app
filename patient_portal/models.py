@@ -1,10 +1,13 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.core.validators import RegexValidator
 
+User = get_user_model()
+
 
 class Patient(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name='patient')
     date_of_birth = models.DateField(null=True, blank=True)
     ethnicity = models.TextField(null=True, blank=True)
     location = models.TextField(null=True, blank=True)

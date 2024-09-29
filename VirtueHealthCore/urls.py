@@ -23,7 +23,6 @@ from patient_portal.views import PatientViewSet
 from doctor_dashboard.views import DoctorViewSet, MedicalRecordViewSet
 from appointments.views import AppointmentViewset
 from lab_tests.views import LabTestViewSet
-from custom_auth.views import RegisterViewSet
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -41,7 +40,7 @@ router.register(r'lab-tests', LabTestViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
-    path('api/auth/', include('custom_auth.urls')),
+    path('api/auth/', include('user.urls')),
     path('api/', include(router.urls)),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
