@@ -13,6 +13,7 @@ class AuthService {
                 if (response.data.access) {
                     localStorage.setItem('access_token', response.data.access);
                     localStorage.setItem('refresh_token', response.data.refresh);
+                    localStorage.setItem('user_type', response.data.user_type);
                 }
                 return response.data;
             });
@@ -27,12 +28,17 @@ class AuthService {
             .then(response => {
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('refresh_token');
+                localStorage.removeItem('user_type');
                 return response.data;
             });
     }
 
     getCurrentUser() {
         return localStorage.getItem('access_token');
+    }
+
+    getUserType() {
+        return localStorage.getItem('user_type');
     }
 }
 
