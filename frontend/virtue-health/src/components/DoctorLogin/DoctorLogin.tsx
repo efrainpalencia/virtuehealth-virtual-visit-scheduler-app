@@ -13,9 +13,8 @@ const DoctorLogin: React.FC = () => {
   const handleLogin = async () => {
     try {
       const response = await AuthService.login(username, password);
-      if (response.user_type.includes("Doctors")) {
-        localStorage.setItem("userGroups", JSON.stringify(response.user_type));
-        navigate("/doctor_dashboard");
+      if (response.user_type === "patient") {
+        navigate("/patient_portal");
       } else {
         alert("You are not authorized to access this page.");
       }

@@ -13,8 +13,7 @@ const PatientLogin: React.FC = () => {
   const handleLogin = async () => {
     try {
       const response = await AuthService.login(username, password);
-      if (response.user_type.includes("Patients")) {
-        localStorage.setItem("userGroups", JSON.stringify(response.user_type));
+      if (response.user_type === "patient") {
         navigate("/patient_portal");
       } else {
         alert("You are not authorized to access this page.");
@@ -34,7 +33,15 @@ const PatientLogin: React.FC = () => {
       >
         <Form.Item
           name="username"
-          rules={[{ required: true, message: "Please input your username!" }]}
+          rules={[
+            { required: true, message: "Please input your username!" },
+            { max: 150, message: "Username must be 150 characters or fewer" },
+            {
+              pattern: /^[\w.@+-]+$/,
+              message:
+                "Username can only contain letters, digits, and @/./+/-/_ characters",
+            },
+          ]}
         >
           <Input
             placeholder="Username"
@@ -44,7 +51,10 @@ const PatientLogin: React.FC = () => {
         </Form.Item>
         <Form.Item
           name="password"
-          rules={[{ required: true, message: "Please input your password!" }]}
+          rules={[
+            { required: true, message: "Please input your password!" },
+            { min: 8, message: "Password must be at least 8 characters long" },
+          ]}
         >
           <Input.Password
             placeholder="Password"
