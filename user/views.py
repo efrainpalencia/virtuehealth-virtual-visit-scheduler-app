@@ -1,3 +1,4 @@
+import os
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -7,6 +8,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, Group
 from .serializers import RegisterSerializer, CustomLoginSerializer
 from django.core.mail import send_mail
+from dotenv import load_dotenv
+load_dotenv()
 
 
 class RegisterViewSet(viewsets.ModelViewSet):
@@ -16,7 +19,16 @@ class RegisterViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def register(self, request):
+        username = request.data.get('username')
+        if not username.isalnum() and not all(char in '@./+/-/_' for char in username):
+            return Response({"error": "Username can only contain letters, digits, and @/./+/-/_ characters"}, status=400)
+        if len(username) > 150:
+            return Response({"error": "Username must be 150 characters or fewer"}, status=400)
+
         serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            print(serializer.errors)  # Print validation errors
+            return Response(serializer.errors, status=400)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         user_type = request.data.get('user_type')
@@ -61,12 +73,13 @@ class PasswordResetViewSet(viewsets.ViewSet):
     def reset_password(self, request):
         email = request.data.get('email')
         user = User.objects.filter(email=email).first()
+        EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
         if user:
             # Send password reset email
             send_mail(
                 'Password Reset Request',
                 'Click the link below to reset your password:',
-                'from@example.com',
+                {EMAIL_HOST_USER},
                 [email],
                 fail_silently=False,
             )
@@ -90,3 +103,12 @@ class AuthViewSet(viewsets.ViewSet):
             return Response(status=205)
         except Exception as e:
             return Response(status=400)
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        # Add custom claims
+        token['user_type'] = [group.name for group in user.groups.all()]
+        return token

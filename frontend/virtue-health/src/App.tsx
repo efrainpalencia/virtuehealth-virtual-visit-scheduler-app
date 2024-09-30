@@ -13,7 +13,7 @@ import "antd/dist/reset.css";
 const { Header, Content, Footer } = Layout;
 
 const App: React.FC = () => {
-  const userType = localStorage.getItem("user_type") || "";
+  const userGroups = JSON.parse(localStorage.getItem("userGroups") || "[]");
 
   return (
     <Router>
@@ -40,7 +40,7 @@ const App: React.FC = () => {
               <Route
                 path="/patient_portal"
                 element={
-                  <RequireAuth userType={userType} requiredUserType="patient">
+                  <RequireAuth userGroups={userGroups} requiredGroup="Patients">
                     <PatientPortal />
                   </RequireAuth>
                 }
@@ -48,7 +48,7 @@ const App: React.FC = () => {
               <Route
                 path="/doctor_dashboard"
                 element={
-                  <RequireAuth userType={userType} requiredUserType="doctor">
+                  <RequireAuth userGroups={userGroups} requiredGroup="Doctors">
                     <DoctorDashboard />
                   </RequireAuth>
                 }

@@ -15,7 +15,7 @@ const Register: React.FC = () => {
 
   const handleRegister = async () => {
     try {
-      await axios.post("/api/register/", {
+      await axios.post("/api/auth/register/", {
         username,
         password,
         email,
@@ -39,7 +39,15 @@ const Register: React.FC = () => {
       >
         <Form.Item
           name="username"
-          rules={[{ required: true, message: "Please input your username!" }]}
+          rules={[
+            { required: true, message: "Please input your username!" },
+            { max: 150, message: "Username must be 150 characters or fewer" },
+            {
+              pattern: /^[\w.@+-]+$/,
+              message:
+                "Username can only contain letters, digits, and @/./+/-/_ characters",
+            },
+          ]}
         >
           <Input
             placeholder="Username"
@@ -49,7 +57,10 @@ const Register: React.FC = () => {
         </Form.Item>
         <Form.Item
           name="email"
-          rules={[{ required: true, message: "Please input your email!" }]}
+          rules={[
+            { required: true, message: "Please input your email!" },
+            { type: "email", message: "Please enter a valid email address!" },
+          ]}
         >
           <Input
             placeholder="Email"
@@ -59,7 +70,10 @@ const Register: React.FC = () => {
         </Form.Item>
         <Form.Item
           name="password"
-          rules={[{ required: true, message: "Please input your password!" }]}
+          rules={[
+            { required: true, message: "Please input your password!" },
+            { min: 8, message: "Password must be at least 8 characters long" },
+          ]}
         >
           <Input.Password
             placeholder="Password"

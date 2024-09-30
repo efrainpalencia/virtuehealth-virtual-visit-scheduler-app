@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { Form, Input, Button, Typography } from "antd";
-import { spaceChildren } from "antd/es/button";
-import { AlignLeftOutlined } from "@ant-design/icons";
+import AuthService from "../../services/AuthService";
 
 const { Title } = Typography;
 
@@ -14,13 +12,9 @@ const DoctorLogin: React.FC = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post("/api/login/login/", {
-        username,
-        password,
-      });
-      if (response.data.user_type === "doctor") {
-        localStorage.setItem("access_token", response.data.access);
-        localStorage.setItem("refresh_token", response.data.refresh);
+      const response = await AuthService.login(username, password);
+      if (response.user_type.includes("Doctors")) {
+        localStorage.setItem("userGroups", JSON.stringify(response.user_type));
         navigate("/doctor_dashboard");
       } else {
         alert("You are not authorized to access this page.");

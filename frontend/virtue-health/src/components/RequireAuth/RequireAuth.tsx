@@ -3,18 +3,18 @@ import { Navigate, useLocation } from "react-router-dom";
 
 interface RequireAuthProps {
   children: JSX.Element;
-  userType: string;
-  requiredUserType: string;
+  userGroups: string[];
+  requiredGroup: string;
 }
 
 const RequireAuth: React.FC<RequireAuthProps> = ({
   children,
-  userType,
-  requiredUserType,
+  userGroups,
+  requiredGroup,
 }) => {
   const location = useLocation();
 
-  if (userType !== requiredUserType) {
+  if (!userGroups.includes(requiredGroup)) {
     // Redirect them to the login page
     return <Navigate to="/" state={{ from: location }} replace />;
   }

@@ -1,13 +1,20 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from .models import Doctor, Patient
+
+User = get_user_model()
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    user_type = serializers.CharField(write_only=True)
+    one_time_code = serializers.CharField(write_only=True, required=False)
+
     class Meta:
         model = User
-        fields = ['username', 'password', 'email', 'first_name', 'last_name']
+        fields = ('username', 'password', 'email',
+                  'user_type', 'one_time_code')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -15,8 +22,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             password=validated_data['password'],
             email=validated_data['email'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name']
         )
         return user
 
@@ -65,3 +70,12 @@ class CustomLoginSerializer(serializers.Serializer):
         elif user.groups.filter(name='Patients').exists():
             return 'patient'
         return 'unknown'
+
+    class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+        @classmethod
+        def get_token(cls, user):
+            token = super().get_token(user)
+            # Add custom claims
+            token['user_type'] = [group.name for group in user.groups.all()]
+            return token
