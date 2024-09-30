@@ -21,14 +21,14 @@ class User(AbstractUser):
         verbose_name='user permissions',
     )
 
+    USER_TYPE_CHOICES = (
+        ('doctor', 'Doctor'),
+        ('patient', 'Patient'),
+    )
+    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        if hasattr(self, 'doctor'):
-            group, created = Group.objects.get_or_create(name='Doctors')
-            self.groups.add(group)
-        elif hasattr(self, 'patient'):
-            group, created = Group.objects.get_or_create(name='Patients')
-            self.groups.add(group)
 
 
 User = get_user_model()

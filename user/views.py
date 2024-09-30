@@ -1,11 +1,12 @@
 import os
+from django.shortcuts import redirect
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User, Group
+from .models import User
 from .serializers import RegisterSerializer, CustomLoginSerializer
 from django.core.mail import send_mail
 from dotenv import load_dotenv
@@ -41,29 +42,31 @@ class RegisterViewSet(viewsets.ModelViewSet):
             if one_time_code != valid_one_time_code:
                 user.delete()
                 return Response({"error": "Invalid one-time code"}, status=400)
-            group, created = Group.objects.get_or_create(name='Doctors')
-            user.groups.add(group)
-        elif user_type == 'patient':
-            group, created = Group.objects.get_or_create(name='Patients')
-            user.groups.add(group)
         return Response({"user": serializer.data})
 
 
-class LoginViewSet(TokenObtainPairView):
-    serializer_class = TokenObtainPairSerializer
-
+class LoginViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
     def login(self, request):
         serializer = CustomLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        user_type = serializer.get_user_type(user)
-        token = TokenObtainPairSerializer.get_token(user)
-        return Response({
-            'refresh': str(token),
-            'access': str(token.access_token),
+        user_data = serializer.validated_data
+        user = user_data['user']
+        user_type = user_data['user_type']
+
+        refresh = RefreshToken.for_user(user)
+        response_data = {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
             'user_type': user_type
-        })
+        }
+
+        if user_type == 'doctor':
+            return redirect('doctor_dashboard')
+        elif user_type == 'patient':
+            return redirect('patient_dashboard')
+
+        return Response(response_data)
 
 
 class PasswordResetViewSet(viewsets.ViewSet):
@@ -110,5 +113,5 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
         # Add custom claims
-        token['user_type'] = [group.name for group in user.groups.all()]
+        token['user_type'] = user.user_type
         return token

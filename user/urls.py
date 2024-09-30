@@ -8,6 +8,7 @@ router.register(r'auth', AuthViewSet, basename='auth')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('login/', LoginViewSet.as_view(), name='login'),
+    path('api/login/',
+         LoginViewSet.as_view({'post': 'login'}), name='custom_login'),
     path('refresh/', RefreshViewSet.as_view(), name='refresh'),
 ]

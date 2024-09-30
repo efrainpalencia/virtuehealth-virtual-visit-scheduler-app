@@ -9,12 +9,10 @@ User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
     user_type = serializers.CharField(write_only=True)
-    one_time_code = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = User
-        fields = ('username', 'password', 'email',
-                  'user_type', 'one_time_code')
+        fields = ('username', 'password', 'email', 'user_type')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -22,6 +20,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             password=validated_data['password'],
             email=validated_data['email'],
+            user_type=validated_data['user_type']
         )
         return user
 
@@ -29,7 +28,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['id', 'username', 'email',
+                  'first_name', 'last_name', 'user_type']
 
 
 class PatientSerializer(serializers.ModelSerializer):
@@ -64,18 +64,17 @@ class CustomLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid credentials")
         return data
 
-    def get_user_type(self, user):
-        if user.groups.filter(name='Doctors').exists():
-            return 'doctor'
-        elif user.groups.filter(name='Patients').exists():
-            return 'patient'
-        return 'unknown'
+    def create(self, validated_data):
+        user = validated_data['user']
+        return {
+            'user': user,
+            'user_type': user.user_type
+        }
 
     class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-
         @classmethod
         def get_token(cls, user):
             token = super().get_token(user)
             # Add custom claims
-            token['user_type'] = [group.name for group in user.groups.all()]
+            token['user_type'] = user.user_type
             return token
