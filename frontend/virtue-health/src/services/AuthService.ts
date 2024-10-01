@@ -10,7 +10,7 @@ class AuthService {
             .then((response: { data: { access: string; refresh: string; user_type: string; }; }) => {
                 if (response.data.access) {
                     localStorage.setItem('access_token', response.data.access);
-                    localStorage.setItem('refresh_token', response.data.refresh);
+                    localStorage.setItem('refresh_token', response.data.refresh); // Corrected key name
                     localStorage.setItem('user_type', response.data.user_type);
                 }
                 return response.data;

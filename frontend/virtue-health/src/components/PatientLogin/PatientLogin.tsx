@@ -10,7 +10,7 @@ const PatientLogin: React.FC = () => {
   const [password, setPassword] = useState<string>("");
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleLogin = async (username: string, password: string) => {
     try {
       const response = await AuthService.login(username, password);
       if (response.user_type === "patient") {

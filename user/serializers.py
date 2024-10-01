@@ -1,28 +1,11 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.contrib.auth import authenticate
+from rest_framework_simplejwt.settings import api_settings
+from django.contrib.auth.models import update_last_login
+from django.core.exceptions import ObjectDoesNotExist
+
 from .models import User
 from .models import Doctor, Patient
-
-
-class RegisterSerializer(serializers.ModelSerializer):
-    user_type = serializers.CharField(write_only=True)
-
-    class Meta:
-        model = User
-        fields = ('username', 'password', 'email', 'user_type')
-        extra_kwargs = {'password': {'write_only': True}}
-
-    def create(self, validated_data):
-        user_type = validated_data.pop('user_type', 'Patient')
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            password=validated_data['password'],
-            email=validated_data['email']
-        )
-        user.user_type = user_type
-        user.save()
-        return user
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -50,36 +33,45 @@ class DoctorSerializer(serializers.ModelSerializer):
                   'fax_number', 'languages', 'insurance_provider', 'schedule']
 
 
-class CustomLoginSerializer(serializers.Serializer):
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        max_length=128, min_length=8, write_only=True, required=True)
+    email = serializers.EmailField(
+        required=True, write_only=True, max_length=128)
+    user_type = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'password', 'email', 'user_type')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user_type = validated_data.pop('user_type')
+        try:
+            user = User.objects.get(email=validated_data['email'])
+            user.user_type = user_type
+            user.save()
+        except ObjectDoesNotExist:
+            user = User.objects.create_user(**validated_data)
+        return user
+
+
+class LoginSerializer(TokenObtainPairSerializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
     user_type = serializers.CharField(read_only=True)
 
-    def validate(self, data):
-        username = data.get('username')
-        password = str(data.get('password'))  # Ensure password is a string
+    def validate(self, attrs):
+        data = super().validate(attrs)
 
-        if username and password:
-            user = authenticate(username=username, password=password)
-            if user:
-                if not user.is_active:
-                    raise serializers.ValidationError("User is deactivated.")
-                data['user'] = user
-                data['user_type'] = user.user_type
-            else:
-                raise serializers.ValidationError(
-                    "Unable to log in with provided credentials.")
-        else:
-            raise serializers.ValidationError(
-                "Must include 'username' and 'password'.")
+        refresh = self.get_token(self.user)
+
+        data['user'] = UserSerializer(self.user).data
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
+        data['user_type'] = self.user.user_type
+
+        if api_settings.UPDATE_LAST_LOGIN:
+            update_last_login(None, self.user)
 
         return data
-
-
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        # Add custom claims
-        token['user_type'] = user.user_type
-        return token
