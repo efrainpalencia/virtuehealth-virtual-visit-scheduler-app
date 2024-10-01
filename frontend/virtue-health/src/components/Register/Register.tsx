@@ -15,16 +15,26 @@ const Register: React.FC = () => {
 
   const handleRegister = async () => {
     try {
-      await axios.post("/api/auth/register/", {
+      const payload = {
         username,
         password,
         email,
         user_type: userType,
-        one_time_code: oneTimeCode,
-      });
+      };
+
+      if (userType === "doctor") {
+        payload.one_time_code = oneTimeCode;
+      }
+
+      console.log("Request Payload:", payload);
+      await axios.post("http://localhost:8000/api/auth/register/", payload);
       alert("Registration successful! Please log in.");
       navigate("/patient_login");
     } catch (error) {
+      console.error(
+        "Registration error:",
+        error.response ? error.response.data : error.message
+      );
       alert("Registration failed. Please try again.");
     }
   };

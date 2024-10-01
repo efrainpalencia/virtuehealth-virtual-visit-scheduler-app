@@ -1,4 +1,5 @@
 import os
+from django_ratelimit.decorators import ratelimit
 from django.shortcuts import redirect
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
@@ -7,7 +8,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
-from .serializers import RegisterSerializer, CustomLoginSerializer
+from .serializers import RegisterSerializer, CustomLoginSerializer, CustomTokenObtainPairSerializer
 from django.core.mail import send_mail
 from dotenv import load_dotenv
 load_dotenv()
@@ -19,6 +20,7 @@ class RegisterViewSet(viewsets.ModelViewSet):
     serializer_class = RegisterSerializer
 
     @action(detail=False, methods=['post'])
+    @ratelimit(key='ip', rate='5/m', method='POST', block=True)
     def register(self, request):
         username = request.data.get('username')
         if not username.isalnum() and not all(char in '@./+/-/_' for char in username):
@@ -90,6 +92,7 @@ class PasswordResetViewSet(viewsets.ViewSet):
         return Response({"error": "User not found"}, status=404)
 
 
+@ratelimit(key='ip', rate='5/m', method='POST', block=True)
 class RefreshViewSet(TokenRefreshView):
     pass
 
@@ -109,9 +112,4 @@ class AuthViewSet(viewsets.ViewSet):
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        # Add custom claims
-        token['user_type'] = user.user_type
-        return token
+    serializer_class = CustomTokenObtainPairSerializer

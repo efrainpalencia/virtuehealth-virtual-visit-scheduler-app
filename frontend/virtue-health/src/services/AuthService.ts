@@ -1,35 +1,41 @@
-import axios from 'axios';
-
-const API_URL = '/api/auth/';
+import axiosInstance from '../config/axiosConfig';
 
 class AuthService {
     login(username: string, password: string) {
-        return axios
-            .post(API_URL + 'login/', {
+        return axiosInstance
+            .post('login/', {
                 username,
                 password,
             })
-            .then(response => {
+            .then((response: { data: { access: string; refresh: string; user_type: string; }; }) => {
                 if (response.data.access) {
                     localStorage.setItem('access_token', response.data.access);
                     localStorage.setItem('refresh_token', response.data.refresh);
                     localStorage.setItem('user_type', response.data.user_type);
                 }
                 return response.data;
+            })
+            .catch(error => {
+                console.error("Login error:", error.response ? error.response.data : error.message);
+                throw error;
             });
     }
 
     logout() {
         const refreshToken = localStorage.getItem('refresh_token');
-        return axios
-            .post(API_URL + 'logout/', {
+        return axiosInstance
+            .post('logout/', {
                 refresh_token: refreshToken,
             })
-            .then(response => {
+            .then((response: { data: unknown; }) => {
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('refresh_token');
                 localStorage.removeItem('user_type');
                 return response.data;
+            })
+            .catch(error => {
+                console.error("Logout error:", error.response ? error.response.data : error.message);
+                throw error;
             });
     }
 

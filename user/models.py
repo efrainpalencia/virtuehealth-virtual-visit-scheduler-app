@@ -1,6 +1,5 @@
 from django.core.validators import RegexValidator
 from django.contrib.postgres.fields import ArrayField
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 
@@ -25,13 +24,11 @@ class User(AbstractUser):
         ('doctor', 'Doctor'),
         ('patient', 'Patient'),
     )
-    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
+    user_type = models.CharField(
+        max_length=10, choices=USER_TYPE_CHOICES, default="Patient", editable=False)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-
-
-User = get_user_model()
 
 
 class Patient(models.Model):
