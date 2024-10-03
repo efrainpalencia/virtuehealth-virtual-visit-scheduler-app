@@ -1,77 +1,77 @@
-from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.settings import api_settings
-from django.contrib.auth.models import update_last_login
-from django.core.exceptions import ObjectDoesNotExist
+# from rest_framework import serializers
+# from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+# from rest_framework_simplejwt.settings import api_settings
+# from django.contrib.auth.models import update_last_login
+# from django.core.exceptions import ObjectDoesNotExist
 
-from .models import User
-from .models import Doctor, Patient
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email',
-                  'first_name', 'last_name', 'user_type']
+# from .models import User
+# from .models import Doctor, Patient
 
 
-class PatientSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-
-    class Meta:
-        model = Patient
-        fields = ['id', 'user', 'date_of_birth', 'ethnicity',
-                  'location', 'address', 'phone_number', 'medical_record']
+# class UserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ['id', 'username', 'email',
+#                   'first_name', 'last_name', 'user_type']
 
 
-class DoctorSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+# class PatientSerializer(serializers.ModelSerializer):
+#     user = UserSerializer()
 
-    class Meta:
-        model = Doctor
-        fields = ['id', 'user', 'specialty', 'phone_number',
-                  'fax_number', 'languages', 'insurance_provider', 'schedule']
-
-
-class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(
-        max_length=128, min_length=8, write_only=True, required=True)
-    email = serializers.EmailField(
-        required=True, write_only=True, max_length=128)
-    user_type = serializers.CharField(write_only=True)
-
-    class Meta:
-        model = User
-        fields = ('username', 'password', 'email', 'user_type')
-        extra_kwargs = {'password': {'write_only': True}}
-
-    def create(self, validated_data):
-        user_type = validated_data.pop('user_type')
-        try:
-            user = User.objects.get(email=validated_data['email'])
-            user.user_type = user_type
-            user.save()
-        except ObjectDoesNotExist:
-            user = User.objects.create_user(**validated_data)
-        return user
+#     class Meta:
+#         model = Patient
+#         fields = ['id', 'user', 'date_of_birth', 'ethnicity',
+#                   'location', 'address', 'phone_number', 'medical_record']
 
 
-class LoginSerializer(TokenObtainPairSerializer):
-    username = serializers.CharField()
-    password = serializers.CharField(write_only=True)
-    user_type = serializers.CharField(read_only=True)
+# class DoctorSerializer(serializers.ModelSerializer):
+#     user = UserSerializer()
 
-    def validate(self, attrs):
-        data = super().validate(attrs)
+#     class Meta:
+#         model = Doctor
+#         fields = ['id', 'user', 'specialty', 'phone_number',
+#                   'fax_number', 'languages', 'insurance_provider', 'schedule']
 
-        refresh = self.get_token(self.user)
 
-        data['user'] = UserSerializer(self.user).data
-        data['refresh'] = str(refresh)
-        data['access'] = str(refresh.access_token)
-        data['user_type'] = self.user.user_type
+# class RegisterSerializer(serializers.ModelSerializer):
+#     password = serializers.CharField(
+#         max_length=128, min_length=8, write_only=True, required=True)
+#     email = serializers.EmailField(
+#         required=True, write_only=True, max_length=128)
+#     user_type = serializers.CharField(write_only=True)
 
-        if api_settings.UPDATE_LAST_LOGIN:
-            update_last_login(None, self.user)
+#     class Meta:
+#         model = User
+#         fields = ('username', 'password', 'email', 'user_type')
+#         extra_kwargs = {'password': {'write_only': True}}
 
-        return data
+#     def create(self, validated_data):
+#         user_type = validated_data.pop('user_type')
+#         try:
+#             user = User.objects.get(email=validated_data['email'])
+#             user.user_type = user_type
+#             user.save()
+#         except ObjectDoesNotExist:
+#             user = User.objects.create_user(**validated_data)
+#         return user
+
+
+# class LoginSerializer(TokenObtainPairSerializer):
+#     username = serializers.CharField()
+#     password = serializers.CharField(write_only=True)
+#     user_type = serializers.CharField(read_only=True)
+
+#     def validate(self, attrs):
+#         data = super().validate(attrs)
+
+#         refresh = self.get_token(self.user)
+
+#         data['user'] = UserSerializer(self.user).data
+#         data['refresh'] = str(refresh)
+#         data['access'] = str(refresh.access_token)
+#         data['user_type'] = self.user.user_type
+
+#         if api_settings.UPDATE_LAST_LOGIN:
+#             update_last_login(None, self.user)
+
+#         return data
