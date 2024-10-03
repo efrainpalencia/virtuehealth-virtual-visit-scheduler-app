@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from user.models import User
+from user.models import User, PatientProfile, DoctorProfile, Patient, Doctor
 
 
 class CustomUserAdmin(BaseUserAdmin):
@@ -55,5 +55,5 @@ class CustomUserAdmin(BaseUserAdmin):
 
 
 admin.site.register(User, CustomUserAdmin)
-# admin.site.register(Patient)
-# admin.site.register(Doctor)
+# admin.site.register(Patient, PatientProfile)
+# admin.site.register(Doctor, DoctorProfile)

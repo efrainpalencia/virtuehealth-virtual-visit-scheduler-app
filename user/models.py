@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.core.validators import RegexValidator
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import AbstractUser, BaseUserManager
@@ -80,7 +81,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = [
         "first_name",
         "last_name",
-        "date_of_birth",
+        "date_of_birth"
     ]
 
     class Role(models.TextChoices):
@@ -109,9 +110,26 @@ class DoctorManager(UserManager):
         return results.filter(role=User.Role.DOCTOR)
 
 
-class DoctorProfile(User, DoctorManager):
+class Doctor(User):
+    base_role = User.Role.DOCTOR
+    is_superuser = False
+
+    doctor = DoctorManager()
+
+    class Meta:
+        proxy = True
+
+
+@receiver(post_save, sender=Doctor)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created and instance.role == "DOCTOR":
+        DoctorProfile.objects.create(user=instance)
+
+
+class DoctorProfile(models.Model):
     user = models.OneToOneField(
-        User, on_delete=models.CASCADE, related_name='doctor')
+        User, on_delete=models.CASCADE, related_name='doctor_profile')
+    doctor_id = models.IntegerField(null=True, blank=True)
     specialty = models.CharField(max_length=100, null=True, blank=True)
     phone_number = models.CharField(max_length=15, validators=[RegexValidator(
         regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '9999999999'. Up to 15 digits allowed.")], null=True, blank=True)
@@ -119,26 +137,47 @@ class DoctorProfile(User, DoctorManager):
         regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '9999999999'. Up to 15 digits allowed.")], null=True, blank=True)
     languages = models.TextField(null=True, blank=True)
     insurance_provider = models.TextField(null=True, blank=True)
-    schedule = ArrayField(models.DateTimeField(), blank=True, null=True)
-    is_superuser = False
-    base_role = User.Role.DOCTOR
-
-    doctor = DoctorManager()
+    schedule = ArrayField(models.DateTimeField(),
+                          default=datetime.now)
 
     def __str__(self):
         return self.user.email
 
-# class Patient(models.Model):
-#     user = models.OneToOneField(
-#         User, on_delete=models.CASCADE, related_name='patient')
-#     date_of_birth = models.DateField(null=True, blank=True)
-#     ethnicity = models.TextField(null=True, blank=True)
-#     location = models.TextField(null=True, blank=True)
-#     address = models.TextField(null=True, blank=True)
-#     phone_number = models.CharField(max_length=15, validators=[RegexValidator(
-#         regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")], null=True, blank=True)
-#     medical_record = models.OneToOneField(
-#         'doctor_dashboard.MedicalRecord', on_delete=models.CASCADE, null=True, blank=True, related_name='patient_medical_record')
 
-#     def __str__(self):
-#         return self.user.email
+class PatientManager(UserManager):
+    def get_queryset(self, *args, **kwargs):
+        results = super().get_queryset(*args, **kwargs)
+        return results.filter(role=User.Role.PATIENT)
+
+
+class Patient(User):
+    base_role = User.Role.PATIENT
+    is_superuser = False
+    is_staff = False
+
+    patient = PatientManager()
+
+    class Meta:
+        proxy = True
+
+
+@receiver(post_save, sender=Patient)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created and instance.role == "PATIENT":
+        PatientProfile.objects.create(user=instance)
+
+
+class PatientProfile(models.Model):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name='patient_profile')
+    patient_id = models.IntegerField(null=True, blank=True)
+    ethnicity = models.TextField(null=True, blank=True)
+    location = models.TextField(null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    phone_number = models.CharField(max_length=15, validators=[RegexValidator(
+        regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '9999999999'. Up to 15 digits allowed.")], null=True, blank=True)
+    medical_record = models.OneToOneField(
+        'medical_records.MedicalRecord', on_delete=models.CASCADE, null=True, blank=True, related_name='patient_medical_record')
+
+    def __str__(self):
+        return self.user.email
