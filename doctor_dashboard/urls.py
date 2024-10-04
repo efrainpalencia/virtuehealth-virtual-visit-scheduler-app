@@ -1,9 +1,7 @@
 from django.urls import path
-from medical_records.views import MedicalRecordViewSet
-from patient_portal.views import DoctorViewSet
+from doctor_dashboard.views import PatientViewSet
+
 
 urlpatterns = [
-    path('', DoctorViewSet.as_view(), name='doctor-list'),
-    path('patient-records/', MedicalRecordViewSet.as_view(),
-         name='medical-record-list'),
+    path('list/', PatientViewSet.as_view(), name='patient-list'),
 ]

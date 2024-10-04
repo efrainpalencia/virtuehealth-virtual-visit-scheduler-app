@@ -27,8 +27,8 @@ from doctor_dashboard.views import PatientViewSet
 
 
 router = DefaultRouter()
-router.register(r'patients', PatientViewSet)
-router.register(r'doctors', DoctorViewSet)
+router.register(r'patients', DoctorViewSet)
+router.register(r'doctors', PatientViewSet,)
 # router.register(r'medical-records', MedicalRecordViewSet)
 # router.register(r'appointments', AppointmentViewset)
 # router.register(r'lab-tests', LabTestViewSet)
@@ -39,5 +39,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('user.urls')),
     path('api/', include(router.urls)),
-
 ]

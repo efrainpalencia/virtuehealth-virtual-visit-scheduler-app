@@ -131,13 +131,14 @@ class CustomPatientAdmin(BaseUserAdmin):
             "last_name",
             "email",
             "password",
-            "date_of_birth")}
+            "date_of_birth",
+            "role")}
          ),
         ("Permissions", {"fields": (
             "is_staff",
             "is_active",
             "groups",
-            "user_permissions")}
+            "user_permissions",)}
          ),
     )
     add_fieldsets = (
@@ -152,7 +153,7 @@ class CustomPatientAdmin(BaseUserAdmin):
             "is_staff",
             "is_active",
             "groups",
-            "user_permissions")}
+            "user_permissions",)}
          ),
     )
     search_fields = ("email",)
