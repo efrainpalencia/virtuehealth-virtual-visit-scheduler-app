@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.settings import api_settings
@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email',
-                  'first_name', 'last_name', 'date_of_birth', 'role']
+                  'first_name', 'last_name', 'date_of_birth']
 
 
 class PatientSerializer(serializers.ModelSerializer):
@@ -40,13 +40,11 @@ class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         max_length=128, min_length=8, write_only=True, required=True)
     date_of_birth = serializers.DateField(
-        default=datetime.now())
-    role = serializers.ChoiceField(
-        allow_blank=False, choices=['DOCTOR', 'PATIENT'])
+        default=timezone)
 
     class Meta:
         model = User
-        fields = ('email', 'password', 'date_of_birth', 'role')
+        fields = ('email', 'password', 'date_of_birth')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -56,6 +54,29 @@ class RegisterSerializer(serializers.ModelSerializer):
             user.save()
         except ObjectDoesNotExist:
             user = User.objects.create_user(**validated_data)
+        return user
+
+
+class DoctorRegisterSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        required=True, write_only=True, max_length=128)
+    password = serializers.CharField(
+        max_length=128, min_length=8, write_only=True, required=True)
+    date_of_birth = serializers.DateField(
+        default=None)
+
+    class Meta:
+        model = Doctor
+        fields = ('email', 'password', 'date_of_birth')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        try:
+            user = Doctor.doctor.get(email=validated_data['email'])
+            user.role = Doctor.role
+            user.save()
+        except ObjectDoesNotExist:
+            user = Doctor.objects.create_user(**validated_data)
         return user
 
 

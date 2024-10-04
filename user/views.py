@@ -1,6 +1,6 @@
 from VirtueHealthCore.validators import validate_email
-from .serializers import RegisterSerializer, LoginSerializer
-from .models import User
+from .serializers import DoctorRegisterSerializer, RegisterSerializer, LoginSerializer
+from .models import User, Doctor
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -15,10 +15,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-class RegisterViewSet(viewsets.ModelViewSet, TokenObtainPairView):
-    queryset = User.objects.all()
+class DoctorRegisterViewSet(viewsets.ModelViewSet, TokenObtainPairView):
+    queryset = Doctor.doctor.all()
     permission_classes = [permissions.AllowAny]
-    serializer_class = RegisterSerializer
+    serializer_class = DoctorRegisterSerializer
 
     @action(detail=False, methods=['post'])
     def register(self, request, *args, **kwargs):
@@ -35,15 +35,6 @@ class RegisterViewSet(viewsets.ModelViewSet, TokenObtainPairView):
             return Response(serializer.errors, status=400)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        role = request.data.get('role')
-
-        if role == 'doctor':
-            one_time_code = request.data.get('one_time_code')
-            # Hardcoded one-time code for development
-            valid_one_time_code = "1234567890"
-            if one_time_code != valid_one_time_code:
-                user.delete()
-                return Response({"error": "Invalid one-time code"}, status=400)
 
         serializer.is_valid(raise_exception=True)
         user = serializer.save()

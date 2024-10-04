@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from user.models import User, PatientProfile, DoctorProfile, Patient, Doctor
+from user.models import User, Patient, Doctor
 
 
 class CustomUserAdmin(BaseUserAdmin):
@@ -11,7 +11,6 @@ class CustomUserAdmin(BaseUserAdmin):
         "last_name",
         "date_of_birth",
         "role",
-        "is_staff",
         "is_active",
     )
     list_filter = (
@@ -45,11 +44,115 @@ class CustomUserAdmin(BaseUserAdmin):
             "password1",
             "password2",
             "date_of_birth",
+            "role",
             "is_staff",
             "is_active",
             "groups",
-            "user_permissions",
-            "role")}
+            "user_permissions")}
+         ),
+    )
+    search_fields = ("email",)
+    ordering = ("email",)
+
+
+class CustomDoctorAdmin(BaseUserAdmin):
+    model = Doctor
+    list_display = (
+        "email",
+        "first_name",
+        "last_name",
+        "date_of_birth",
+        "role",
+        "is_active",
+    )
+    list_filter = (
+        "email",
+        "first_name",
+        "last_name",
+        "date_of_birth",
+        "is_staff",
+        "is_active",
+    )
+    fieldsets = (
+        (None, {"fields": (
+            "first_name",
+            "last_name",
+            "email",
+            "password",
+            "date_of_birth")}
+         ),
+        ("Permissions", {"fields": (
+            "is_staff",
+            "is_active",
+            "groups",
+            "user_permissions")}
+         ),
+    )
+    add_fieldsets = (
+        (None, {"fields": (
+            "first_name",
+            "last_name",
+            "email",
+            "password1",
+            "password2",
+            "date_of_birth",
+            "role",
+            "is_staff",
+            "is_active",
+            "groups",
+            "user_permissions")}
+         ),
+    )
+    search_fields = ("email",)
+    ordering = ("email",)
+
+
+class CustomPatientAdmin(BaseUserAdmin):
+    model = Patient
+    list_display = (
+        "email",
+        "first_name",
+        "last_name",
+        "date_of_birth",
+        "role",
+        "is_active",
+    )
+    list_filter = (
+        "email",
+        "first_name",
+        "last_name",
+        "date_of_birth",
+        "is_staff",
+        "is_active",
+    )
+    fieldsets = (
+        (None, {"fields": (
+            "first_name",
+            "last_name",
+            "email",
+            "password",
+            "date_of_birth")}
+         ),
+        ("Permissions", {"fields": (
+            "is_staff",
+            "is_active",
+            "groups",
+            "user_permissions")}
+         ),
+    )
+    add_fieldsets = (
+        (None, {"fields": (
+            "first_name",
+            "last_name",
+            "email",
+            "password1",
+            "password2",
+            "date_of_birth",
+            "role",
+            "is_staff",
+            "is_active",
+            "groups",
+            "user_permissions")}
          ),
     )
     search_fields = ("email",)
@@ -57,5 +160,5 @@ class CustomUserAdmin(BaseUserAdmin):
 
 
 admin.site.register(User, CustomUserAdmin)
-# admin.site.register(Patient, PatientProfile)
-# admin.site.register(Doctor, DoctorProfile)
+admin.site.register(Patient, CustomPatientAdmin)
+admin.site.register(Doctor, CustomDoctorAdmin)

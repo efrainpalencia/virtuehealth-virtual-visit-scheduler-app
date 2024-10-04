@@ -73,7 +73,7 @@ class User(AbstractUser):
     username = None
     email = models.EmailField(_("email address"), unique=True)
     date_of_birth = models.DateField(
-        verbose_name="Birthday",
+        verbose_name="Date of Birth",
         null=True
     )
 
@@ -89,7 +89,7 @@ class User(AbstractUser):
         DOCTOR = "DOCTOR", 'doctor'
         PATIENT = "PATIENT", 'patient'
 
-    base_role = Role.ADMIN
+    base_role = Role.PATIENT
 
     role = models.CharField(max_length=50, choices=Role.choices)
 
@@ -112,7 +112,6 @@ class DoctorManager(UserManager):
 
 class Doctor(User):
     base_role = User.Role.DOCTOR
-    is_superuser = False
 
     doctor = DoctorManager()
 
@@ -152,8 +151,6 @@ class PatientManager(UserManager):
 
 class Patient(User):
     base_role = User.Role.PATIENT
-    is_superuser = False
-    is_staff = False
 
     patient = PatientManager()
 
