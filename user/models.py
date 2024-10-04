@@ -137,7 +137,7 @@ class DoctorProfile(models.Model):
     languages = models.TextField(null=True, blank=True)
     insurance_provider = models.TextField(null=True, blank=True)
     schedule = ArrayField(models.DateTimeField(),
-                          default=None, null=True, blank=True)
+                          default=datetime)
 
     def __str__(self):
         return self.user.email
