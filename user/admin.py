@@ -10,6 +10,7 @@ class CustomUserAdmin(BaseUserAdmin):
         "first_name",
         "last_name",
         "date_of_birth",
+        "role",
         "is_staff",
         "is_active",
     )
@@ -47,7 +48,8 @@ class CustomUserAdmin(BaseUserAdmin):
             "is_staff",
             "is_active",
             "groups",
-            "user_permissions")}
+            "user_permissions",
+            "role")}
          ),
     )
     search_fields = ("email",)

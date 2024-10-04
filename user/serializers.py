@@ -1,3 +1,4 @@
+from datetime import datetime
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.settings import api_settings
@@ -12,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email',
-                  'first_name', 'last_name', 'role']
+                  'first_name', 'last_name', 'date_of_birth', 'role']
 
 
 class PatientSerializer(serializers.ModelSerializer):
@@ -20,7 +21,7 @@ class PatientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Patient
-        fields = ['id', 'user', 'date_of_birth', 'ethnicity',
+        fields = ['id', 'user', 'ethnicity',
                   'location', 'address', 'phone_number', 'medical_record']
 
 
@@ -34,22 +35,24 @@ class DoctorSerializer(serializers.ModelSerializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(
-        max_length=128, min_length=8, write_only=True, required=True)
     email = serializers.EmailField(
         required=True, write_only=True, max_length=128)
-    role = serializers.CharField(write_only=True)
+    password = serializers.CharField(
+        max_length=128, min_length=8, write_only=True, required=True)
+    date_of_birth = serializers.DateField(
+        default=datetime.now())
+    role = serializers.ChoiceField(
+        allow_blank=False, choices=['DOCTOR', 'PATIENT'])
 
     class Meta:
         model = User
-        fields = ('username', 'password', 'email', 'role')
+        fields = ('email', 'password', 'date_of_birth', 'role')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        user_type = validated_data.pop('role')
         try:
             user = User.objects.get(email=validated_data['email'])
-            user.role = role
+            user.role = User.role
             user.save()
         except ObjectDoesNotExist:
             user = User.objects.create_user(**validated_data)
