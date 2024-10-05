@@ -1,12 +1,12 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import { Layout, Menu } from "antd";
-import DoctorLogin from "./components/DoctorLogin/DoctorLogin";
-import PatientLogin from "./components/PatientLogin/PatientLogin";
+import Login from "./components/Login/Login";
 import PatientPortal from "./components/PatientPortal/PatientPortal";
 import DoctorDashboard from "./components/DoctorDashboard/DoctorDashboard";
 import RequireAuth from "./components/RequireAuth/RequireAuth";
-import Register from "./components/Register/Register";
+import DoctorRegistration from "./components/DoctorRegistration/DoctorRegistration";
+import PatientRegistration from "./components/PatientRegistration/PatientRegistration";
 import PasswordReset from "./components/PasswordReset/PasswordReset";
 import "antd/dist/reset.css";
 
@@ -33,9 +33,12 @@ const App: React.FC = () => {
         <Content style={{ padding: "0 50px" }}>
           <div className="site-layout-content">
             <Routes>
-              <Route path="/doctor_login" element={<DoctorLogin />} />
-              <Route path="/patient_login" element={<PatientLogin />} />
-              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register_doctor" element={<DoctorRegistration />} />
+              <Route
+                path="/register_patient"
+                element={<PatientRegistration />}
+              />
               <Route path="/password_reset" element={<PasswordReset />} />
               <Route
                 path="/patient_portal"

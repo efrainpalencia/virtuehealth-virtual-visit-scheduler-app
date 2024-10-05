@@ -1,8 +1,9 @@
-from rest_framework import viewsets, permissions
+from rest_framework import generics, viewsets, permissions
+from rest_framework.decorators import action
 from user.permissions import IsDoctor, IsPatient
 from medical_records.serializers import MedicalRecordSerializer
-from user.models import Patient, PatientProfile
-from user.serializers import PatientSerializer, PatientProfileSerializer
+from user.models import Patient, PatientProfile, User
+from user.serializers import PatientSerializer, PatientProfileSerializer, UserSerializer
 
 
 class PatientViewSet(viewsets.ModelViewSet):
@@ -11,7 +12,7 @@ class PatientViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]
 
 
-# class PatientProfileViewSet(viewsets.ModelViewSet):
-#     queryset = PatientProfile.objects.all()
-#     serializer_class = PatientProfileSerializer
-#     permission_classes = [permissions.AllowAny]
+class PatientList(generics.ListCreateAPIView):
+    queryset = Patient.patient.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]

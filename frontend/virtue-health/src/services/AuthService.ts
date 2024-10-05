@@ -1,51 +1,42 @@
-import axiosInstance from '../config/axiosConfig';
+import axios from 'axios';
+import jwtDecode from 'jwt-decode';
 
 class AuthService {
-    login(username: string, password: string) {
-        return axiosInstance
-            .post('login/', {
-                username,
-                password,
-            })
-            .then((response: { data: { access: string; refresh: string; user_type: string; }; }) => {
-                if (response.data.access) {
-                    localStorage.setItem('access_token', response.data.access);
-                    localStorage.setItem('refresh_token', response.data.refresh); // Corrected key name
-                    localStorage.setItem('user_type', response.data.user_type);
-                }
-                return response.data;
-            })
-            .catch(error => {
-                console.error("Login error:", error.response ? error.response.data : error.message);
-                throw error;
-            });
+    static async login(email: string, password: string) {
+        const response = await axios.post('/api/token/', { email, password });
+        const { access, refresh } = response.data;
+        localStorage.setItem('access_token', access);
+        localStorage.setItem('refresh_token', refresh);
     }
 
-    logout() {
-        const refreshToken = localStorage.getItem('refresh_token');
-        return axiosInstance
-            .post('logout/', {
-                refresh_token: refreshToken,
-            })
-            .then((response: { data: unknown; }) => {
-                localStorage.removeItem('access_token');
-                localStorage.removeItem('refresh_token');
-                localStorage.removeItem('user_type');
-                return response.data;
-            })
-            .catch(error => {
-                console.error("Logout error:", error.response ? error.response.data : error.message);
-                throw error;
-            });
+    static logout() {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
     }
 
-    getCurrentUser() {
+    static getAccessToken() {
         return localStorage.getItem('access_token');
     }
 
-    getUserType() {
-        return localStorage.getItem('user_type');
+    static getRefreshToken() {
+        return localStorage.getItem('refresh_token');
+    }
+
+    static async refreshToken() {
+        const refresh = this.getRefreshToken();
+        const response = await axios.post('/api/token/refresh/', { refresh });
+        localStorage.setItem('access_token', response.data.access);
+        return response.data.access;
+    }
+
+    static async getUserType() {
+        const token = this.getAccessToken();
+        if (token) {
+            const decoded: unknown = jwtDecode(token);  // Ensure jwtDecode is correctly typed
+            return decoded.user_type;  // Or fetch from your API endpoint
+        }
+        throw new Error('No access token found');
     }
 }
 
-export default new AuthService();
+export default AuthService;
