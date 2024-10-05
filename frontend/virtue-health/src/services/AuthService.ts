@@ -1,5 +1,6 @@
 import axios from 'axios';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
+
 
 class AuthService {
     static async login(email: string, password: string) {

@@ -9,6 +9,7 @@ import DoctorRegistration from "./components/DoctorRegistration/DoctorRegistrati
 import PatientRegistration from "./components/PatientRegistration/PatientRegistration";
 import PasswordReset from "./components/PasswordReset/PasswordReset";
 import "antd/dist/reset.css";
+import AppMenu from "./components/AppMenu/AppMenu";
 
 const { Header, Content, Footer } = Layout;
 
@@ -20,20 +21,11 @@ const App: React.FC = () => {
       <Layout className="layout">
         <Header>
           <div className="logo" />
-          <Menu theme="dark" mode="horizontal" defaultSelectedKeys={["1"]}>
-            <Menu.Item key="1">
-              <Link to="/patient_login">Patient Login</Link>
-            </Menu.Item>
-            <Menu.Item key="2">
-              <Link to="/doctor_login">Doctor Login</Link>
-            </Menu.Item>
-            <Menu.Item key="3">Contact</Menu.Item>
-          </Menu>
+          <AppMenu />
         </Header>
         <Content style={{ padding: "0 50px" }}>
           <div className="site-layout-content">
             <Routes>
-              <Route path="/login" element={<Login />} />
               <Route path="/register_doctor" element={<DoctorRegistration />} />
               <Route
                 path="/register_patient"
@@ -56,7 +48,8 @@ const App: React.FC = () => {
                   </RequireAuth>
                 }
               />
-              <Route path="/" element={<PatientLogin />} />
+              <Route path="/" element={<Login />} />
+              <Route path="/login" element={<Login />} />
             </Routes>
           </div>
         </Content>
