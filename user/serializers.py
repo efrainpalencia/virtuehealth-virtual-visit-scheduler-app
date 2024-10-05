@@ -12,41 +12,33 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email',
-                  'first_name', 'last_name', 'date_of_birth']
-
-
-class PatientSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-
-    class Meta:
-        model = Patient
-        fields = ['user', 'email',
                   'first_name', 'last_name', 'date_of_birth', 'role']
 
 
-class PatientProfileSerializer(serializers.ModelSerializer):
-    patient = UserSerializer()
+class PatientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Patient
+        fields = ['email',
+                  'first_name', 'last_name', 'date_of_birth']
 
+
+class PatientProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = PatientProfile
-        fields = ['patient', 'ethnicity',
+        fields = ['ethnicity',
                   'location', 'address', 'phone_number', 'medical_record']
 
 
 class DoctorSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-
     class Meta:
         model = Doctor
-        fields = ['user', 'doctor']
+        fields = ['email', 'first_name', 'last_name', 'date_of_birth']
 
 
 class DoctorProfileSerializer(serializers.ModelSerializer):
-    user = DoctorSerializer()
-
     class Meta:
         model = DoctorProfile
-        fields = ['user', 'specialty', 'phone_number',
+        fields = ['specialty', 'phone_number',
                   'fax_number', 'languages', 'insurance_provider', 'schedule']
 
 

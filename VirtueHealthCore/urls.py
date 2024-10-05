@@ -21,22 +21,19 @@ from rest_framework.routers import DefaultRouter
 
 from patient_portal.views import DoctorViewSet
 from medical_records.views import MedicalRecordViewSet
-from doctor_dashboard.views import PatientViewSet, PatientList
+from doctor_dashboard.views import PatientViewSet
 # from appointments.views import AppointmentViewset
 # from lab_tests.views import LabTestViewSet
 
 
 router = DefaultRouter()
-router.register(r'patients', DoctorViewSet)
-router.register(r'doctors', PatientViewSet, PatientList)
-# router.register(r'medical-records', MedicalRecordViewSet)
-# router.register(r'appointments', AppointmentViewset)
-# router.register(r'lab-tests', LabTestViewSet)
-
 
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
-    path('api/auth/', include('user.urls')),
     path('api/', include(router.urls)),
+    path('api/auth/', include('user.urls')),
+    path('api/doctor_dashboard/', include('doctor_dashboard.urls')),
+    path('api/patient_portal/', include('patient_portal.urls')),
+
 ]

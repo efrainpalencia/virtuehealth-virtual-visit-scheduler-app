@@ -4,7 +4,7 @@ from user.models import Doctor, DoctorProfile
 from user.serializers import DoctorSerializer
 
 
-class DoctorViewSet(viewsets.ModelViewSet):
+class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Doctor.doctor.all()
     serializer_class = DoctorSerializer
     permission_classes = [permissions.AllowAny]
