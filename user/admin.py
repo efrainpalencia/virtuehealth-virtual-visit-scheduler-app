@@ -3,6 +3,36 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from user.models import User, Patient, Doctor
 
 
+# class UserProfileInline(admin.StackedInline):
+#     model = User
+
+
+# class CustomUserAdmin(BaseUserAdmin):
+#     ordering = ['email']
+#     inlines = [UserProfileInline]
+
+
+# class PatientProfileInline(admin.StackedInline):
+#     model = Patient
+
+
+# class CustomPatientAdmin(BaseUserAdmin):
+#     ordering = ['email']
+#     inlines = [PatientProfileInline]
+
+
+# class DoctorProfileInline(admin.StackedInline):
+#     model = Doctor
+
+
+# class CustomDoctorAdmin(BaseUserAdmin):
+#     ordering = ['email']
+#     inlines = [DoctorProfileInline]
+
+
+# admin.site.register(User, CustomUserAdmin)
+
+
 class CustomUserAdmin(BaseUserAdmin):
     model = User
     list_display = (

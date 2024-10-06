@@ -1,6 +1,6 @@
+from django.http import Http404
 from rest_framework import generics, viewsets, permissions, authentication
 from rest_framework.decorators import action
-from user.permissions import IsDoctor, IsPatient
 from medical_records.serializers import MedicalRecordSerializer
 from user.models import Patient, PatientProfile
 from user.serializers import PatientSerializer, PatientProfileSerializer, UserSerializer

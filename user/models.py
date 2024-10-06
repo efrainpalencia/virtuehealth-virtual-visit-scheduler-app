@@ -1,4 +1,4 @@
-from datetime import datetime
+
 from django.core.validators import RegexValidator
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import AbstractUser, BaseUserManager
@@ -6,6 +6,8 @@ from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
+from VirtueHealthCore import settings
 
 
 class UserManager(BaseUserManager):
@@ -104,6 +106,11 @@ class User(AbstractUser):
         return self.email
 
 
+"""
+Add methods and properties for the Doctor model.
+"""
+
+
 class DoctorManager(UserManager):
     def get_queryset(self, *args, **kwargs):
         results = super().get_queryset(*args, **kwargs)
@@ -127,7 +134,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 class DoctorProfile(models.Model):
     user = models.OneToOneField(
-        User, on_delete=models.CASCADE, related_name='doctor_profile')
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='doctor_profile', primary_key=True)
     doctor_id = models.IntegerField(null=True, blank=True)
     specialty = models.CharField(max_length=100, null=True, blank=True)
     phone_number = models.CharField(max_length=15, validators=[RegexValidator(
@@ -137,10 +144,15 @@ class DoctorProfile(models.Model):
     languages = models.TextField(null=True, blank=True)
     insurance_provider = models.TextField(null=True, blank=True)
     schedule = ArrayField(models.DateTimeField(),
-                          default=datetime)
+                          default=list)
 
     def __str__(self):
         return self.user.email
+
+
+"""
+Add methods and properties for the Patient model.
+"""
 
 
 class PatientManager(UserManager):
@@ -166,7 +178,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 class PatientProfile(models.Model):
     user = models.OneToOneField(
-        User, on_delete=models.CASCADE, related_name='patient_profile')
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='patient_profile', primary_key=True)
     patient_id = models.IntegerField(null=True, blank=True)
     ethnicity = models.TextField(null=True, blank=True)
     location = models.TextField(null=True, blank=True)
