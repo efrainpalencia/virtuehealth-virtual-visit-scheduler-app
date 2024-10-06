@@ -12,11 +12,3 @@ class PatientPortalView(viewsets.ReadOnlyModelViewSet):
     authentication_classes = [
         authentication.SessionAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
-
-
-class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Doctor.doctor.all()
-    serializer_class = DoctorSerializer
-    authentication_classes = [
-        authentication.SessionAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]

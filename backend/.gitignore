@@ -1,0 +1,13 @@
+# environment variables
+.venv/
+.env
+
+# complied python files
+__pycache__/
+*.pyc
+
+# database files
+*.postgresql
+*.sqlite3
+*.db
+node_modules

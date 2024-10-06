@@ -13,11 +13,3 @@ class DoctorDashboardView(viewsets.ReadOnlyModelViewSet):
     authentication_classes = [
         authentication.SessionAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
-
-
-class PatientViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Patient.patient.all()
-    serializer_class = PatientSerializer
-    authentication_classes = [
-        authentication.SessionAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
