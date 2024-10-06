@@ -1,7 +1,9 @@
-# from django.urls import path
-# from .views import LabTestViewSet
+from django.urls import path, include
+from .views import LabTestViewSet
+from rest_framework.routers import DefaultRouter
 
+router = DefaultRouter()
 
-# urlpatterns = [
-#     path('', LabTestViewSet.as_view(), name='labtest-list'),
-# ]
+urlpatterns = [
+    path('', include(router.urls)),
+]

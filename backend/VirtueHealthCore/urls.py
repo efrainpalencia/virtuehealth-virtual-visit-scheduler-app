@@ -23,7 +23,7 @@ from patient_portal.views import PatientPortalView
 from medical_records.views import MedicalRecordViewSet
 from doctor_dashboard.views import DoctorDashboardView
 from appointments.views import AppointmentViewset
-# from lab_tests.views import LabTestViewSet
+from lab_tests.views import LabTestViewSet
 
 
 router = DefaultRouter()
@@ -32,6 +32,7 @@ router.register(r'patient_portal', PatientPortalView,
 router.register(r'doctor_dashboard', DoctorDashboardView,
                 basename='doctor')
 router.register(r'appointments', AppointmentViewset, basename='appointment')
+router.register(r'lab_tests', LabTestViewSet, basename='lab-test')
 
 urlpatterns = [
     path('', include(router.urls)),
