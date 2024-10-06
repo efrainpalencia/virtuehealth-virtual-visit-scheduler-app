@@ -19,21 +19,22 @@ from django.urls import path, include
 
 from rest_framework.routers import DefaultRouter
 
-from patient_portal.views import DoctorViewSet
+from patient_portal.views import PatientPortalView
 from medical_records.views import MedicalRecordViewSet
-from doctor_dashboard.views import PatientViewSet
+from doctor_dashboard.views import DoctorDashboardView
 # from appointments.views import AppointmentViewset
 # from lab_tests.views import LabTestViewSet
 
 
 router = DefaultRouter()
+router.register(r'patient_portal', PatientPortalView,
+                basename='patient-home')
+router.register(r'doctor_dashboard', DoctorDashboardView,
+                basename='doctor-home')
 
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
+    path('api/', include(router.urls,)),
     path('api/auth/', include('user.urls')),
-    path('api/doctor_dashboard/', include('doctor_dashboard.urls')),
-    path('api/patient_portal/', include('patient_portal.urls')),
-
 ]

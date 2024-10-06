@@ -106,12 +106,11 @@ class User(AbstractUser):
         return self.email
 
 
-"""
-Add methods and properties for the Doctor model.
-"""
-
-
 class DoctorManager(UserManager):
+    """
+    Define methods and behaviors for the Doctor model here.
+    """
+
     def get_queryset(self, *args, **kwargs):
         results = super().get_queryset(*args, **kwargs)
         return results.filter(role=User.Role.DOCTOR)
@@ -126,6 +125,7 @@ class Doctor(User):
         proxy = True
 
 
+# Pass DoctorProfile instance to Doctor -> User
 @receiver(post_save, sender=Doctor)
 def create_user_profile(sender, instance, created, **kwargs):
     if created and instance.role == "DOCTOR":
@@ -150,12 +150,11 @@ class DoctorProfile(models.Model):
         return self.user.email
 
 
-"""
-Add methods and properties for the Patient model.
-"""
-
-
 class PatientManager(UserManager):
+    """
+    Add methods and behaviors for the Patient model here.
+    """
+
     def get_queryset(self, *args, **kwargs):
         results = super().get_queryset(*args, **kwargs)
         return results.filter(role=User.Role.PATIENT)
@@ -170,6 +169,7 @@ class Patient(User):
         proxy = True
 
 
+# Pass PatientProfile instance to Patient -> User
 @receiver(post_save, sender=Patient)
 def create_user_profile(sender, instance, created, **kwargs):
     if created and instance.role == "PATIENT":
