@@ -25,8 +25,8 @@ class PatientSerializer(serializers.ModelSerializer):
 class PatientProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = PatientProfile
-        fields = ['ethnicity',
-                  'location', 'address', 'phone_number', 'medical_record']
+        fields = ['race_ethnicity', 'address',
+                  'phone_number', 'insurance_provider', 'medical_record']
 
 
 class DoctorSerializer(serializers.ModelSerializer):
@@ -38,8 +38,8 @@ class DoctorSerializer(serializers.ModelSerializer):
 class DoctorProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = DoctorProfile
-        fields = ['specialty', 'phone_number',
-                  'fax_number', 'languages', 'insurance_provider', 'schedule']
+        fields = ['specialty', 'location', 'phone_number',
+                  'fax_number', 'languages', 'schedule']
 
 
 class RegisterSerializer(serializers.ModelSerializer):

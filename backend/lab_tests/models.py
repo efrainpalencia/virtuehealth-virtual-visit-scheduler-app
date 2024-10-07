@@ -14,7 +14,7 @@ class LabTest(models.Model):
         URINE = "URINE", "urine test"
 
     test_type = models.CharField(
-        max_length=100, choices=TestType.choices)
+        max_length=100, choices=TestType.choices, null=True, blank=False)
     lab = models.CharField(max_length=100)
     lab_document = models.FileField(upload_to='lab_documents/')
 

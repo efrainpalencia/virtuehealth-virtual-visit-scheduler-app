@@ -136,13 +136,23 @@ class DoctorProfile(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='doctor_profile', primary_key=True)
     doctor_id = models.IntegerField(null=True, blank=True)
-    specialty = models.CharField(max_length=100, null=True, blank=True)
+
+    class Specialty(models.TextChoices):
+        GENERAL_DOCTOR = "GENERAL_DOCTOR", "general doctor"
+        CARDIOLOGIST = "CARDIOLOGIST", "cardiologist"
+        ORTHOPEDIST = "ORTHOPEDIST", "orthopedist"
+        NEUROLIGIST = "NEUROLIGIST", "neurologist"
+        PSYCHIATRIST = "PSYCHIATRIST", "psychiatrist"
+        PEDIATRICIAON = "PEDIATRICIAON", "pediatrician"
+
+    specialty = models.CharField(
+        max_length=100, choices=Specialty.choices, null=True, blank=False)
+    location = models.TextField(null=True, blank=True)
     phone_number = models.CharField(max_length=15, validators=[RegexValidator(
         regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '9999999999'. Up to 15 digits allowed.")], null=True, blank=True)
     fax_number = models.CharField(max_length=15, validators=[RegexValidator(
         regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '9999999999'. Up to 15 digits allowed.")], null=True, blank=True)
     languages = models.TextField(null=True, blank=True)
-    insurance_provider = models.TextField(null=True, blank=True)
     schedule = ArrayField(models.DateTimeField(),
                           default=list)
 
@@ -180,11 +190,21 @@ class PatientProfile(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='patient_profile', primary_key=True)
     patient_id = models.IntegerField(null=True, blank=True)
-    ethnicity = models.TextField(null=True, blank=True)
-    location = models.TextField(null=True, blank=True)
+
+    class RaceEthnicity(models.TextChoices):
+        WHITE = "WHITE", "White (not of Hispanic origin)"
+        BLACK = "BLACK", "Black (not of Hispanic origin)"
+        HISPANIC_LATINO = "HISPANIC_LATINO", "Hispanic or Latino"
+        ASIAN = "ASIAN", "Asian"
+        AMERICAN_INDIAN_NATIVE_ALASKAN = "AMERICAN_INDIAN_NATIVE_ALASKAN", "American Indian or Alaska Native"
+        NATIVE_HAWAIIAN_PACIFIC_ISLANDER = "NATIVE_HAWAIIAN_PACIFIC_ISLANDER", "Native Hawaiian or Pacific Islander"
+
+    race_ethnicity = models.CharField(
+        max_length=100, choices=RaceEthnicity.choices, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     phone_number = models.CharField(max_length=15, validators=[RegexValidator(
         regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '9999999999'. Up to 15 digits allowed.")], null=True, blank=True)
+    insurance_provider = models.TextField(null=True, blank=True)
     medical_record = models.OneToOneField(
         'medical_records.MedicalRecord', on_delete=models.CASCADE, null=True, blank=True, related_name='patient_medical_record')
 

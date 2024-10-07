@@ -1,13 +1,14 @@
 from VirtueHealthCore.validators import validate_email
-from .serializers import DoctorRegisterSerializer, PatientRegisterSerializer, LoginSerializer
-from .models import User, Doctor, Patient
+from user.serializers import DoctorSerializer, PatientSerializer
+from .serializers import DoctorRegisterSerializer, DoctorProfileSerializer, PatientRegisterSerializer, PatientProfileSerializer, LoginSerializer
+from .models import User, Doctor, Patient, PatientProfile
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, authentication
 import os
 from django.shortcuts import redirect
 from django.core.mail import send_mail
@@ -120,3 +121,35 @@ class RefreshViewSet(viewsets.ViewSet, TokenRefreshView):
             raise InvalidToken(e.args[0])
 
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
+
+
+class PatientViewSet(viewsets.ModelViewSet):
+    queryset = Doctor.doctor.all()
+    serializer_class = DoctorSerializer
+    authentication_classes = [
+        authentication.SessionAuthentication, authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class PatientProfileViewSet(viewsets.ModelViewSet):
+    queryset = PatientProfile.objects.all()
+    serializer_class = PatientProfileSerializer
+    authentication_classes = [
+        authentication.SessionAuthentication, authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Patient.patient.all()
+    serializer_class = PatientSerializer
+    authentication_classes = [
+        authentication.SessionAuthentication, authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class DoctorProfileViewSet(viewsets.ModelViewSet):
+    queryset = PatientProfile.objects.all()
+    serializer_class = DoctorProfileSerializer
+    authentication_classes = [
+        authentication.SessionAuthentication, authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
