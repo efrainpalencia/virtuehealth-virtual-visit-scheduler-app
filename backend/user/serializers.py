@@ -111,7 +111,15 @@ class PatientRegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-class LoginSerializer(TokenObtainPairSerializer):
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['role'] = user.role
+        return token
+
+
+class LoginSerializer(CustomTokenObtainPairSerializer):
     email = serializers.EmailField(write_only=True)
     password = serializers.CharField(write_only=True)
 
@@ -123,7 +131,7 @@ class LoginSerializer(TokenObtainPairSerializer):
         data['user'] = UserSerializer(self.user).data
         data['refresh'] = str(refresh)
         data['access'] = str(refresh.access_token)
-        # data['role'] = self.user.role
+        data['role'] = self.user.role
 
         if api_settings.UPDATE_LAST_LOGIN:
             update_last_login(None, self.user)

@@ -1,63 +1,69 @@
 import React from "react";
-import { Form, Input, Button, message } from "antd";
-import axios from "axios";
+import { Form, Input, Button, message, Link } from "antd";
+import { loginUser, getRoleFromToken } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
-import AuthService from "../../services/AuthService"; // Make sure to import your AuthService
-
-interface LoginFormValues {
-  email: string;
-  password: string;
-}
+import PasswordResetLink from "../PasswordResetLink/PasswordResetLink";
 
 const Login: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
-  const onFinish = async (values: LoginFormValues) => {
+  const onFinish = async (values: { email: string; password: string }) => {
     try {
-      await AuthService.login(values.email, values.password);
+      const response = await loginUser(values.email, values.password);
       message.success("Login successful!");
-      // Redirect based on user type after successful login
-      const userType = await AuthService.getUserType(); // Fetch user type from API or decode from token
-      if (userType === "doctor") {
+      localStorage.setItem("refresh_token", response.refresh);
+      localStorage.setItem("access_token", response.access);
+
+      const role = getRoleFromToken(response.access);
+      console.log("User role:", role);
+
+      if (role === "DOCTOR") {
         navigate("/doctor-dashboard");
-      } else if (userType === "patient") {
-        navigate("/patient-dashboard");
+        console.log("Navigating to /doctor-dashboard");
+      } else if (role === "PATIENT") {
+        navigate("/patient-portal");
+        console.log("Navigating to /patient-portal");
+      } else if (role === "ADMIN") {
+        navigate("/admin");
+        console.log("Navigating to /admin");
       }
     } catch (error) {
-      message.error("Login failed. Please check your credentials.");
+      message.error(
+        "Login failed. Please check your credentials and try again."
+      );
     }
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "0 auto", padding: "20px" }}>
-      <Form form={form} onFinish={onFinish}>
-        <Form.Item
-          name="email"
-          rules={[
-            { required: true, message: "Please input your email!" },
-            { type: "email", message: "The input is not valid E-mail!" },
-            {
-              pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-              message: "Please enter a valid email address!",
-            },
-          ]}
-        >
-          <Input placeholder="Email" />
-        </Form.Item>
-        <Form.Item
-          name="password"
-          rules={[{ required: true, message: "Please input your password!" }]}
-        >
-          <Input.Password placeholder="Password" />
-        </Form.Item>
+    <Form form={form} onFinish={onFinish}>
+      <Form.Item
+        name="email"
+        rules={[
+          { required: true, message: "Please input your email!" },
+          {
+            pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+            message: "Please enter a valid email address!",
+          },
+        ]}
+      >
+        <Input placeholder="Email" />
+      </Form.Item>
+      <Form.Item
+        name="password"
+        rules={[{ required: true, message: "Please input your password!" }]}
+      >
+        <Input.Password placeholder="Password" />
+      </Form.Item>
+      <Form.Item>
+        <Button type="primary" htmlType="submit">
+          Login
+        </Button>
         <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Login
-          </Button>
+          <PasswordResetLink />
         </Form.Item>
-      </Form>
-    </div>
+      </Form.Item>
+    </Form>
   );
 };
 

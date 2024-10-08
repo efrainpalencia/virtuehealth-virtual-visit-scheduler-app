@@ -1,7 +1,7 @@
 // services/patientService.ts
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api/auth';
+const API_URL = 'http://localhost:8000/api';
 
 export interface User {
     id: number;
@@ -46,7 +46,7 @@ export interface PatientProfile {
 
 
 export const getPatients = async (): Promise<Patient[]> => {
-    const response = await axios.get<Patient[]>(`${API_URL}/patients/`);
+    const response = await axios.get<Patient[]>(`${API_URL}/auth/patient/`);
     return response.data;
 };
 

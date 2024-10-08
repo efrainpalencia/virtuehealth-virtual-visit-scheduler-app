@@ -1,19 +1,16 @@
 import React, { useEffect, useState } from "react";
-import {
-  getPatientProfiles,
-  PatientProfile,
-} from "../../services/patientService";
+import { getDoctorProfiles, DoctorProfile } from "../../services/doctorService";
 
-const PatientProfileList: React.FC = () => {
-  const [profiles, setProfiles] = useState<PatientProfile[]>([]);
+const DoctorProfileList: React.FC = () => {
+  const [profiles, setProfiles] = useState<DoctorProfile[]>([]);
 
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const data = await getPatientProfiles();
+        const data = await getDoctorProfiles();
         setProfiles(data);
       } catch (error) {
-        console.error("Error fetching patient profiles:", error);
+        console.error("Error fetching doctor profiles:", error);
       }
     };
 
@@ -22,7 +19,7 @@ const PatientProfileList: React.FC = () => {
 
   return (
     <div>
-      <h1>Patient Profiles</h1>
+      <h1>Doctor Profiles</h1>
       <ul>
         {profiles.map((profile) => (
           <li key={profile.user.id}>
@@ -37,4 +34,4 @@ const PatientProfileList: React.FC = () => {
   );
 };
 
-export default PatientProfileList;
+export default DoctorProfileList;

@@ -1,12 +1,12 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import RequireAuth from './RequireAuth';
+import DoctorList from './DoctorList';
 
-describe('<RequireAuth />', () => {
+describe('<DoctorList />', () => {
   let component;
 
   beforeEach(() => {
-    component = shallow(<RequireAuth />);
+    component = shallow(<DoctorList />);
   });
 
   test('It should mount', () => {

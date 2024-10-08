@@ -1,55 +1,51 @@
 import React from "react";
 import { Form, Input, Button, message } from "antd";
-import axios from "axios";
+import { registerDoctor } from "../../services/authService";
+import { useNavigate } from "react-router-dom";
 
-interface DoctorRegisterFormValues {
-  email: string;
-  password: string;
-}
-
-const DoctorRegister: React.FC = () => {
+const DoctorRegistration: React.FC = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
 
-  const onFinish = async (values: DoctorRegisterFormValues) => {
+  const onFinish = async (values: { email: string; password: string }) => {
     try {
-      const response = await axios.post("/api/doctors/register/", values);
+      const response = await registerDoctor(values.email, values.password);
       message.success("Registration successful!");
-      console.log(response.data);
+      localStorage.setItem("refresh_token", response.refresh);
+      localStorage.setItem("access_token", response.token);
+      navigate("/login");
     } catch (error) {
       message.error("Registration failed. Please try again.");
     }
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "0 auto", padding: "20px" }}>
-      <Form form={form} onFinish={onFinish}>
-        <Form.Item
-          name="email"
-          rules={[
-            { required: true, message: "Please input your email!" },
-            { type: "email", message: "The input is not valid E-mail!" },
-            {
-              pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-              message: "Please enter a valid email address!",
-            },
-          ]}
-        >
-          <Input placeholder="Email" />
-        </Form.Item>
-        <Form.Item
-          name="password"
-          rules={[{ required: true, message: "Please input your password!" }]}
-        >
-          <Input.Password placeholder="Password" />
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Register
-          </Button>
-        </Form.Item>
-      </Form>
-    </div>
+    <Form form={form} onFinish={onFinish}>
+      <Form.Item
+        name="email"
+        rules={[
+          { required: true, message: "Please input your email!" },
+          {
+            pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+            message: "Please enter a valid email address!",
+          },
+        ]}
+      >
+        <Input placeholder="Email" />
+      </Form.Item>
+      <Form.Item
+        name="password"
+        rules={[{ required: true, message: "Please input your password!" }]}
+      >
+        <Input.Password placeholder="Password" />
+      </Form.Item>
+      <Form.Item>
+        <Button type="primary" htmlType="submit">
+          Register
+        </Button>
+      </Form.Item>
+    </Form>
   );
 };
 
-export default DoctorRegister;
+export default DoctorRegistration;

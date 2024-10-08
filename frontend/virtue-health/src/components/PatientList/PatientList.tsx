@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getPatients, Patient } from "../../services/patientServices";
+import { getPatients, Patient } from "../../services/patientService";
 
 const PatientList: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);

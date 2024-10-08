@@ -28,7 +28,7 @@ from user.views import DoctorProfileViewSet, PatientProfileViewSet
 
 router = DefaultRouter()
 router.register(r'appointments', AppointmentViewset, basename='appointment')
-router.register(r'lab_tests', LabTestViewSet, basename='lab-test')
+router.register(r'lab-tests', LabTestViewSet, basename='lab-test')
 # doctor_dashboard
 router.register(r'doctor-dashboard', DoctorProfileViewSet,
                 basename='doctor-dashboard')

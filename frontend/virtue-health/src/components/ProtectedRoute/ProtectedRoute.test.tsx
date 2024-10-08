@@ -1,12 +1,12 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import PasswordReset from './PasswordReset';
+import ProtectedRoute from './ProtectedRoute';
 
-describe('<PasswordReset />', () => {
+describe('<ProtectedRoute />', () => {
   let component;
 
   beforeEach(() => {
-    component = shallow(<PasswordReset />);
+    component = shallow(<ProtectedRoute />);
   });
 
   test('It should mount', () => {

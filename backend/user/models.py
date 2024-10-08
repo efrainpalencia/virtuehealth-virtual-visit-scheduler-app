@@ -82,8 +82,7 @@ class User(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = [
         "first_name",
-        "last_name",
-        "date_of_birth"
+        "last_name"
     ]
 
     class Role(models.TextChoices):

@@ -1,6 +1,8 @@
 import React from "react";
 import { Menu } from "antd";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
+import LogoutButton from "../LogoutButton/LogoutButton";
+import { logoutUser } from "../../services/authService";
 
 const items = [
   {
@@ -9,11 +11,11 @@ const items = [
   },
   {
     label: "Doctor Registration",
-    key: "/register_doctor",
+    key: "/register/doctor",
   },
   {
     label: "Patient Registration",
-    key: "register_patient",
+    key: "register/patient",
   },
 ];
 

@@ -1,7 +1,11 @@
+from VirtueHealthCore.settings import FRONTEND_URL, EMAIL_HOST_USER
+import logging
+import os
+from venv import logger
 from VirtueHealthCore.validators import validate_email
-from user.serializers import DoctorSerializer, PatientSerializer
-from .serializers import DoctorRegisterSerializer, DoctorProfileSerializer, PatientRegisterSerializer, PatientProfileSerializer, LoginSerializer
-from .models import User, Doctor, Patient, PatientProfile
+from VirtueHealthCore import settings
+from user.serializers import DoctorRegisterSerializer, PatientRegisterSerializer, LoginSerializer, DoctorSerializer, PatientProfile, PatientProfileSerializer, PatientSerializer, DoctorProfileSerializer
+from .models import User, Doctor, Patient
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -9,7 +13,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets, permissions, authentication
-import os
+from django.contrib.auth.tokens import default_token_generator
+from django.urls import reverse
 from django.shortcuts import redirect
 from django.core.mail import send_mail
 from dotenv import load_dotenv
@@ -87,25 +92,50 @@ class LoginViewSet(viewsets.ModelViewSet, TokenObtainPairView):
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
 
+logger = logging.getLogger(__name__)
+
+
 class PasswordResetViewSet(viewsets.ViewSet):
     permission_classes = [permissions.AllowAny]
 
-    @ action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'])
     def reset_password(self, request):
         email = request.data.get('email')
         user = User.objects.filter(email=email).first()
-        EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+        # Debugging lines
+        logger.debug(f"EMAIL_BACKEND type: {type(settings.EMAIL_BACKEND)} value: {
+                     settings.EMAIL_BACKEND}")
+
         if user:
-            # Send password reset email
+            token = default_token_generator.make_token(user)
+            reset_url = f"{
+                FRONTEND_URL}/reset-password?token={token}&email={email}"
             send_mail(
                 'Password Reset Request',
-                'Click the link below to reset your password:',
-                {EMAIL_HOST_USER},
+                f'Click the link below to reset your password:\n{reset_url}',
+                EMAIL_HOST_USER,
                 [email],
                 fail_silently=False,
             )
             return Response({"message": "Password reset email sent!"})
         return Response({"error": "User not found"}, status=404)
+
+
+class PasswordResetConfirmViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.AllowAny]
+
+    @action(detail=False, methods=['post'])
+    def reset_password_confirm(self, request):
+        token = request.data.get('token')
+        email = request.data.get('email')
+        new_password = request.data.get('new_password')
+
+        user = User.objects.filter(email=email).first()
+        if user and default_token_generator.check_token(user, token):
+            user.set_password(new_password)
+            user.save()
+            return Response({"message": "Password updated successfully!"})
+        return Response({"error": "Invalid token or email"}, status=400)
 
 
 class RefreshViewSet(viewsets.ViewSet, TokenRefreshView):
