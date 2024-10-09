@@ -1,44 +1,56 @@
 import React from "react";
+import "./theme.less";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Login from "./components/Login/Login";
 import PatientPortal from "./components/PatientPortal/PatientPortal";
 import DoctorDashboard from "./components/DoctorDashboard/DoctorDashboard";
 import DoctorRegistration from "./components/DoctorRegistration/DoctorRegistration";
 import PatientRegistration from "./components/PatientRegistration/PatientRegistration";
-import PasswordReset from "./components/PasswordReset/PasswordReset";
-import AppMenu from "./components/AppMenu/AppMenu";
 import PatientList from "./components/PatientList/PatientList";
 import PatientProfileList from "./components/PatientProfileList/PatientProfileList";
-import { Layout } from "antd";
+import { Breadcrumb, Layout, theme } from "antd";
 import "antd/dist/reset.css";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
-import LogoutButton from "./components/LogoutButton/LogoutButton";
 import PasswordResetRequestForm from "./components/PasswordResetRequestForm/PasswordResetRequestForm";
 import PasswordResetForm from "./components/PasswordResetForm/PasswordResetForm";
+import AppMenu from "./components/AppMenu/AppMenu";
+import LogoutPage from "./components/LogoutPage/LogoutPage";
 
 const { Header, Content, Footer } = Layout;
 
 const App: React.FC = () => {
+  const {
+    token: { colorBgContainer, borderRadiusLG },
+  } = theme.useToken();
+
   return (
-    <Router>
-      <Layout className="layout">
-        <Header>
-          <div className="logo" />
-          <AppMenu />
+    <Layout className="layout">
+      <Router>
+        <Header
+          className="custom-component"
+          style={{ display: "flex", alignItems: "center" }}
+        >
+          <div className="demo-logo" />
+          <AppMenu route={window.location.pathname} />
         </Header>
-        <Content style={{ padding: "0 50px" }}>
-          <div className="site-layout-content">
+        <Content style={{ padding: "0 48px" }}>
+          <div
+            style={{
+              background: colorBgContainer,
+              minHeight: "100vh",
+              padding: 24,
+              borderRadius: borderRadiusLG,
+            }}
+          >
             <Routes>
               <Route path="/" element={<Login />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/logout" element={<LogoutPage />} />
               <Route
-                path="/register/patient/"
+                path="/register/patient"
                 element={<PatientRegistration />}
               />
-              <Route
-                path="/register/doctor/"
-                element={<DoctorRegistration />}
-              />
+              <Route path="/register/doctor" element={<DoctorRegistration />} />
               <Route
                 path="/reset-password"
                 element={<PasswordResetRequestForm />}
@@ -47,6 +59,7 @@ const App: React.FC = () => {
                 path="/reset-password-confirm"
                 element={<PasswordResetForm />}
               />
+
               <Route
                 path="/"
                 element={<ProtectedRoute allowedRoles={["PATIENT"]} />}
@@ -62,20 +75,17 @@ const App: React.FC = () => {
                 <Route path="doctor-dashboard" element={<DoctorDashboard />} />
               </Route>
 
-              {/* <Route
-                path="/"
-                element={<ProtectedRoute allowedRoles={["ADMIN"]} />}
-              >
+              {/* Uncomment and configure when ready */}
+              {/* <Route path="/" element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
                  <Route path="admin-dashboard" element={<AdminDashboard />} />
               </Route>
-
               <Route path="/unauthorized" element={<Unauthorized />} /> */}
             </Routes>
           </div>
         </Content>
         <Footer style={{ textAlign: "center" }}>Virtue Health ©2024</Footer>
-      </Layout>
-    </Router>
+      </Router>
+    </Layout>
   );
 };
 

@@ -1,12 +1,29 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { createStyleImportPlugin, AndDesignVueResolve } from 'vite-plugin-style-import';
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    createStyleImportPlugin({
+      resolves: [AndDesignVueResolve()],
+    }),
+  ],
   server: {
     proxy: {
         '/api': 'http://localhost:8000',
     },
 },
-})
+  css: {
+    preprocessorOptions: {
+      less: {
+        javascriptEnabled: true,
+        modifyVars: {
+                '@primary-color': '#003eb3', // Custom primary color
+              '@link-color': '#003eb3', // Custom link color
+              // '@border-radius-base': '4px', // Custom border radius
+        },
+      },
+    },
+  },
+});

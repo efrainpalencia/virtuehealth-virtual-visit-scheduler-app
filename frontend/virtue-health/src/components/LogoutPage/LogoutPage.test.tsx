@@ -1,12 +1,12 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import LogoutButton from './LogoutButton';
+import LogoutPage from './LogoutPage';
 
-describe('<LogoutButton />', () => {
+describe('<LogoutPage />', () => {
   let component;
 
   beforeEach(() => {
-    component = shallow(<LogoutButton />);
+    component = shallow(<LogoutPage />);
   });
 
   test('It should mount', () => {

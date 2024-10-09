@@ -1,39 +1,96 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Menu } from "antd";
-import { Navigate, useNavigate } from "react-router-dom";
-import LogoutButton from "../LogoutButton/LogoutButton";
+import {
+  AppstoreOutlined,
+  SettingOutlined,
+  UserOutlined,
+  ProfileOutlined,
+  LoginOutlined,
+  LogoutOutlined,
+} from "@ant-design/icons";
+import type { MenuProps } from "antd";
 import { logoutUser } from "../../services/authService";
 
-const items = [
+type MenuItem = {
+  label: React.ReactNode;
+  key: string;
+  icon?: React.ReactNode;
+  disabled?: boolean;
+  children?: MenuItem[];
+};
+
+// Define the menu items for different roles
+const doctorItems: MenuItem[] = [
+  { label: "Patient List", key: "/patient-list", icon: <UserOutlined /> },
+  { label: "Appointments", key: "/appointments", icon: <AppstoreOutlined /> },
+  { label: "Prescriptions", key: "/prescriptions", icon: <ProfileOutlined /> },
+  { label: "Reports", key: "/reports", icon: <SettingOutlined /> },
+  { label: "Logout", key: "/logout", icon: <LogoutOutlined /> },
+];
+
+const patientItems: MenuItem[] = [
+  { label: "Profile", key: "/profile", icon: <UserOutlined /> },
+  { label: "Appointments", key: "/appointments", icon: <AppstoreOutlined /> },
+  { label: "Prescriptions", key: "/prescriptions", icon: <ProfileOutlined /> },
+  { label: "Invoices", key: "/invoices", icon: <SettingOutlined /> },
+  { label: "Logout", key: "/logout", icon: <LogoutOutlined /> },
+];
+
+const loggedOutItems: MenuItem[] = [
+  { label: "Login", key: "/login", icon: <LoginOutlined /> },
   {
-    label: "Login",
-    key: "/login",
+    label: "Patient Registration",
+    key: "/register/patient",
+    icon: <UserOutlined />,
   },
   {
     label: "Doctor Registration",
     key: "/register/doctor",
-  },
-  {
-    label: "Patient Registration",
-    key: "register/patient",
+    icon: <UserOutlined />,
   },
 ];
 
-const AppMenu: React.FC = () => {
-  const navigate = useNavigate();
+const getItemsForRoute = (route: string): MenuItem[] => {
+  switch (route) {
+    case "/doctor-dashboard":
+      return doctorItems;
+    case "/patient-portal":
+      return patientItems;
+    default:
+      return loggedOutItems;
+  }
+};
 
-  const onClick = (e: unknown) => {
-    navigate(e.key);
+// Menu component
+const AppMenu: React.FC<{ route: string }> = ({ route }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [items, setItems] = React.useState(getItemsForRoute(route));
+
+  useEffect(() => {
+    setItems(getItemsForRoute(location.pathname));
+  }, [location.pathname]);
+
+  const onClick: MenuProps["onClick"] = (e) => {
+    if (e.key === "/logout") {
+      // Add logout logic, like clearing tokens or session data
+      logoutUser();
+      navigate(e.key);
+    } else {
+      navigate(e.key);
+    }
   };
 
   return (
-    <Menu
-      onClick={onClick}
-      items={items}
-      theme="dark"
-      mode="horizontal"
-      defaultSelectedKeys={["/login"]}
-    />
+    <div style={{ flex: 1, minWidth: 0 }}>
+      <Menu
+        onClick={onClick}
+        mode="horizontal"
+        items={items}
+        selectedKeys={[location.pathname]}
+      />
+    </div>
   );
 };
 
