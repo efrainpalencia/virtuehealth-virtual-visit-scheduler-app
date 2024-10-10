@@ -34,7 +34,30 @@ const patientItems: MenuItem[] = [
   { label: "Appointments", key: "/appointments", icon: <AppstoreOutlined /> },
   { label: "Prescriptions", key: "/prescriptions", icon: <ProfileOutlined /> },
   { label: "Invoices", key: "/invoices", icon: <SettingOutlined /> },
-  { label: "Logout", key: "/logout", icon: <LogoutOutlined /> },
+  {
+    label: "My Account",
+    key: "SubMenu",
+    icon: <SettingOutlined />,
+    children: [
+      {
+        type: "group",
+        label: "Account Settings",
+        children: [
+          { label: "View My Profile", key: "patient/:id" },
+          { label: "Edit My Profile", key: "edit-profile" },
+        ],
+      },
+      {
+        type: "group",
+        label: "Item 1",
+        children: [
+          { label: "Option 1", key: "setting:1" },
+          { label: "Option 2", key: "setting:2" },
+          { label: "Logout", key: "/logout", icon: <LogoutOutlined /> },
+        ],
+      },
+    ],
+  },
 ];
 
 const loggedOutItems: MenuItem[] = [

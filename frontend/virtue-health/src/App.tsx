@@ -6,15 +6,15 @@ import PatientPortal from "./components/PatientPortal/PatientPortal";
 import DoctorDashboard from "./components/DoctorDashboard/DoctorDashboard";
 import DoctorRegistration from "./components/DoctorRegistration/DoctorRegistration";
 import PatientRegistration from "./components/PatientRegistration/PatientRegistration";
-import PatientList from "./components/PatientList/PatientList";
-import PatientProfileList from "./components/PatientProfileList/PatientProfileList";
-import { Breadcrumb, Layout, theme } from "antd";
+import { Layout, theme } from "antd";
 import "antd/dist/reset.css";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import PasswordResetRequestForm from "./components/PasswordResetRequestForm/PasswordResetRequestForm";
 import PasswordResetForm from "./components/PasswordResetForm/PasswordResetForm";
 import AppMenu from "./components/AppMenu/AppMenu";
 import LogoutPage from "./components/LogoutPage/LogoutPage";
+import PatientProfileForm from "./components/PatientProfileForm/PatientProfileForm";
+import PatientProfileView from "./components/PatientProfileView/PatientProfileView";
 
 const { Header, Content, Footer } = Layout;
 
@@ -65,7 +65,8 @@ const App: React.FC = () => {
                 element={<ProtectedRoute allowedRoles={["PATIENT"]} />}
               >
                 <Route path="patient-portal" element={<PatientPortal />} />
-                <Route path="patient" element={<PatientList />} />
+                <Route path="view-profile" element={<PatientProfileView />} />
+                <Route path="edit-profile" element={<PatientProfileForm />} />
               </Route>
 
               <Route

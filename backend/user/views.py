@@ -102,10 +102,6 @@ class PasswordResetViewSet(viewsets.ViewSet):
     def reset_password(self, request):
         email = request.data.get('email')
         user = User.objects.filter(email=email).first()
-        # Debugging lines
-        logger.debug(f"EMAIL_BACKEND type: {type(settings.EMAIL_BACKEND)} value: {
-                     settings.EMAIL_BACKEND}")
-
         if user:
             token = default_token_generator.make_token(user)
             reset_url = f"{
@@ -154,11 +150,11 @@ class RefreshViewSet(viewsets.ViewSet, TokenRefreshView):
 
 
 class PatientViewSet(viewsets.ModelViewSet):
-    queryset = Doctor.doctor.all()
+    queryset = Patient.patient.all()
     serializer_class = DoctorSerializer
     authentication_classes = [
         authentication.SessionAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
 
 class PatientProfileViewSet(viewsets.ModelViewSet):
@@ -166,11 +162,21 @@ class PatientProfileViewSet(viewsets.ModelViewSet):
     serializer_class = PatientProfileSerializer
     authentication_classes = [
         authentication.SessionAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
+
+    # def perform_create(self, serializer):
+    #     # Associate profile with the authenticated user
+    #     serializer.save(user=self.request.user)
+
+    # def perform_update(self, serializer):
+    #     serializer.save()  # Update the patient profile
+
+    # def perform_destroy(self, instance):
+    #     instance.delete()  # Delete the patient profile
 
 
 class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Patient.patient.all()
+    queryset = Doctor.doctor.all()
     serializer_class = PatientSerializer
     authentication_classes = [
         authentication.SessionAuthentication, authentication.TokenAuthentication]

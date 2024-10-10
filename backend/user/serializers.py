@@ -11,35 +11,31 @@ from .models import Doctor, Patient, DoctorProfile, PatientProfile
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email',
-                  'first_name', 'last_name', 'date_of_birth', 'role']
+        fields = fields = '__all__'
 
 
 class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
-        fields = ['email',
-                  'first_name', 'last_name', 'date_of_birth']
+        fields = '__all__'
 
 
 class PatientProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = PatientProfile
-        fields = ['race_ethnicity', 'address',
-                  'phone_number', 'insurance_provider', 'medical_record']
+        fields = '__all__'
 
 
 class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
-        fields = ['email', 'first_name', 'last_name', 'date_of_birth']
+        fields = fields = '__all__'
 
 
 class DoctorProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = DoctorProfile
-        fields = ['specialty', 'location', 'phone_number',
-                  'fax_number', 'languages', 'schedule']
+        fields = fields = '__all__'
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -52,7 +48,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'password', 'date_of_birth')
+        fields = ('email', 'password')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -75,7 +71,7 @@ class DoctorRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Doctor
-        fields = ('email', 'password', 'date_of_birth')
+        fields = ('email', 'password')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -98,7 +94,7 @@ class PatientRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Patient
-        fields = ('email', 'password', 'date_of_birth')
+        fields = ('email', 'password')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):

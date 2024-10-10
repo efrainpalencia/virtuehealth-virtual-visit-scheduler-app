@@ -186,9 +186,8 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 
 class PatientProfile(models.Model):
-    user = models.OneToOneField(
+    user_id = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='patient_profile', primary_key=True)
-    patient_id = models.IntegerField(null=True, blank=True)
 
     class RaceEthnicity(models.TextChoices):
         WHITE = "WHITE", "White (not of Hispanic origin)"
