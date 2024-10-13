@@ -150,6 +150,7 @@ class DoctorProfile(models.Model):
     languages = models.TextField(null=True, blank=True)
     schedule = ArrayField(models.DateTimeField(),
                           default=list)
+    img_url = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.user.email
@@ -201,6 +202,7 @@ class PatientProfile(models.Model):
     insurance_provider = models.TextField(null=True, blank=True)
     medical_record = models.OneToOneField(
         'medical_records.MedicalRecord', on_delete=models.CASCADE, null=True, blank=True, related_name='patient_medical_record')
+    img_url = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.user.email

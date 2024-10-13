@@ -70,6 +70,10 @@ const App: React.FC = () => {
                   element={<ProtectedRoute allowedRoles={["PATIENT"]} />}
                 >
                   <Route path="patient-portal" element={<PatientPortal />} />
+                  <Route
+                    path="patient-portal-doctor-list"
+                    element={<PatientPortal />}
+                  />
                   <Route path="view-profile" element={<PatientProfileCard />} />
                   <Route path="edit-profile" element={<PatientProfileForm />} />
                 </Route>

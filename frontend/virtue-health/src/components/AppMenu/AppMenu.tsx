@@ -42,8 +42,12 @@ const patientItems: MenuItem[] = [
   },
   { label: "Home", key: "/patient-portal", icon: <UserOutlined /> },
   { label: "Appointments", key: "/appointments", icon: <AppstoreOutlined /> },
-  { label: "Prescriptions", key: "/prescriptions", icon: <ProfileOutlined /> },
-  { label: "Invoices", key: "/invoices", icon: <SettingOutlined /> },
+  {
+    label: "Doctors",
+    key: "/patient-portal-doctor-list",
+    icon: <ProfileOutlined />,
+  },
+  { label: "About", key: "/about", icon: <SettingOutlined /> },
   {
     label: "My Profile",
     key: "SubMenu",
@@ -80,6 +84,12 @@ const getItemsForRoute = (route: string): MenuItem[] => {
     case "/doctor-dashboard":
       return doctorItems;
     case "/patient-portal":
+      return patientItems;
+    case "/appointments":
+      return patientItems;
+    case "/patient-portal-doctor-list":
+      return patientItems;
+    case "/about":
       return patientItems;
     case "/view-profile":
       return patientItems;
