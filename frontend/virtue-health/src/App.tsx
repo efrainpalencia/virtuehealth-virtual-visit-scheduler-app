@@ -15,6 +15,7 @@ import AppMenu from "./components/AppMenu/AppMenu";
 import LogoutPage from "./components/LogoutPage/LogoutPage";
 import PatientProfileForm from "./components/PatientProfileForm/PatientProfileForm";
 import PatientProfileView from "./components/PatientProfileView/PatientProfileView";
+import PatientProfileCard from "./components/PatientProfileCard/PatientProfileCard";
 
 const { Header, Content, Footer } = Layout;
 
@@ -65,7 +66,7 @@ const App: React.FC = () => {
                 element={<ProtectedRoute allowedRoles={["PATIENT"]} />}
               >
                 <Route path="patient-portal" element={<PatientPortal />} />
-                <Route path="view-profile" element={<PatientProfileView />} />
+                <Route path="view-profile" element={<PatientProfileCard />} />
                 <Route path="edit-profile" element={<PatientProfileForm />} />
               </Route>
 

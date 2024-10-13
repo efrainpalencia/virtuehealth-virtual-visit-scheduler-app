@@ -9,6 +9,9 @@ from .models import Doctor, Patient, DoctorProfile, PatientProfile
 
 
 class UserSerializer(serializers.ModelSerializer):
+    # date_of_birth = serializers.DateTimeField(
+    #     format='%Y-%m-%dT%H:%M', input_formats=['%Y-%m-%dT%H:%M', '%Y-%m-%d'])
+
     class Meta:
         model = User
         fields = fields = '__all__'
@@ -66,8 +69,6 @@ class DoctorRegisterSerializer(serializers.ModelSerializer):
         required=True, write_only=True, max_length=128)
     password = serializers.CharField(
         max_length=128, min_length=8, write_only=True, required=True)
-    date_of_birth = serializers.DateField(
-        default=None)
 
     class Meta:
         model = Doctor
@@ -89,8 +90,6 @@ class PatientRegisterSerializer(serializers.ModelSerializer):
         required=True, write_only=True, max_length=128)
     password = serializers.CharField(
         max_length=128, min_length=8, write_only=True, required=True)
-    date_of_birth = serializers.DateField(
-        default=None)
 
     class Meta:
         model = Patient
@@ -112,6 +111,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
         token['role'] = user.role
+        token['id'] = user.id
         return token
 
 

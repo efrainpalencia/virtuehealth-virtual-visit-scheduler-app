@@ -20,7 +20,6 @@ class UserManager(BaseUserManager):
         self,
         email,
         password,
-        date_of_birth,
         **extra_fields
     ):
         """
@@ -31,7 +30,6 @@ class UserManager(BaseUserManager):
             raise ValueError(_("The Email must be set"))
         email = self.normalize_email(email)  # lowercase the domain
         user = self.model(
-            date_of_birth=date_of_birth,
             email=email,
             **extra_fields
         )
@@ -43,7 +41,6 @@ class UserManager(BaseUserManager):
         self,
         email,
         password,
-        date_of_birth,
         **extra_fields
     ):
         """
@@ -66,24 +63,22 @@ class UserManager(BaseUserManager):
         return self.create_user(
             email,
             password,
-            date_of_birth,
             **extra_fields
         )
 
 
 class User(AbstractUser):
     username = None
+    first_name = models.CharField(max_length=100, blank=True, null=True)
+    last_name = models.CharField(max_length=100, blank=True, null=True)
     email = models.EmailField(_("email address"), unique=True)
     date_of_birth = models.DateField(
         verbose_name="Date of Birth",
-        null=True
+        null=True,
     )
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = [
-        "first_name",
-        "last_name"
-    ]
+    REQUIRED_FIELDS = []
 
     class Role(models.TextChoices):
         ADMIN = "ADMIN", 'admin'
@@ -97,6 +92,8 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         if not self.pk:
             self.role = self.base_role
+            return super().save(*args, **kwargs)
+        else:
             return super().save(*args, **kwargs)
 
     objects = UserManager()
@@ -134,7 +131,6 @@ def create_user_profile(sender, instance, created, **kwargs):
 class DoctorProfile(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='doctor_profile', primary_key=True)
-    doctor_id = models.IntegerField(null=True, blank=True)
 
     class Specialty(models.TextChoices):
         GENERAL_DOCTOR = "GENERAL_DOCTOR", "general doctor"
@@ -186,7 +182,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 
 class PatientProfile(models.Model):
-    user_id = models.OneToOneField(
+    user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='patient_profile', primary_key=True)
 
     class RaceEthnicity(models.TextChoices):

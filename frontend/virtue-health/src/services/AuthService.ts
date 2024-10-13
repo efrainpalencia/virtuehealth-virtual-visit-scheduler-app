@@ -11,6 +11,8 @@ interface RegisterResponse {
 
 interface DecodedToken {
     role: string;
+    id: number;
+
 }
 
 export const registerPatient = async (email: string, password: string): Promise<RegisterResponse> => {
@@ -50,5 +52,11 @@ export const logoutUser = () => {
 export const getRoleFromToken = (token: string): string => {
     const decoded = jwtDecode<DecodedToken>(token);
     return decoded.role;
+
+}
+
+export const getIdFromToken = (token: string): number => {
+    const decoded = jwtDecode<DecodedToken>(token);
+    return decoded.id;
 
 }

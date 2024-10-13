@@ -151,7 +151,7 @@ class RefreshViewSet(viewsets.ViewSet, TokenRefreshView):
 
 class PatientViewSet(viewsets.ModelViewSet):
     queryset = Patient.patient.all()
-    serializer_class = DoctorSerializer
+    serializer_class = PatientSerializer
     authentication_classes = [
         authentication.SessionAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.AllowAny]
@@ -164,20 +164,10 @@ class PatientProfileViewSet(viewsets.ModelViewSet):
         authentication.SessionAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.AllowAny]
 
-    # def perform_create(self, serializer):
-    #     # Associate profile with the authenticated user
-    #     serializer.save(user=self.request.user)
-
-    # def perform_update(self, serializer):
-    #     serializer.save()  # Update the patient profile
-
-    # def perform_destroy(self, instance):
-    #     instance.delete()  # Delete the patient profile
-
 
 class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Doctor.doctor.all()
-    serializer_class = PatientSerializer
+    serializer_class = DoctorSerializer
     authentication_classes = [
         authentication.SessionAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]

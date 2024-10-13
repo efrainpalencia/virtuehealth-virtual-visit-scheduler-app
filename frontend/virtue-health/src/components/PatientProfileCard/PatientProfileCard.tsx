@@ -1,98 +1,101 @@
 import React, { useEffect, useState } from "react";
-import { Card, Spin, Descriptions, message } from "antd";
+import { Card, Button, Spin, message, Space } from "antd";
 import { useNavigate } from "react-router-dom";
-import {
-  getPatient,
-  getPatientProfile,
-  Patient,
-  PatientProfile,
-} from "../../services/patientService"; // Adjust path
-import { useParams } from "react-router-dom";
+import { getPatient, getPatientProfile } from "../../services/patientService";
+import { Patient, PatientProfile } from "../../services/patientService";
+import { getIdFromToken } from "../../services/authService";
 
 const PatientProfileCard: React.FC = () => {
-  const { user_id } = useParams<{ user_id: string | undefined }>(); // Get patient ID from the URL
-  const navigate = useNavigate(); // Used for routing
   const [loading, setLoading] = useState(true);
   const [patient, setPatient] = useState<Patient | null>(null);
-  const [patientProfile, setPatientProfile] = useState<PatientProfile | null>(
-    null
-  );
+  const [profile, setProfile] = useState<PatientProfile | null>(null);
+  const navigate = useNavigate();
+
+  const getLoggedInPatientId = (): number | null => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      try {
+        return getIdFromToken(token);
+      } catch (error) {
+        console.error("Failed to decode token", error);
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const patientId = getLoggedInPatientId();
 
   useEffect(() => {
-    const fetchPatientData = async () => {
-      setLoading(true);
+    if (!patientId) {
+      message.error("No patient ID found.");
+      return;
+    }
+    const fetchData = async () => {
       try {
-        // Fetch the Patient by ID
-        const patientData = await getPatient(Number(user_id));
-        setPatient(patientData); // Assuming response returns an array
+        setLoading(true);
+        const fetchedPatient = await getPatient(patientId);
+        const fetchedProfile = await getPatientProfile(patientId);
+        console.log(fetchedPatient);
+        console.log(fetchedProfile);
 
-        // Fetch the PatientProfile using user_id from the Patient
-        const profileData = await getPatientProfile(Number(user_id));
-        console.log(profileData);
-        setPatientProfile(profileData);
+        setPatient(fetchedPatient);
+        setProfile(fetchedProfile);
       } catch (error) {
-        message.error("Failed to fetch patient data.");
+        message.error("Failed to fetch data.");
       } finally {
         setLoading(false);
       }
     };
-
-    fetchPatientData();
-  }, [user_id]);
-
-  useEffect(() => {
-    if (!loading && !patientProfile) {
-      // If no patient profile, redirect to another route (e.g., a profile creation page)
-      message.warning("Patient profile not found, redirecting...");
-      navigate("/create-profile");
-    }
-  }, [loading, patientProfile, navigate]);
+    fetchData();
+  }, [patientId]);
 
   if (loading) {
-    return <Spin tip="Loading patient data..." />;
-  }
-
-  if (!patient || !patientProfile) {
-    return null; // While the redirect is happening
+    return <Spin tip="Loading data..." />;
   }
 
   return (
-    <Card
-      title={`Patient: ${patient.first_name} ${patient.last_name}`}
-      bordered={true}
-    >
-      <Descriptions bordered>
-        <Descriptions.Item label="Email">{patient.email}</Descriptions.Item>
-        <Descriptions.Item label="Date of Birth">
-          {patient.date_of_birth
-            ? new Date(patient.date_of_birth).toLocaleDateString()
-            : "N/A"}
-        </Descriptions.Item>
-        <Descriptions.Item label="Role">{patient.role}</Descriptions.Item>
-      </Descriptions>
-
+    <Space direction="vertical" size="middle" style={{ display: "flex" }}>
       <Card
-        title="Patient Profile"
-        bordered={false}
-        style={{ marginTop: "16px" }}
+        title={
+          patient
+            ? `Profile of ${patient.first_name} ${patient.last_name}`
+            : "Patient Profile"
+        }
+        style={{ textAlign: "center", marginTop: "50px", padding: "0 50px" }}
       >
-        <Descriptions bordered>
-          <Descriptions.Item label="Phone Number">
-            {patientProfile.phone_number || "N/A"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Address">
-            {patientProfile.address || "N/A"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Insurance Provider">
-            {patientProfile.insurance_provider || "N/A"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Race/Ethnicity">
-            {patientProfile.race_ethnicity || "N/A"}
-          </Descriptions.Item>
-          {/* You can add more fields from MedicalRecord here if needed */}
-        </Descriptions>
+        <Space direction="vertical" size="middle" style={{ display: "flex" }}>
+          <Button type="primary" onClick={() => navigate("/edit-profile")}>
+            Edit Profile
+          </Button>
+          <span className="mock-block"></span>
+        </Space>
+        <p>
+          <strong>First Name:</strong> {patient?.first_name}
+        </p>
+        <p>
+          <strong>Last Name:</strong> {patient?.last_name}
+        </p>
+        <p>
+          <strong>Email:</strong> {patient?.email}
+        </p>
+        <p>
+          <strong>Date of Birth:</strong> {patient?.date_of_birth}
+        </p>
+        <p>
+          <strong>Race/Ethnicity:</strong> {profile?.race_ethnicity}
+        </p>
+        <p>
+          <strong>Address:</strong> {profile?.address}
+        </p>
+        <p>
+          <strong>Phone Number:</strong> {profile?.phone_number}
+        </p>
+        <p>
+          <strong>Insurance Provider:</strong> {profile?.insurance_provider}
+        </p>
       </Card>
-    </Card>
+    </Space>
   );
 };
 

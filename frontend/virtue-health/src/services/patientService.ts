@@ -45,7 +45,7 @@ export interface PatientProfile {
 }
 
 export const getPatients = async (): Promise<Patient[]> => {
-    const response = await axios.get<Patient[]>(`${API_URL}/patient/`);
+    const response = await axios.get<Patient[]>(`${API_URL }/patient/`);
     return response.data;
 };
 
@@ -68,7 +68,7 @@ export const getPatientsMap = async (): Promise<{ [key: number]: Patient }> => {
 export const getPatientProfilesMap = async (): Promise<{ [key: number]: PatientProfile }> => {
     const profilesArray = await getPatientProfiles();
     const profilesMap = profilesArray.reduce((acc: { [key: number]: PatientProfile }, profile: PatientProfile) => {
-        acc[profile.user_id] = profile;
+        acc[profile.user] = profile;
         return acc;
     }, {});
     return profilesMap;
@@ -77,29 +77,73 @@ export const getPatientProfilesMap = async (): Promise<{ [key: number]: PatientP
 
 // Get a single patient from the hash map by id
 export const getPatient = async (id: number): Promise<Patient | null> => {
-    const patientsMap = await getPatientsMap(); // Get all patients as a map
-    return patientsMap[id] || null; // Return the patient by id or null if not found
-  };
+  try {
+    const patientsMap = await getPatientsMap();
+    return patientsMap[id] || null;
+  } catch (error) {
+    console.error(`Failed to fetch patient with id ${id}:`, error);
+    return null;
+  }
+};
+
   
   // Get a single patient profile from the hash map by user_id
-  export const getPatientProfile = async (user_id: number): Promise<PatientProfile | null> => {
-    const profilesMap = await getPatientProfilesMap(); // Get all profiles as a map
-    return profilesMap[user_id] || null; // Return the profile by user_id or null if not found
+  export const getPatientProfile = async (user: number): Promise<PatientProfile | null> => {
+    try {
+      const profilesMap = await getPatientProfilesMap();
+      return profilesMap[user] || null;
+    } catch (error) {
+      console.error(`Failed to fetch patient profile with id ${user}:`, error);
+      return null;
+    }
+    
   };
   
+  // Create a new patient and return the updated profile
+  export const createPatient = async (id: number, patient: Patient): Promise<Patient> => {
+    try {
+      const response = await axios.post<Patient>(`${API_URL }/patient/${id}/`, patient);
+    return response.data;
+    } catch (error) {
+      console.error(`Failed to create patient`, error);
+      return error;
+    }
+    
+  };
+
   // Create a new patient profile and return the updated profile
-  export const createPatientProfile = async (profile: PatientProfile): Promise<PatientProfile> => {
-    const response = await axios.post<PatientProfile>(`${API_URL}/patient-profiles/`, profile);
+  export const createPatientProfile = async (user_id: number, profile: Partial<PatientProfile>,): Promise<PatientProfile> => {
+    const response = await axios.post<PatientProfile>(`${API_URL}/patient-profiles/${user_id}/`, profile);
     return response.data; // Newly created profile returned from the server
   };
   
   // Update an existing patient profile
+  export const updatePatient = async (
+    id: number,
+    patient: Partial<Patient>
+  ): Promise<Patient> => {
+    try {
+      const response = await axios.patch<Patient>(`${API_URL}/patient/${id}/`, patient);
+    return response.data;
+    } catch (error) {
+      console.error(`Failed to update patient`, error);
+      return error;
+    }
+    
+  };
+
   export const updatePatientProfile = async (
     user_id: number,
     profile: Partial<PatientProfile>
   ): Promise<PatientProfile> => {
-    const response = await axios.put<PatientProfile>(`${API_URL}/patient-profiles/${user_id}/`, profile);
-    return response.data; // Updated profile returned from the server
+    try {
+      const response = await axios.patch<PatientProfile>(`${API_URL}/patient-profiles/${user_id}/`, profile);
+    return response.data;
+    } catch (error) {
+      console.error(`Failed to update patient profile`, error);
+      return error;
+    }
+    
   };
   
   // Delete a patient profile

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Menu } from "antd";
+import { Avatar, Menu, Space } from "antd";
 import {
   AppstoreOutlined,
   SettingOutlined,
@@ -11,6 +11,8 @@ import {
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { logoutUser } from "../../services/authService";
+
+const url = "../../assets/VirtueLogo-fotor-bg-remover-20240914133444.png";
 
 type MenuItem = {
   label: React.ReactNode;
@@ -30,29 +32,29 @@ const doctorItems: MenuItem[] = [
 ];
 
 const patientItems: MenuItem[] = [
-  { label: "Profile", key: "/profile", icon: <UserOutlined /> },
+  {
+    label: "",
+    key: "/patient-portal",
+    icon: (
+      <Space size={50} wrap>
+        <Avatar src={<img src={url} alt="logo" />} />
+      </Space>
+    ),
+  },
+  { label: "Home", key: "/patient-portal", icon: <UserOutlined /> },
   { label: "Appointments", key: "/appointments", icon: <AppstoreOutlined /> },
   { label: "Prescriptions", key: "/prescriptions", icon: <ProfileOutlined /> },
   { label: "Invoices", key: "/invoices", icon: <SettingOutlined /> },
   {
-    label: "My Account",
+    label: "My Profile",
     key: "SubMenu",
     icon: <SettingOutlined />,
     children: [
       {
         type: "group",
-        label: "Account Settings",
+        label: "Profile Settings",
         children: [
-          { label: "View My Profile", key: "patient/:id" },
-          { label: "Edit My Profile", key: "edit-profile" },
-        ],
-      },
-      {
-        type: "group",
-        label: "Item 1",
-        children: [
-          { label: "Option 1", key: "setting:1" },
-          { label: "Option 2", key: "setting:2" },
+          { label: "View My Profile", key: "view-profile" },
           { label: "Logout", key: "/logout", icon: <LogoutOutlined /> },
         ],
       },
@@ -79,6 +81,11 @@ const getItemsForRoute = (route: string): MenuItem[] => {
     case "/doctor-dashboard":
       return doctorItems;
     case "/patient-portal":
+      return patientItems;
+    case "/view-profile":
+      return patientItems;
+      return patientItems;
+    case "/edit-profile":
       return patientItems;
     default:
       return loggedOutItems;
