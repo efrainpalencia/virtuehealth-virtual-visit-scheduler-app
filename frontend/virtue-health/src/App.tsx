@@ -6,7 +6,7 @@ import PatientPortal from "./components/PatientPortal/PatientPortal";
 import DoctorDashboard from "./components/DoctorDashboard/DoctorDashboard";
 import DoctorRegistration from "./components/DoctorRegistration/DoctorRegistration";
 import PatientRegistration from "./components/PatientRegistration/PatientRegistration";
-import { Layout, theme } from "antd";
+import { Flex, Layout, theme } from "antd";
 import "antd/dist/reset.css";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import PasswordResetRequestForm from "./components/PasswordResetRequestForm/PasswordResetRequestForm";
@@ -43,46 +43,54 @@ const App: React.FC = () => {
               borderRadius: borderRadiusLG,
             }}
           >
-            <Routes>
-              <Route path="/" element={<Login />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/logout" element={<LogoutPage />} />
-              <Route
-                path="/register/patient"
-                element={<PatientRegistration />}
-              />
-              <Route path="/register/doctor" element={<DoctorRegistration />} />
-              <Route
-                path="/reset-password"
-                element={<PasswordResetRequestForm />}
-              />
-              <Route
-                path="/reset-password-confirm"
-                element={<PasswordResetForm />}
-              />
+            <Flex align="center">
+              <Routes>
+                <Route path="/" element={<Login />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/logout" element={<LogoutPage />} />
+                <Route
+                  path="/register/patient"
+                  element={<PatientRegistration />}
+                />
+                <Route
+                  path="/register/doctor"
+                  element={<DoctorRegistration />}
+                />
+                <Route
+                  path="/reset-password"
+                  element={<PasswordResetRequestForm />}
+                />
+                <Route
+                  path="/reset-password-confirm"
+                  element={<PasswordResetForm />}
+                />
 
-              <Route
-                path="/"
-                element={<ProtectedRoute allowedRoles={["PATIENT"]} />}
-              >
-                <Route path="patient-portal" element={<PatientPortal />} />
-                <Route path="view-profile" element={<PatientProfileCard />} />
-                <Route path="edit-profile" element={<PatientProfileForm />} />
-              </Route>
+                <Route
+                  path="/"
+                  element={<ProtectedRoute allowedRoles={["PATIENT"]} />}
+                >
+                  <Route path="patient-portal" element={<PatientPortal />} />
+                  <Route path="view-profile" element={<PatientProfileCard />} />
+                  <Route path="edit-profile" element={<PatientProfileForm />} />
+                </Route>
 
-              <Route
-                path="/"
-                element={<ProtectedRoute allowedRoles={["DOCTOR"]} />}
-              >
-                <Route path="doctor-dashboard" element={<DoctorDashboard />} />
-              </Route>
+                <Route
+                  path="/"
+                  element={<ProtectedRoute allowedRoles={["DOCTOR"]} />}
+                >
+                  <Route
+                    path="doctor-dashboard"
+                    element={<DoctorDashboard />}
+                  />
+                </Route>
 
-              {/* Uncomment and configure when ready */}
-              {/* <Route path="/" element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+                {/* Uncomment and configure when ready */}
+                {/* <Route path="/" element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
                  <Route path="admin-dashboard" element={<AdminDashboard />} />
               </Route>
               <Route path="/unauthorized" element={<Unauthorized />} /> */}
-            </Routes>
+              </Routes>
+            </Flex>
           </div>
         </Content>
         <Footer style={{ textAlign: "center" }}>Virtue Health ©2024</Footer>

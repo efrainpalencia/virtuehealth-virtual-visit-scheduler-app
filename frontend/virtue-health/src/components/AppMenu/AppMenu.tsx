@@ -11,8 +11,7 @@ import {
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { logoutUser } from "../../services/authService";
-
-const url = "../../assets/VirtueLogo-fotor-bg-remover-20240914133444.png";
+import VirtueLogo from "../../assets/VirtueLogo.png";
 
 type MenuItem = {
   label: React.ReactNode;
@@ -36,8 +35,8 @@ const patientItems: MenuItem[] = [
     label: "",
     key: "/patient-portal",
     icon: (
-      <Space size={50} wrap>
-        <Avatar src={<img src={url} alt="logo" />} />
+      <Space size={15} wrap>
+        <Avatar size={50} src={<img src={VirtueLogo} alt="logo" />} />
       </Space>
     ),
   },

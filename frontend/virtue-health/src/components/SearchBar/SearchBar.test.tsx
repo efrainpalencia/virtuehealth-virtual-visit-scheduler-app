@@ -1,12 +1,12 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import PatientProfileView from './PatientProfileView';
+import SearchBar from './SearchBar';
 
-describe('<PatientProfileView />', () => {
+describe('<SearchBar />', () => {
   let component;
 
   beforeEach(() => {
-    component = shallow(<PatientProfileView />);
+    component = shallow(<SearchBar />);
   });
 
   test('It should mount', () => {
