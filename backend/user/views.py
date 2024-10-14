@@ -5,7 +5,7 @@ from venv import logger
 from VirtueHealthCore.validators import validate_email
 from VirtueHealthCore import settings
 from user.serializers import DoctorRegisterSerializer, PatientRegisterSerializer, LoginSerializer, DoctorSerializer, PatientProfile, PatientProfileSerializer, PatientSerializer, DoctorProfileSerializer
-from .models import User, Doctor, Patient
+from .models import DoctorProfile, User, Doctor, Patient
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -165,17 +165,17 @@ class PatientProfileViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]
 
 
-class DoctorViewSet(viewsets.ReadOnlyModelViewSet):
+class DoctorViewSet(viewsets.ModelViewSet):
     queryset = Doctor.doctor.all()
     serializer_class = DoctorSerializer
     authentication_classes = [
         authentication.SessionAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
 
 class DoctorProfileViewSet(viewsets.ModelViewSet):
-    queryset = PatientProfile.objects.all()
+    queryset = DoctorProfile.objects.all()
     serializer_class = DoctorProfileSerializer
     authentication_classes = [
         authentication.SessionAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]

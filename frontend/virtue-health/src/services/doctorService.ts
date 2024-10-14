@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = 'http://localhost:8000/api/auth';
 
 export interface User {
     id: number;
@@ -18,13 +18,14 @@ export interface Doctor extends User {
 
 export interface DoctorProfile {
     user: Doctor;
-    user_id: number | null;
+    user_id: number;
     specialty: 'GENERAL_DOCTOR' | 'CARDIOLOGIST' | 'ORTHOPEDIST' | 'NEUROLIGIST' | 'PSYCHIATRIST' | 'PEDIATRICIAN' | null;
     location: string | null;
     phone_number: string | null;
     fax_number: string | null;
     languages: string | null;
     schedule: Date[];
+    img_url: string | null;
 }
 
 export const getDoctors = async (): Promise<Doctor[]> => {
@@ -83,7 +84,7 @@ export const getDoctor = async (id: number): Promise<Doctor | null> => {
   };
   
   // Create a new patient and return the updated profile
-  export const createDoctor = async (id: number, patient: Doctor): Promise<Doctor> => {
+  export const createDoctor = async (id: number, doctor: Doctor): Promise<Doctor> => {
     try {
       const response = await axios.post<Doctor>(`${API_URL }/doctor/${id}/`, doctor);
     return response.data;

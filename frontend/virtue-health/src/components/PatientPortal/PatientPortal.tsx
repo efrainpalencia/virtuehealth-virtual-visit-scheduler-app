@@ -6,7 +6,7 @@ import HeroImgMiddle from "../../assets/HeroImgMiddle.jpg";
 import HeroImgRight from "../../assets/HeroImgRight.jpg";
 import SearchBar from "../SearchBar/SearchBar";
 
-const style: React.CSSProperties = { background: "#0092ff", padding: "8px 0" };
+const style: React.CSSProperties = { background: "#0D54B1", padding: "8px 0" };
 
 const cardStyle: React.CSSProperties = {
   width: 500,

@@ -16,6 +16,7 @@ import LogoutPage from "./components/LogoutPage/LogoutPage";
 import PatientProfileForm from "./components/PatientProfileForm/PatientProfileForm";
 import PatientProfileView from "./components/PatientProfileView/PatientProfileView";
 import PatientProfileCard from "./components/PatientProfileCard/PatientProfileCard";
+import DoctorList from "./components/DoctorList/DoctorList";
 
 const { Header, Content, Footer } = Layout;
 
@@ -72,7 +73,7 @@ const App: React.FC = () => {
                   <Route path="patient-portal" element={<PatientPortal />} />
                   <Route
                     path="patient-portal-doctor-list"
-                    element={<PatientPortal />}
+                    element={<DoctorList />}
                   />
                   <Route path="view-profile" element={<PatientProfileCard />} />
                   <Route path="edit-profile" element={<PatientProfileForm />} />
