@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Card, Form, Input, Button, message, Spin, Select } from "antd";
+import {
+  Card,
+  Form,
+  Input,
+  Button,
+  message,
+  Spin,
+  Select,
+  Row,
+  Breadcrumb,
+} from "antd";
 import {
   getPatient,
   getPatientProfile,
@@ -9,6 +19,7 @@ import {
 } from "../../services/patientService"; // Adjust path
 import { Patient, PatientProfile } from "../../services/patientService"; // Adjust path
 import { getIdFromToken } from "../../services/authService";
+import { Link } from "react-router-dom";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -26,6 +37,11 @@ const raceEthnicityOptions = [
     value: "NATIVE_HAWAIIAN_PACIFIC_ISLANDER",
     label: "Native Hawaiian or Pacific Islander",
   },
+];
+
+const genderOptions = [
+  { value: "MALE", label: "Male" },
+  { value: "FEMALE", label: "Female" },
 ];
 
 const getLoggedInPatientId = (): number | null => {
@@ -70,12 +86,17 @@ const PatientProfileForm: React.FC = () => {
           form.setFieldsValue({
             first_name: fetchedPatient.first_name,
             last_name: fetchedPatient.last_name,
-            email: fetchedPatient.email,
+            gender: fetchedProfile?.gender || undefined,
             date_of_birth: fetchedPatient.date_of_birth,
-            race_ethnicity: fetchedProfile?.race_ethnicity || undefined,
-            address: fetchedProfile?.address || undefined,
             phone_number: fetchedProfile?.phone_number || undefined,
+            email: fetchedPatient.email,
+            address: fetchedProfile?.address || undefined,
             insurance_provider: fetchedProfile?.insurance_provider || undefined,
+            race_ethnicity: fetchedProfile?.race_ethnicity || undefined,
+            emergency_name: fetchedProfile?.emergency_name || undefined,
+            emergency_contact: fetchedProfile?.emergency_contact || undefined,
+            emergency_relationship:
+              fetchedProfile?.emergency_relationship || undefined,
           });
         }
       } catch (error) {
@@ -110,6 +131,10 @@ const PatientProfileForm: React.FC = () => {
         address: values.address,
         phone_number: values.phone_number,
         insurance_provider: values.insurance_provider,
+        gender: values.gender,
+        emergency_name: values.emergency_name,
+        emergency_contact: values.emergency_contact,
+        emergency_relationship: values.emergency_relationship,
       };
 
       console.log("Profile Data being sent:", profileData);
@@ -138,89 +163,169 @@ const PatientProfileForm: React.FC = () => {
   }
 
   return (
-    <Card
-      title={
-        patient
-          ? `Profile of ${patient.first_name} ${patient.last_name}`
-          : "New Patient Profile"
-      }
-    >
-      <Form form={form} layout="vertical" onFinish={handleSubmit}>
-        {/* Patient fields */}
-        <Form.Item
-          label="First Name"
-          name="first_name"
-          rules={[{ required: true, message: "Please enter first name" }]}
+    <div>
+      <Row style={{ paddingBottom: "24px" }}>
+        <Breadcrumb
+          items={[
+            {
+              title: "Home",
+            },
+            {
+              title: (
+                <Link to={`/patient-portal/view-profile`}>My Profile</Link>
+              ),
+            },
+            {
+              title: "Edit My Profile",
+            },
+          ]}
+        />
+      </Row>
+      <Card
+        title={
+          patient
+            ? `Profile of ${patient.first_name} ${patient.last_name}`
+            : "New Patient Profile"
+        }
+        style={{ width: 800 }}
+      >
+        <Form
+          form={form}
+          labelCol={{ flex: "180px" }}
+          labelAlign="right"
+          labelWrap
+          wrapperCol={{ span: 24, offset: 0 }}
+          style={{ maxWidth: 600 }}
+          onFinish={handleSubmit}
         >
-          <Input placeholder="Enter first name" />
-        </Form.Item>
+          <Form.Item
+            label="First Name"
+            name="first_name"
+            rules={[{ required: true, message: "Please enter first name" }]}
+          >
+            <Input placeholder="Enter first name" />
+          </Form.Item>
 
-        <Form.Item
-          label="Last Name"
-          name="last_name"
-          rules={[{ required: true, message: "Please enter last name" }]}
-        >
-          <Input placeholder="Enter last name" />
-        </Form.Item>
+          <Form.Item
+            label="Last Name"
+            name="last_name"
+            rules={[{ required: true, message: "Please enter last name" }]}
+          >
+            <Input placeholder="Enter last name" />
+          </Form.Item>
 
-        <Form.Item
-          label="Email"
-          name="email"
-          rules={[{ required: true, message: "Please enter email" }]}
-        >
-          <Input type="email" placeholder="Enter email" />
-        </Form.Item>
+          <Form.Item
+            label="Date of Birth"
+            name="date_of_birth"
+            rules={[{ required: true, message: "Please enter date of birth" }]}
+          >
+            <Input type="date" />
+          </Form.Item>
 
-        <Form.Item
-          label="Date of Birth"
-          name="date_of_birth"
-          rules={[{ required: true, message: "Please enter date of birth" }]}
-        >
-          <Input type="date" />
-        </Form.Item>
+          <Form.Item
+            label="Phone Number"
+            name="phone_number"
+            rules={[{ required: true, message: "Please enter phone number" }]}
+          >
+            <Input placeholder="Enter phone number" />
+          </Form.Item>
 
-        {/* PatientProfile fields */}
-        <Form.Item
-          label="Race/Ethnicity"
-          name="race_ethnicity"
-          rules={[{ required: true, message: "Please select race/ethnicity" }]}
-        >
-          <Select placeholder="Select your race/ethnicity">
-            {raceEthnicityOptions.map((option) => (
-              <Option key={option.value} value={option.value}>
-                {option.label}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[{ required: true, message: "Please enter email" }]}
+          >
+            <Input type="email" placeholder="Enter email" />
+          </Form.Item>
 
-        <Form.Item
-          label="Address"
-          name="address"
-          rules={[{ required: true, message: "Please enter address" }]}
-        >
-          <TextArea placeholder="Enter address" />
-        </Form.Item>
+          <Form.Item
+            label="Address"
+            name="address"
+            rules={[{ required: true, message: "Please enter address" }]}
+          >
+            <TextArea placeholder="Enter address" />
+          </Form.Item>
 
-        <Form.Item
-          label="Phone Number"
-          name="phone_number"
-          rules={[{ required: true, message: "Please enter phone number" }]}
-        >
-          <Input placeholder="Enter phone number" />
-        </Form.Item>
+          <Form.Item
+            label="Gender"
+            name="gender"
+            rules={[{ required: true, message: "Please select gender" }]}
+          >
+            <Select placeholder="Select your gender">
+              {genderOptions.map((option) => (
+                <Option key={option.value} value={option.value}>
+                  {option.label}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            label="Race/Ethnicity"
+            name="race_ethnicity"
+            rules={[
+              { required: true, message: "Please select race/ethnicity" },
+            ]}
+          >
+            <Select placeholder="Select your race/ethnicity">
+              {raceEthnicityOptions.map((option) => (
+                <Option key={option.value} value={option.value}>
+                  {option.label}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
 
-        <Form.Item label="Insurance Provider" name="insurance_provider">
-          <Input placeholder="Enter insurance provider" />
-        </Form.Item>
+          <Form.Item label="Insurance Provider" name="insurance_provider">
+            <Input placeholder="Enter insurance provider" />
+          </Form.Item>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit" loading={loading}>
-            {profile ? "Update Profile" : "Create Profile"}
-          </Button>
-        </Form.Item>
-      </Form>
-    </Card>
+          <Form.Item
+            label="Emergency Contact Name"
+            name="emergency_name"
+            rules={[
+              {
+                required: true,
+                message: "Please enter emergency contact name",
+              },
+            ]}
+          >
+            <Input placeholder="Enter emergency contact name" />
+          </Form.Item>
+
+          <Form.Item
+            label="Emergency Contact Number"
+            name="emergency_contact"
+            rules={[
+              {
+                required: true,
+                message: "Please enter emergency contact number",
+              },
+            ]}
+          >
+            <Input placeholder="Enter emergency contact number" />
+          </Form.Item>
+
+          <Form.Item
+            label="Emergency Contact Relationship"
+            name="emergency_relationship"
+            rules={[
+              {
+                required: true,
+                message: "Please enter relationship to emergency contact",
+              },
+            ]}
+          >
+            <Input placeholder="Enter relationship to emergency contact" />
+          </Form.Item>
+
+          <Form.Item wrapperCol={{ span: 14, offset: 18 }}>
+            <Button type="primary" htmlType="submit" loading={loading}>
+              {profile ? "Update Profile" : "Create Profile"}
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
+    </div>
   );
 };
 

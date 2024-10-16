@@ -38,10 +38,15 @@ export interface PatientProfile {
     user: Patient;
     user_id: number;
     race_ethnicity: 'WHITE' | 'BLACK' | 'HISPANIC_LATINO' | 'ASIAN' | 'AMERICAN_INDIAN_NATIVE_ALASKAN' | 'NATIVE_HAWAIIAN_PACIFIC_ISLANDER' | null;
+    gender: 'MALE' | 'FEMALE' | null;
     address: string | null;
     phone_number: string | null;
     insurance_provider: string | null;
     medical_record: MedicalRecord | null;
+    img_url: string | null;
+    emergency_name: string | null;
+    emergency_contact: string | null;
+    emergency_relationship: string | null;
 }
 
 export const getPatients = async (): Promise<Patient[]> => {

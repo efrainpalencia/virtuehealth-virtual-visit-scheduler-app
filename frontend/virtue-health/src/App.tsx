@@ -84,7 +84,7 @@ const App: React.FC = () => {
                     element={<PatientProfileCard />}
                   />
                   <Route
-                    path="patient-portal/edit-profile"
+                    path="patient-portal/view-profile/edit-profile"
                     element={<PatientProfileForm />}
                   />
                 </Route>

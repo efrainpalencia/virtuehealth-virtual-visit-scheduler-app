@@ -25,6 +25,8 @@ export interface DoctorProfile {
     fax_number: string | null;
     languages: string | null;
     schedule: Date[];
+    medical_school: string | null;
+    residency_program: string | null;
     img_url: string | null;
 }
 

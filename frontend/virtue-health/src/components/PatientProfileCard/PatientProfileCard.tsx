@@ -1,9 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Spin, message, Space } from "antd";
+import {
+  Card,
+  Button,
+  Spin,
+  message,
+  DescriptionsProps,
+  Descriptions,
+  Row,
+  Col,
+  Avatar,
+  Breadcrumb,
+} from "antd";
 import { useNavigate } from "react-router-dom";
+import { calculateAge } from "../../services/formatService";
 import { getPatient, getPatientProfile } from "../../services/patientService";
 import { Patient, PatientProfile } from "../../services/patientService";
 import { getIdFromToken } from "../../services/authService";
+import VirtueLogo from "../../assets/VirtueLogo.png";
+
+const genderMap = {
+  MALE: "Male",
+  FEMALE: "Female",
+};
 
 const PatientProfileCard: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -54,48 +72,113 @@ const PatientProfileCard: React.FC = () => {
     return <Spin tip="Loading data..." />;
   }
 
+  // Use patient's image if provided, otherwise fall back to the default image
+  const imgSrc = patient?.img_url || VirtueLogo;
+
+  // Calculate patient's age
+  const dob = patient?.date_of_birth;
+  const age = calculateAge(dob);
+
+  const items: DescriptionsProps["items"] = [
+    {
+      key: "1",
+      label: "Phone",
+      children: profile?.phone_number || "Not provided",
+    },
+    {
+      key: "2",
+      label: "Email",
+      children: patient?.email || "Not provided",
+    },
+    {
+      key: "3",
+      label: "Address",
+      children: profile?.address || "Not provided",
+    },
+    {
+      key: "4",
+      label: "Insurance",
+      children: profile?.insurance_provider || "Not provided",
+    },
+    {
+      key: "5",
+      label: "Race/Ethnicity",
+      children: profile?.race_ethnicity || "Not provided",
+    },
+  ];
+  const EmergencyItems: DescriptionsProps["items"] = [
+    {
+      key: "1",
+      label: "Name",
+      children: profile?.emergency_name || "Not provided",
+    },
+    {
+      key: "2",
+      label: "Phone",
+      children: profile?.emergency_contact || "Not provided",
+    },
+    {
+      key: "3",
+      label: "Relationship",
+      children: profile?.emergency_relationship || "Not provided",
+    },
+  ];
+
   return (
-    <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-      <Card
-        title={
-          patient
-            ? `Profile of ${patient.first_name} ${patient.last_name}`
-            : "Patient Profile"
-        }
-        style={{ textAlign: "center", marginTop: "50px", padding: "0 50px" }}
-      >
-        <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-          <Button type="primary" onClick={() => navigate("/edit-profile")}>
+    <div>
+      <Row style={{ paddingBottom: "0" }}>
+        <Breadcrumb
+          items={[
+            {
+              title: "Home",
+            },
+            {
+              title: "My Profile",
+            },
+          ]}
+        />
+      </Row>
+      <Row gutter={16}>
+        <Col span={8} offset={20} style={{ paddingTop: "5px" }}>
+          <Button type="primary" onClick={() => navigate("edit-profile")}>
             Edit Profile
           </Button>
-          <span className="mock-block"></span>
-        </Space>
-        <p>
-          <strong>First Name:</strong> {patient?.first_name}
-        </p>
-        <p>
-          <strong>Last Name:</strong> {patient?.last_name}
-        </p>
-        <p>
-          <strong>Email:</strong> {patient?.email}
-        </p>
-        <p>
-          <strong>Date of Birth:</strong> {patient?.date_of_birth}
-        </p>
-        <p>
-          <strong>Race/Ethnicity:</strong> {profile?.race_ethnicity}
-        </p>
-        <p>
-          <strong>Address:</strong> {profile?.address}
-        </p>
-        <p>
-          <strong>Phone Number:</strong> {profile?.phone_number}
-        </p>
-        <p>
-          <strong>Insurance Provider:</strong> {profile?.insurance_provider}
-        </p>
+        </Col>
+      </Row>
+
+      <Card
+        title={"My Profile"}
+        style={{ textAlign: "start", marginTop: "10px" }}
+      >
+        <Row>
+          <Col span={8}>
+            <h1>
+              {patient?.first_name} {patient?.last_name}
+            </h1>
+            <h2>
+              {genderMap[profile?.gender]}, {age} years old
+            </h2>
+          </Col>
+          <Col span={8} offset={8}>
+            <Avatar src={imgSrc} size={224} />
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <Descriptions items={items} style={{ justifyContent: "center" }} />
+          </Col>
+        </Row>
+        <Row>
+          <Col style={{ justifyContent: "center", paddingTop: "12px" }}>
+            <Descriptions
+              title={"Emergency Contact Info"}
+              items={EmergencyItems}
+              style={{ justifyContent: "center", paddingTop: "12px" }}
+            />
+          </Col>
+        </Row>
       </Card>
-    </Space>
+    </div>
   );
 };
 

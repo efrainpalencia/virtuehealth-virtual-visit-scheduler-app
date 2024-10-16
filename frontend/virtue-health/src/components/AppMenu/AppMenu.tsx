@@ -8,6 +8,7 @@ import {
   ProfileOutlined,
   LoginOutlined,
   LogoutOutlined,
+  QuestionOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { logoutUser } from "../../services/authService";
@@ -51,7 +52,7 @@ const patientItems: MenuItem[] = [
     key: "/patient-portal/doctor-list",
     icon: <ProfileOutlined />,
   },
-  { label: "About", key: "/patient-portal/about", icon: <SettingOutlined /> },
+  { label: "About", key: "/patient-portal/about", icon: <QuestionOutlined /> },
   {
     label: "My Profile",
     key: "SubMenu",
@@ -90,11 +91,10 @@ const isDoctorDetailsRoute = (route: string) =>
 // Function to get the proper menu items based on the current route
 const getItemsForRoute = (route: string): MenuItem[] => {
   if (isDoctorDetailsRoute(route)) {
-    // If it's a doctor details page (e.g., /patient-portal/doctor/:id), show patientItems
     return patientItems;
   }
 
-  // Doctor-specific pages
+  // Specific pages
   switch (route) {
     case "/doctor-dashboard":
       return doctorItems;
@@ -103,7 +103,7 @@ const getItemsForRoute = (route: string): MenuItem[] => {
     case "/patient-portal/doctor-list":
     case "/patient-portal/about":
     case "/patient-portal/view-profile":
-    case "/patient-portal/edit-profile":
+    case "/patient-portal/view-profile/edit-profile":
       return patientItems;
     default:
       return loggedOutItems;
