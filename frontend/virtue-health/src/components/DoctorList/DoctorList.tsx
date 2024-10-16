@@ -11,6 +11,7 @@ import man2 from "../../assets/man2.jpg";
 import man3 from "../../assets/man3.jpg";
 import man4 from "../../assets/man4.jpg";
 import SearchBar from "../SearchBar/SearchBar";
+import { Link } from "react-router-dom";
 
 const { Option } = Select;
 
@@ -134,9 +135,12 @@ const DoctorList: React.FC = () => {
               <List.Item.Meta
                 avatar={<Avatar src={imgSrc} size={64} />}
                 title={
-                  <a href="#" style={{ fontSize: "1.5rem" }}>
+                  <Link
+                    to={`doctor/${doctor.id}`}
+                    style={{ fontSize: "1.5rem" }}
+                  >
                     Dr. {doctor.last_name}
-                  </a>
+                  </Link>
                 }
                 description={
                   <>

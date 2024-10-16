@@ -41,13 +41,17 @@ const patientItems: MenuItem[] = [
     ),
   },
   { label: "Home", key: "/patient-portal", icon: <UserOutlined /> },
-  { label: "Appointments", key: "/appointments", icon: <AppstoreOutlined /> },
+  {
+    label: "Appointments",
+    key: "/patient-portal/appointments",
+    icon: <AppstoreOutlined />,
+  },
   {
     label: "Doctors",
-    key: "/patient-portal-doctor-list",
+    key: "/patient-portal/doctor-list",
     icon: <ProfileOutlined />,
   },
-  { label: "About", key: "/about", icon: <SettingOutlined /> },
+  { label: "About", key: "/patient-portal/about", icon: <SettingOutlined /> },
   {
     label: "My Profile",
     key: "SubMenu",
@@ -57,7 +61,7 @@ const patientItems: MenuItem[] = [
         type: "group",
         label: "Profile Settings",
         children: [
-          { label: "View My Profile", key: "view-profile" },
+          { label: "View My Profile", key: "/patient-portal/view-profile" },
           { label: "Logout", key: "/logout", icon: <LogoutOutlined /> },
         ],
       },
@@ -79,22 +83,27 @@ const loggedOutItems: MenuItem[] = [
   },
 ];
 
+// Helper function to determine if the current route matches a dynamic route like "/patient-portal/doctor/:id"
+const isDoctorDetailsRoute = (route: string) =>
+  /^\/patient-portal\/doctor-list\/doctor\/\d+$/.test(route);
+
+// Function to get the proper menu items based on the current route
 const getItemsForRoute = (route: string): MenuItem[] => {
+  if (isDoctorDetailsRoute(route)) {
+    // If it's a doctor details page (e.g., /patient-portal/doctor/:id), show patientItems
+    return patientItems;
+  }
+
+  // Doctor-specific pages
   switch (route) {
     case "/doctor-dashboard":
       return doctorItems;
     case "/patient-portal":
-      return patientItems;
-    case "/appointments":
-      return patientItems;
-    case "/patient-portal-doctor-list":
-      return patientItems;
-    case "/about":
-      return patientItems;
-    case "/view-profile":
-      return patientItems;
-      return patientItems;
-    case "/edit-profile":
+    case "/patient-portal/appointments":
+    case "/patient-portal/doctor-list":
+    case "/patient-portal/about":
+    case "/patient-portal/view-profile":
+    case "/patient-portal/edit-profile":
       return patientItems;
     default:
       return loggedOutItems;
@@ -113,7 +122,6 @@ const AppMenu: React.FC<{ route: string }> = ({ route }) => {
 
   const onClick: MenuProps["onClick"] = (e) => {
     if (e.key === "/logout") {
-      // Add logout logic, like clearing tokens or session data
       logoutUser();
       navigate(e.key);
     } else {

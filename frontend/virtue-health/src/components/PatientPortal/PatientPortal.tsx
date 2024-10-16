@@ -64,26 +64,9 @@ const PatientPortal: React.FC = () => {
           </Space>
         </Flex>
       </Flex>
-      <div></div>
-
       <Divider orientation="center">
-        <h2>Search For Doctors</h2>
-        <Space>
-          <SearchBar />
-        </Space>
+        <h2>Under Construction</h2>
       </Divider>
-
-      <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-        <Col className="gutter-row" span={6}>
-          <div style={style}>col-6</div>
-        </Col>
-        <Col className="gutter-row" span={6}>
-          <div style={style}>col-6</div>
-        </Col>
-        <Col className="gutter-row" span={6}>
-          <div style={style}>col-6</div>
-        </Col>
-      </Row>
     </div>
   );
 };

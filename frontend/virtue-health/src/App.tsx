@@ -14,9 +14,9 @@ import PasswordResetForm from "./components/PasswordResetForm/PasswordResetForm"
 import AppMenu from "./components/AppMenu/AppMenu";
 import LogoutPage from "./components/LogoutPage/LogoutPage";
 import PatientProfileForm from "./components/PatientProfileForm/PatientProfileForm";
-import PatientProfileView from "./components/PatientProfileView/PatientProfileView";
 import PatientProfileCard from "./components/PatientProfileCard/PatientProfileCard";
 import DoctorList from "./components/DoctorList/DoctorList";
+import DoctorDetails from "./components/DoctorDetails/DoctorDetails";
 
 const { Header, Content, Footer } = Layout;
 
@@ -72,11 +72,21 @@ const App: React.FC = () => {
                 >
                   <Route path="patient-portal" element={<PatientPortal />} />
                   <Route
-                    path="patient-portal-doctor-list"
+                    path="patient-portal/doctor-list"
                     element={<DoctorList />}
                   />
-                  <Route path="view-profile" element={<PatientProfileCard />} />
-                  <Route path="edit-profile" element={<PatientProfileForm />} />
+                  <Route
+                    path="patient-portal/doctor-list/doctor/:id"
+                    element={<DoctorDetails />}
+                  />
+                  <Route
+                    path="patient-portal/view-profile"
+                    element={<PatientProfileCard />}
+                  />
+                  <Route
+                    path="patient-portal/edit-profile"
+                    element={<PatientProfileForm />}
+                  />
                 </Route>
 
                 <Route
