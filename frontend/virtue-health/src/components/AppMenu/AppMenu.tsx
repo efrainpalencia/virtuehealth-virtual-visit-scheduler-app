@@ -9,6 +9,9 @@ import {
   LoginOutlined,
   LogoutOutlined,
   QuestionOutlined,
+  HomeOutlined,
+  VideoCameraOutlined,
+  MailOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { logoutUser } from "../../services/authService";
@@ -24,11 +27,9 @@ type MenuItem = {
 
 // Define the menu items for different roles
 const doctorItems: MenuItem[] = [
-  { label: "Patient List", key: "/patient-list", icon: <UserOutlined /> },
-  { label: "Appointments", key: "/appointments", icon: <AppstoreOutlined /> },
-  { label: "Prescriptions", key: "/prescriptions", icon: <ProfileOutlined /> },
-  { label: "Reports", key: "/reports", icon: <SettingOutlined /> },
-  { label: "Logout", key: "/logout", icon: <LogoutOutlined /> },
+  { label: "Home", key: "/patient-portal", icon: <HomeOutlined /> },
+  { label: "Email", key: "", icon: <MailOutlined /> },
+  { label: "Video Chat", key: "/appointments", icon: <VideoCameraOutlined /> },
 ];
 
 const patientItems: MenuItem[] = [
@@ -41,7 +42,7 @@ const patientItems: MenuItem[] = [
       </Space>
     ),
   },
-  { label: "Home", key: "/patient-portal", icon: <UserOutlined /> },
+  { label: "Home", key: "/patient-portal", icon: <HomeOutlined /> },
   {
     label: "Appointments",
     key: "/patient-portal/appointments",
@@ -97,6 +98,10 @@ const getItemsForRoute = (route: string): MenuItem[] => {
   // Specific pages
   switch (route) {
     case "/doctor-dashboard":
+    case "/doctor-dashboard/doctor-list":
+    case "/doctor-dashboard/patient-list":
+    case "/doctor-dashboard/view-profile":
+    case "/doctor-dashboard/view-profile/edit-profile":
       return doctorItems;
     case "/patient-portal":
     case "/patient-portal/appointments":

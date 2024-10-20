@@ -1,116 +1,78 @@
 import React from "react";
-import "./theme.less";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Login from "./components/Login/Login";
 import PatientPortal from "./components/PatientPortal/PatientPortal";
 import DoctorDashboard from "./components/DoctorDashboard/DoctorDashboard";
 import DoctorRegistration from "./components/DoctorRegistration/DoctorRegistration";
 import PatientRegistration from "./components/PatientRegistration/PatientRegistration";
-import { Flex, Layout, theme } from "antd";
-import "antd/dist/reset.css";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import PasswordResetRequestForm from "./components/PasswordResetRequestForm/PasswordResetRequestForm";
 import PasswordResetForm from "./components/PasswordResetForm/PasswordResetForm";
-import AppMenu from "./components/AppMenu/AppMenu";
 import LogoutPage from "./components/LogoutPage/LogoutPage";
 import PatientProfileForm from "./components/PatientProfileForm/PatientProfileForm";
 import PatientProfileCard from "./components/PatientProfileCard/PatientProfileCard";
 import DoctorList from "./components/DoctorList/DoctorList";
 import DoctorDetails from "./components/DoctorDetails/DoctorDetails";
-
-const { Header, Content, Footer } = Layout;
+import MainLayout from "./components/MainLayout/MainLayout";
+import DoctorDashboardLayout from "./components/DoctorDashboardLayout/DoctorDashboardLayout";
+import PatientPortalLayout from "./components/PatientPortalLayout/PatientPortalLayout";
+import "./theme.less";
+import PatientList from "./components/PatientList/PatientList";
+import DoctorProfileCard from "./components/DoctorProfileCard/DoctorProfileCard";
 
 const App: React.FC = () => {
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-
   return (
-    <Layout className="layout">
-      <Router>
-        <Header
-          className="custom-component"
-          style={{ display: "flex", alignItems: "center" }}
-        >
-          <div className="demo-logo" />
-          <AppMenu route={window.location.pathname} />
-        </Header>
-        <Content style={{ padding: "0 48px" }}>
-          <div
-            style={{
-              background: colorBgContainer,
-              minHeight: "100vh",
-              padding: 24,
-              borderRadius: borderRadiusLG,
-            }}
-          >
-            <Flex align="center">
-              <Routes>
-                <Route path="/" element={<Login />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/logout" element={<LogoutPage />} />
-                <Route
-                  path="/register/patient"
-                  element={<PatientRegistration />}
-                />
-                <Route
-                  path="/register/doctor"
-                  element={<DoctorRegistration />}
-                />
-                <Route
-                  path="/reset-password"
-                  element={<PasswordResetRequestForm />}
-                />
-                <Route
-                  path="/reset-password-confirm"
-                  element={<PasswordResetForm />}
-                />
+    <Router>
+      <Routes>
+        {/* Main Layout Routes */}
+        <Route path="/" element={<MainLayout />}>
+          <Route path="login" element={<Login />} />
+          <Route path="logout" element={<LogoutPage />} />
+          <Route path="register/patient" element={<PatientRegistration />} />
+          <Route path="register/doctor" element={<DoctorRegistration />} />
+          <Route path="reset-password" element={<PasswordResetRequestForm />} />
+          <Route
+            path="reset-password-confirm"
+            element={<PasswordResetForm />}
+          />
+        </Route>
 
-                <Route
-                  path="/"
-                  element={<ProtectedRoute allowedRoles={["PATIENT"]} />}
-                >
-                  <Route path="patient-portal" element={<PatientPortal />} />
-                  <Route
-                    path="patient-portal/doctor-list"
-                    element={<DoctorList />}
-                  />
-                  <Route
-                    path="patient-portal/doctor-list/doctor/:id"
-                    element={<DoctorDetails />}
-                  />
-                  <Route
-                    path="patient-portal/view-profile"
-                    element={<PatientProfileCard />}
-                  />
-                  <Route
-                    path="patient-portal/view-profile/edit-profile"
-                    element={<PatientProfileForm />}
-                  />
-                </Route>
+        {/* Doctor Dashboard Layout Routes */}
+        <Route element={<ProtectedRoute allowedRoles={["DOCTOR"]} />}>
+          <Route path="/doctor-dashboard" element={<DoctorDashboardLayout />}>
+            <Route index element={<DoctorDashboard />} />
+            <Route path="doctor-list" element={<DoctorList />} />
+            <Route path="doctor-list/doctor/:id" element={<DoctorDetails />} />
+            <Route path="patient-list" element={<PatientList />} />
+            <Route path="view-profile" element={<DoctorProfileCard />} />
+            <Route path="logout" element={<LogoutPage />} />
+          </Route>
+        </Route>
 
-                <Route
-                  path="/"
-                  element={<ProtectedRoute allowedRoles={["DOCTOR"]} />}
-                >
-                  <Route
-                    path="doctor-dashboard"
-                    element={<DoctorDashboard />}
-                  />
-                </Route>
+        {/* Patient Portal Layout Routes */}
+        <Route element={<ProtectedRoute allowedRoles={["PATIENT"]} />}>
+          <Route path="/patient-portal" element={<PatientPortalLayout />}>
+            <Route index element={<PatientPortal />} />
+            <Route path="doctor-list" element={<DoctorList />} />
+            <Route path="doctor-list/doctor/:id" element={<DoctorDetails />} />
+            <Route path="view-profile" element={<PatientProfileCard />} />
+            <Route
+              path="view-profile/edit-profile"
+              element={<PatientProfileForm />}
+            />
+          </Route>
+        </Route>
 
-                {/* Uncomment and configure when ready */}
-                {/* <Route path="/" element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
-                 <Route path="admin-dashboard" element={<AdminDashboard />} />
-              </Route>
-              <Route path="/unauthorized" element={<Unauthorized />} /> */}
-              </Routes>
-            </Flex>
-          </div>
-        </Content>
-        <Footer style={{ textAlign: "center" }}>Virtue Health ©2024</Footer>
-      </Router>
-    </Layout>
+        {/* Uncomment and configure when ready */}
+        {/* 
+        <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+          <Route path="admin-dashboard" element={<AdminDashboardLayout />}>
+            <Route index element={<AdminDashboard />} />
+          </Route>
+        </Route> 
+        */}
+      </Routes>
+    </Router>
   );
 };
 

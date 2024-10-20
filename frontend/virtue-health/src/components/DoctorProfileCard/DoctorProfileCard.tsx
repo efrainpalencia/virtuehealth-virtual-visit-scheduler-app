@@ -13,20 +13,28 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import { calculateAge } from "../../services/formatService";
-import { getPatient, getPatientProfile } from "../../services/patientService";
-import { Patient, PatientProfile } from "../../services/patientService";
+import {
+  Doctor,
+  DoctorProfile,
+  getDoctor,
+  getDoctorProfile,
+} from "../../services/doctorService";
 import { getIdFromToken } from "../../services/authService";
 import VirtueLogo from "../../assets/VirtueLogo.png";
 
-const genderMap = {
-  MALE: "Male",
-  FEMALE: "Female",
+const specialtyMap = {
+  GENERAL_DOCTOR: "General Doctor",
+  CARDIOLOGIST: "Cardiologist",
+  ORTHOPEDIST: "Orthopedist",
+  NEUROLOGIST: "Neurologist",
+  PSYCHIATRIST: "Psychiatrist",
+  PEDIATRICIAN: "Pediatrician",
 };
 
-const PatientProfileCard: React.FC = () => {
+const DoctorProfileCard: React.FC = () => {
   const [loading, setLoading] = useState(true);
-  const [patient, setPatient] = useState<Patient | null>(null);
-  const [profile, setProfile] = useState<PatientProfile | null>(null);
+  const [doctor, setDoctor] = useState<Doctor | null>(null);
+  const [profile, setProfile] = useState<DoctorProfile | null>(null);
   const navigate = useNavigate();
 
   const getLoggedInPatientId = (): number | null => {
@@ -42,22 +50,22 @@ const PatientProfileCard: React.FC = () => {
     return null;
   };
 
-  const patientId = getLoggedInPatientId();
+  const doctorId = getLoggedInPatientId();
 
   useEffect(() => {
-    if (!patientId) {
+    if (!doctorId) {
       message.error("No patient ID found.");
       return;
     }
     const fetchData = async () => {
       try {
         setLoading(true);
-        const fetchedPatient = await getPatient(patientId);
-        const fetchedProfile = await getPatientProfile(patientId);
-        console.log(fetchedPatient);
+        const fetchedDoctor = await getDoctor(doctorId);
+        const fetchedProfile = await getDoctorProfile(doctorId);
+        console.log(fetchedDoctor);
         console.log(fetchedProfile);
 
-        setPatient(fetchedPatient);
+        setDoctor(fetchedDoctor);
         setProfile(fetchedProfile);
       } catch (error) {
         message.error("Failed to fetch data.");
@@ -66,7 +74,7 @@ const PatientProfileCard: React.FC = () => {
       }
     };
     fetchData();
-  }, [patientId]);
+  }, [doctorId]);
 
   if (loading) {
     return <Spin tip="Loading data..." />;
@@ -76,7 +84,7 @@ const PatientProfileCard: React.FC = () => {
   const imgSrc = profile?.img_url || VirtueLogo;
 
   // Calculate patient's age
-  const dob = patient?.date_of_birth;
+  const dob = doctor?.date_of_birth;
   const age = calculateAge(dob);
 
   const items: DescriptionsProps["items"] = [
@@ -88,39 +96,39 @@ const PatientProfileCard: React.FC = () => {
     {
       key: "2",
       label: "Email",
-      children: patient?.email || "Not provided",
+      children: profile?.fax_number || "Not provided",
     },
     {
       key: "3",
       label: "Address",
-      children: profile?.address || "Not provided",
+      children: doctor?.email || "Not provided",
     },
     {
       key: "4",
       label: "Insurance",
-      children: profile?.insurance_provider || "Not provided",
+      children: profile?.fax_number || "Not provided",
     },
     {
       key: "5",
       label: "Race/Ethnicity",
-      children: profile?.race_ethnicity || "Not provided",
+      children: profile?.schedule || "Not provided",
     },
   ];
   const EmergencyItems: DescriptionsProps["items"] = [
     {
       key: "1",
       label: "Name",
-      children: profile?.emergency_name || "Not provided",
+      children: profile?.medical_school || "Not provided",
     },
     {
       key: "2",
       label: "Phone",
-      children: profile?.emergency_contact || "Not provided",
+      children: profile?.residency_program || "Not provided",
     },
     {
       key: "3",
       label: "Relationship",
-      children: profile?.emergency_relationship || "Not provided",
+      children: profile?.languages || "Not provided",
     },
   ];
 
@@ -153,11 +161,9 @@ const PatientProfileCard: React.FC = () => {
         <Row>
           <Col span={8}>
             <h1>
-              {patient?.first_name} {patient?.last_name}
+              {doctor?.first_name} {doctor?.last_name}
             </h1>
-            <h2>
-              {genderMap[profile?.gender]}, {age} years old
-            </h2>
+            <h2>{specialtyMap[profile?.specialty]}</h2>
           </Col>
           <Col span={8} offset={8}>
             <Avatar src={imgSrc} size={224} />
@@ -182,4 +188,4 @@ const PatientProfileCard: React.FC = () => {
   );
 };
 
-export default PatientProfileCard;
+export default DoctorProfileCard;
