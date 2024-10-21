@@ -27,7 +27,7 @@ type MenuItem = {
 
 // Define the menu items for different roles
 const doctorItems: MenuItem[] = [
-  { label: "Home", key: "/patient-portal", icon: <HomeOutlined /> },
+  { label: "Home", key: "/doctor-dashboard", icon: <HomeOutlined /> },
   { label: "Email", key: "", icon: <MailOutlined /> },
   { label: "Video Chat", key: "/appointments", icon: <VideoCameraOutlined /> },
 ];

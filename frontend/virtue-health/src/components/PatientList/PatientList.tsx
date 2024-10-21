@@ -1,166 +1,116 @@
 import React, { useEffect, useState } from "react";
-import { Table, Spin, message } from "antd";
 import {
-  getPatients,
   Patient,
-  getPatientProfiles,
   PatientProfile,
-} from "../../services/patientService"; // Adjust the import path based on your structure
+  getPatientsMap,
+  getPatientProfilesMap,
+} from "../../services/patientService";
+import { Avatar, Col, List, Row, Select } from "antd"; // Import Select for dropdown
+import man1 from "../../assets/man1.jpg";
+import man2 from "../../assets/man2.jpg";
+import man3 from "../../assets/man3.jpg";
+import man4 from "../../assets/man4.jpg";
+import SearchBar from "../SearchBar/SearchBar";
+import { Link } from "react-router-dom";
 
-interface PatientMap {
-  [key: number]: Patient;
-}
-
-interface PatientProfileMap {
-  [key: number]: PatientProfile;
-}
+// Mapping of image URLs to imported images
+const imgMap: { [key: string]: string } = {
+  "man1.jpg": man1,
+  "man2.jpg": man2,
+  "man3.jpg": man3,
+  "man4.jpg": man4,
+};
 
 const PatientList: React.FC = () => {
-  const [loading, setLoading] = useState(true);
-  const [patientsMap, setPatientsMap] = useState<PatientMap>({}); // Hash map for patients
-  const [patientProfilesMap, setPatientProfilesMap] =
-    useState<PatientProfileMap>({}); // Hash map for patient profiles
+  const [combinedPatients, setCombinedPatients] = useState<
+    Array<Patient & Partial<PatientProfile>>
+  >([]);
+  const [filteredPatients, setFilteredPatients] = useState<
+    Array<Patient & Partial<PatientProfile>>
+  >([]);
 
   useEffect(() => {
-    const fetchPatients = async () => {
+    const fetchPatientsAndProfiles = async () => {
       try {
-        setLoading(true);
-        const data = await getPatients(); // Fetch patient array
-        const patientMap = data.reduce((acc: PatientMap, patient: Patient) => {
-          acc[patient.id] = patient;
-          return acc;
-        }, {});
-        setPatientsMap(patientMap); // Set the hash map for patients
+        const [patientsMap, profilesMap] = await Promise.all([
+          getPatientsMap(),
+          getPatientProfilesMap(),
+        ]);
+
+        const combinedList = Object.keys(patientsMap).map((patientId) => {
+          const patient = patientsMap[parseInt(patientId)];
+          const profile = profilesMap[parseInt(patientId)] || {};
+          return { ...patient, ...profile };
+        });
+
+        setCombinedPatients(combinedList);
+        setFilteredPatients(combinedList); // Initialize filteredDoctors with all doctors
+        console.log("Combined Patients with Profiles:", combinedList);
       } catch (error) {
-        message.error("Failed to fetch patients.");
-      } finally {
-        setLoading(false);
+        console.error("Error fetching patients or profiles:", error);
       }
     };
 
-    const fetchPatientProfiles = async () => {
-      try {
-        setLoading(true);
-        const data = await getPatientProfiles(); // Fetch patient profiles array
-        const profileMap = data.reduce(
-          (acc: PatientProfileMap, profile: PatientProfile) => {
-            acc[profile.user_id] = profile;
-            return acc;
-          },
-          {}
-        );
-        setPatientProfilesMap(profileMap); // Set the hash map for patient profiles
-      } catch (error) {
-        message.error("Failed to fetch patient profiles.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPatients();
-    fetchPatientProfiles();
+    fetchPatientsAndProfiles();
   }, []);
 
-  // Convert hash maps to arrays for rendering in tables
-  const patientsArray = Object.values(patientsMap);
-  const patientProfilesArray = Object.values(patientProfilesMap);
-
-  // Columns configuration for Ant Design Table
-  const columnsPatients = [
-    {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-    },
-    {
-      title: "First Name",
-      dataIndex: "first_name",
-      key: "first_name",
-    },
-    {
-      title: "Last Name",
-      dataIndex: "last_name",
-      key: "last_name",
-    },
-    {
-      title: "Email",
-      dataIndex: "email",
-      key: "email",
-    },
-    {
-      title: "Date of Birth",
-      dataIndex: "date_of_birth",
-      key: "date_of_birth",
-      render: (date: string | null) =>
-        date ? new Date(date).toLocaleDateString() : "N/A",
-    },
-    {
-      title: "Role",
-      dataIndex: "role",
-      key: "role",
-    },
-  ];
-
-  const columnsProfiles = [
-    {
-      title: "User",
-      dataIndex: "user_id",
-      key: "user_id",
-    },
-    {
-      title: "Race/Ethnicity",
-      dataIndex: "race_ethnicity",
-      key: "race_ethnicity",
-    },
-    {
-      title: "Address",
-      dataIndex: "address",
-      key: "address",
-    },
-    {
-      title: "Phone Number",
-      dataIndex: "phone_number",
-      key: "phone_number",
-    },
-    {
-      title: "Insurance Provider",
-      dataIndex: "insurance_provider",
-      key: "insurance_provider",
-    },
-    {
-      title: "Medical Record",
-      dataIndex: "medical_record",
-      key: "medical_record",
-    },
-  ];
-
-  if (loading) {
-    return <Spin tip="Loading data..." />;
-  }
+  // Handle search by name
+  const handleSearch = (searchTerm: string) => {
+    const filtered = combinedPatients.filter(
+      (patient) =>
+        patient.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        patient.last_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredPatients(filtered);
+  };
 
   return (
     <div>
-      <h1>Patients and Profiles</h1>
+      <h1>Patients List</h1>
 
-      <div>
-        <h2>Patient List</h2>
-        <Table
-          columns={columnsPatients}
-          dataSource={patientsArray} // Use the array version of the patients map
-          rowKey="id"
-          pagination={{ pageSize: 10 }} // Pagination for better UX
-        />
-      </div>
+      <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+        <Col className="gutter-row" span={12}>
+          <SearchBar
+            placeholder="Search patients by name..."
+            onSearch={handleSearch}
+          />
+        </Col>
+      </Row>
 
-      <div>
-        <h2>Patient Profiles</h2>
-        <Table
-          columns={columnsProfiles}
-          dataSource={patientProfilesArray} // Use the array version of the patient profiles map
-          rowKey="user_id"
-          pagination={{ pageSize: 10 }} // Pagination for better UX
-        />
-      </div>
+      {/* Render the filtered doctor list */}
+      <List
+        style={{ display: "grid", alignItems: "center", minWidth: "500px" }}
+        size="large"
+        itemLayout="horizontal"
+        dataSource={filteredPatients}
+        renderItem={(patient) => {
+          // Fallback to a default image if img_url is not found in the imgMap
+          const imgSrc = imgMap[patient.img_url] || man1;
+
+          return (
+            <List.Item style={{ padding: "20px 0" }}>
+              <List.Item.Meta
+                avatar={<Avatar src={imgSrc} size={64} />}
+                title={
+                  <Link
+                    to={`patient/${patient.id}`}
+                    style={{ fontSize: "1.5rem" }}
+                  >
+                    {patient.last_name || "N/A"}, {patient.first_name || "N/A"}
+                  </Link>
+                }
+                description={
+                  <>
+                    <p style={{ fontSize: "1.2rem" }}>
+                      Date of Birth: {patient.date_of_birth || "N/A"}
+                    </p>
+                  </>
+                }
+              />
+            </List.Item>
+          );
+        }}
+      />
     </div>
   );
 };

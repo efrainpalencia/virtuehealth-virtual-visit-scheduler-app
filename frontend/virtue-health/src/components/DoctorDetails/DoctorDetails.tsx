@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import {
   Avatar,
   Breadcrumb,
@@ -16,6 +16,7 @@ import {
   getDoctorProfilesMap,
 } from "../../services/doctorService";
 import VirtueLogo from "../../assets/VirtueLogo.png";
+import { getRoleFromToken } from "../../services/authService";
 
 const specialtyMap = {
   GENERAL_DOCTOR: "General Doctor",
@@ -29,6 +30,9 @@ const specialtyMap = {
 const DoctorDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>(); // Get doctor ID from the URL
   const [doctor, setDoctor] = useState<any>(null); // State to hold doctor data
+
+  const token = localStorage.getItem("access_token");
+  const userRole = token ? getRoleFromToken(token) : null;
 
   useEffect(() => {
     const fetchDoctor = async () => {
@@ -100,24 +104,28 @@ const DoctorDetails: React.FC = () => {
     },
   ];
 
+  // Create breadcrumb items based on the user role
+  const breadcrumbItems = [
+    {
+      title: "Home",
+    },
+    {
+      title:
+        userRole === "DOCTOR" ? (
+          <Link to="/doctor-dashboard/doctor-list">Doctor List</Link>
+        ) : userRole === "PATIENT" ? (
+          <Link to="/patient-portal/doctor-list">Doctor List</Link>
+        ) : null,
+    },
+    {
+      title: "Doctor Details",
+    },
+  ];
+
   return (
     <div>
       <Row style={{ paddingBottom: "48px" }}>
-        <Breadcrumb
-          items={[
-            {
-              title: "Home",
-            },
-            {
-              title: (
-                <Link to={`/patient-portal/doctor-list`}>Doctor List</Link>
-              ),
-            },
-            {
-              title: "Doctor Details",
-            },
-          ]}
-        />
+        <Breadcrumb items={breadcrumbItems.filter((item) => item.title)} />
       </Row>
       <Card
         title={"Doctor Details"}

@@ -19,6 +19,7 @@ import PatientPortalLayout from "./components/PatientPortalLayout/PatientPortalL
 import "./theme.less";
 import PatientList from "./components/PatientList/PatientList";
 import DoctorProfileCard from "./components/DoctorProfileCard/DoctorProfileCard";
+import DoctorProfileForm from "./components/DoctorProfileForm/DoctorProfileForm";
 
 const App: React.FC = () => {
   return (
@@ -45,6 +46,10 @@ const App: React.FC = () => {
             <Route path="doctor-list/doctor/:id" element={<DoctorDetails />} />
             <Route path="patient-list" element={<PatientList />} />
             <Route path="view-profile" element={<DoctorProfileCard />} />
+            <Route
+              path="view-profile/edit-profile"
+              element={<DoctorProfileForm />}
+            />
             <Route path="logout" element={<LogoutPage />} />
           </Route>
         </Route>

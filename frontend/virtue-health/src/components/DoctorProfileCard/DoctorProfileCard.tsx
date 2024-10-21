@@ -12,7 +12,6 @@ import {
   Breadcrumb,
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import { calculateAge } from "../../services/formatService";
 import {
   Doctor,
   DoctorProfile,
@@ -76,16 +75,12 @@ const DoctorProfileCard: React.FC = () => {
     fetchData();
   }, [doctorId]);
 
-  if (loading) {
-    return <Spin tip="Loading data..." />;
-  }
-
   // Use patient's image if provided, otherwise fall back to the default image
   const imgSrc = profile?.img_url || VirtueLogo;
 
-  // Calculate patient's age
-  const dob = doctor?.date_of_birth;
-  const age = calculateAge(dob);
+  if (loading) {
+    return <Spin tip="Loading data..." />;
+  }
 
   const items: DescriptionsProps["items"] = [
     {
@@ -95,40 +90,35 @@ const DoctorProfileCard: React.FC = () => {
     },
     {
       key: "2",
-      label: "Email",
+      label: "Fax",
       children: profile?.fax_number || "Not provided",
     },
     {
       key: "3",
-      label: "Address",
+      label: "Email",
       children: doctor?.email || "Not provided",
     },
     {
       key: "4",
-      label: "Insurance",
-      children: profile?.fax_number || "Not provided",
+      label: "Primary Location",
+      children: profile?.location || "Not provided",
     },
     {
       key: "5",
-      label: "Race/Ethnicity",
-      children: profile?.schedule || "Not provided",
+      label: "Languages",
+      children: profile?.languages || "Not provided",
     },
   ];
-  const EmergencyItems: DescriptionsProps["items"] = [
+  const EducationItems: DescriptionsProps["items"] = [
     {
       key: "1",
-      label: "Name",
+      label: "Medical School",
       children: profile?.medical_school || "Not provided",
     },
     {
       key: "2",
-      label: "Phone",
+      label: "Residency Program",
       children: profile?.residency_program || "Not provided",
-    },
-    {
-      key: "3",
-      label: "Relationship",
-      children: profile?.languages || "Not provided",
     },
   ];
 
@@ -161,24 +151,28 @@ const DoctorProfileCard: React.FC = () => {
         <Row>
           <Col span={8}>
             <h1>
-              {doctor?.first_name} {doctor?.last_name}
+              {doctor?.last_name}, {doctor?.first_name}, MD
             </h1>
             <h2>{specialtyMap[profile?.specialty]}</h2>
           </Col>
           <Col span={8} offset={8}>
-            <Avatar src={imgSrc} size={224} />
+            <Avatar src={VirtueLogo} size={224} />
           </Col>
         </Row>
         <Row>
           <Col>
-            <Descriptions items={items} style={{ justifyContent: "center" }} />
+            <Descriptions
+              title={"Contact Info"}
+              items={items}
+              style={{ justifyContent: "center" }}
+            />
           </Col>
         </Row>
         <Row>
           <Col style={{ justifyContent: "center", paddingTop: "12px" }}>
             <Descriptions
-              title={"Emergency Contact Info"}
-              items={EmergencyItems}
+              title={"Education"}
+              items={EducationItems}
               style={{ justifyContent: "center", paddingTop: "12px" }}
             />
           </Col>

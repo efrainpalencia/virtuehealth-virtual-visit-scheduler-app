@@ -9,6 +9,8 @@ import {
   Select,
   Row,
   Breadcrumb,
+  Upload,
+  Avatar,
 } from "antd";
 import {
   getPatient,
@@ -20,6 +22,7 @@ import {
 import { Patient, PatientProfile } from "../../services/patientService"; // Adjust path
 import { getIdFromToken } from "../../services/authService";
 import { Link } from "react-router-dom";
+import { UploadOutlined } from "@ant-design/icons";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -61,6 +64,7 @@ const PatientProfileForm: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [patient, setPatient] = useState<Patient | null>(null);
   const [profile, setProfile] = useState<PatientProfile | null>(null);
+  const [profileImage, setProfileImage] = useState<File | null>(null);
   const [form] = Form.useForm();
 
   // Get logged-in patient's ID
@@ -158,6 +162,17 @@ const PatientProfileForm: React.FC = () => {
     }
   };
 
+  // Handle image upload
+  const handleImageUpload = (info: any) => {
+    if (info.file.status === "done") {
+      // Assuming the backend returns the image URL in the response
+      setProfileImage(info.file.originFileObj);
+      message.success(`${info.file.name} file uploaded successfully.`);
+    } else if (info.file.status === "error") {
+      message.error(`${info.file.name} file upload failed.`);
+    }
+  };
+
   if (loading) {
     return <Spin tip="Loading data..." />;
   }
@@ -198,6 +213,25 @@ const PatientProfileForm: React.FC = () => {
           style={{ maxWidth: 600 }}
           onFinish={handleSubmit}
         >
+          <Form.Item label="Profile Image" name="profile_image">
+            <Upload
+              name="profile_image"
+              listType="picture"
+              showUploadList={false}
+              beforeUpload={() => false} // Prevent automatic upload
+              onChange={handleImageUpload}
+            >
+              <Button icon={<UploadOutlined />}>Click to Upload</Button>
+            </Upload>
+            {profileImage && (
+              <Avatar
+                src={URL.createObjectURL(profileImage)}
+                size={128}
+                style={{ marginTop: 10 }}
+              />
+            )}
+          </Form.Item>
+
           <Form.Item
             label="First Name"
             name="first_name"
