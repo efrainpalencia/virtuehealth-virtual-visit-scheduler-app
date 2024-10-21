@@ -88,20 +88,19 @@ const PatientList: React.FC = () => {
           const imgSrc = imgMap[patient.img_url] || man1;
 
           return (
-            <List.Item style={{ padding: "20px 0" }}>
+            <List.Item style={{ padding: "15px 0" }}>
               <List.Item.Meta
-                avatar={<Avatar src={imgSrc} size={64} />}
                 title={
                   <Link
                     to={`patient/${patient.id}`}
-                    style={{ fontSize: "1.5rem" }}
+                    style={{ fontSize: "1.2rem" }}
                   >
                     {patient.last_name || "N/A"}, {patient.first_name || "N/A"}
                   </Link>
                 }
                 description={
                   <>
-                    <p style={{ fontSize: "1.2rem" }}>
+                    <p style={{ fontSize: "1rem" }}>
                       Date of Birth: {patient.date_of_birth || "N/A"}
                     </p>
                   </>

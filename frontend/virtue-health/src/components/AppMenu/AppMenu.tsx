@@ -85,14 +85,20 @@ const loggedOutItems: MenuItem[] = [
   },
 ];
 
-// Helper function to determine if the current route matches a dynamic route like "/patient-portal/doctor/:id"
+// Helper functions to determine if the current route matches a dynamic route like "/patient-portal/doctor/:id"
 const isDoctorDetailsRoute = (route: string) =>
   /^\/patient-portal\/doctor-list\/doctor\/\d+$/.test(route);
+
+const isPatientDetailsRoute = (route: string) =>
+  /^\/doctor-dashboard\/patient-list\/patient\/\d+$/.test(route);
 
 // Function to get the proper menu items based on the current route
 const getItemsForRoute = (route: string): MenuItem[] => {
   if (isDoctorDetailsRoute(route)) {
     return patientItems;
+  }
+  if (isPatientDetailsRoute(route)) {
+    return doctorItems;
   }
 
   // Specific pages

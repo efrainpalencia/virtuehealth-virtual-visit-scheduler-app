@@ -131,20 +131,20 @@ const DoctorList: React.FC = () => {
           const imgSrc = imgMap[doctor.img_url] || man1;
 
           return (
-            <List.Item style={{ padding: "20px 0" }}>
+            <List.Item style={{ padding: "15px 0" }}>
               <List.Item.Meta
                 avatar={<Avatar src={imgSrc} size={64} />}
                 title={
                   <Link
                     to={`doctor/${doctor.id}`}
-                    style={{ fontSize: "1.5rem" }}
+                    style={{ fontSize: "1.2rem" }}
                   >
                     Dr. {doctor.last_name}
                   </Link>
                 }
                 description={
                   <>
-                    <p style={{ fontSize: "1.2rem" }}>
+                    <p style={{ fontSize: "1rem" }}>
                       Specialty: {specialtyMap[doctor.specialty] || "N/A"}
                     </p>
                   </>
