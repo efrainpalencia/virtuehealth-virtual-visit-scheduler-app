@@ -276,6 +276,20 @@ const DoctorProfileForm: React.FC = () => {
           </Form.Item>
 
           <Form.Item
+            label="Specialty"
+            name="specialty"
+            rules={[{ required: true, message: "Please select specialty" }]}
+          >
+            <Select placeholder="Select your specialty">
+              {specialtyMap.map((option) => (
+                <Option key={option.value} value={option.value}>
+                  {option.label}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
             label="Primary Location"
             name="location"
             rules={[{ required: true, message: "Please enter location" }]}

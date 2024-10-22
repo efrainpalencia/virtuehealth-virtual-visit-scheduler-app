@@ -7,16 +7,16 @@ import {
   Card,
   Col,
   Descriptions,
-  Flex,
   Row,
+  Modal,
 } from "antd";
-import type { DescriptionsProps } from "antd";
 import {
   getDoctorsMap,
   getDoctorProfilesMap,
 } from "../../services/doctorService";
 import VirtueLogo from "../../assets/VirtueLogo.png";
 import { getRoleFromToken } from "../../services/authService";
+import BookAppointment from "../BookAppointment/BookAppointment"; // Import the BookAppointment component
 
 const specialtyMap = {
   GENERAL_DOCTOR: "General Doctor",
@@ -30,6 +30,7 @@ const specialtyMap = {
 const DoctorDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>(); // Get doctor ID from the URL
   const [doctor, setDoctor] = useState<any>(null); // State to hold doctor data
+  const [isModalVisible, setIsModalVisible] = useState(false); // State to handle modal visibility
 
   const token = localStorage.getItem("access_token");
   const userRole = token ? getRoleFromToken(token) : null;
@@ -57,52 +58,13 @@ const DoctorDetails: React.FC = () => {
   // Use doctor's image if provided, otherwise fall back to the default image
   const imgSrc = doctor?.img_url || VirtueLogo;
 
-  const items: DescriptionsProps["items"] = [
-    {
-      key: "1",
-      label: "Primary Location",
-      children: doctor.location || "Not provided",
-    },
-    {
-      key: "2",
-      label: "Phone",
-      children: doctor.phone_number || "Not provided",
-    },
-    {
-      key: "3",
-      label: "Languages",
-      children: doctor.languages || "Not provided",
-    },
-    {
-      key: "4",
-      label: "Email",
-      children: doctor.email || "Not provided",
-    },
-    {
-      key: "5",
-      label: "Fax",
-      children: doctor.fax_number || "Not provided",
-    },
-  ];
+  const handleBookAppointmentClick = () => {
+    setIsModalVisible(true); // Show the modal when the button is clicked
+  };
 
-  const aboutItems: DescriptionsProps["items"] = [
-    {
-      key: "1",
-      label: "Medical School",
-      children: doctor.medical_school || "Not provided",
-    },
-    {
-      key: "2",
-      label: "Residency Program",
-      children: doctor.residency_program || "Not provided",
-    },
-    {
-      key: "3",
-      label: "Insurance",
-      children:
-        "Most insurances are accepted by physicians on staff. You should contact the office for questions about financial arrangements and insurance acceptance.",
-    },
-  ];
+  const handleModalCancel = () => {
+    setIsModalVisible(false); // Hide the modal when canceled
+  };
 
   // Create breadcrumb items based on the user role
   const breadcrumbItems = [
@@ -144,41 +106,27 @@ const DoctorDetails: React.FC = () => {
         </Row>
         <Row>
           <Col>
-            <Descriptions
-              title="Doctor Info:"
-              items={items}
-              style={{ justifyContent: "center" }}
-            />
+            <Descriptions title="Doctor Info:" />
           </Col>
         </Row>
         <Row>
-          <Flex
-            vertical
-            gap="small"
-            style={{ width: "25%", paddingTop: "48px" }}
-          >
-            <Button type="primary" block>
-              Book A Virtual Visit
+          <Col span={12}>
+            <Button type="primary" onClick={handleBookAppointmentClick}>
+              Book Appointment
             </Button>
-          </Flex>
-        </Row>
-      </Card>
-      <Card
-        title={doctor ? `About Dr. ${doctor.last_name}` : "About this Doctor"}
-        style={{ textAlign: "start", marginTop: "10px" }}
-      >
-        <Row></Row>
-        <Row>
-          <Col>
-            <Descriptions
-              title="Education"
-              items={aboutItems}
-              style={{ justifyContent: "center" }}
-            />
           </Col>
-          <Col></Col>
         </Row>
       </Card>
+
+      {/* BookAppointment Modal */}
+      <Modal
+        title="Book an Appointment"
+        visible={isModalVisible}
+        onCancel={handleModalCancel}
+        footer={null} // Footer is omitted to handle buttons in the modal content
+      >
+        <BookAppointment doctor={doctor} onClose={handleModalCancel} />
+      </Modal>
     </div>
   );
 };

@@ -8,4 +8,4 @@ class AppointmentViewset(viewsets.ModelViewSet):
     serializer_class = AppointmentSerializer
     authentication_classes = [
         authentication.SessionAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
