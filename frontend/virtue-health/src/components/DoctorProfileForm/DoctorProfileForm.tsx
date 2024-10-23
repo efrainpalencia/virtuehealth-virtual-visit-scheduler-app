@@ -17,12 +17,13 @@ import {
   Doctor,
   DoctorProfile,
   getDoctor,
+  getLoggedInDoctorId,
   getDoctorProfile,
   createDoctorProfile,
   updateDoctorProfile,
   updateDoctor,
 } from "../../services/doctorService";
-import { getIdFromToken, getRoleFromToken } from "../../services/authService";
+import { getRoleFromToken } from "../../services/authService";
 import { Link } from "react-router-dom";
 
 const { TextArea } = Input;
@@ -37,18 +38,18 @@ const specialtyMap = [
   { value: "PEDIATRICIAN", label: "Pediatrician" },
 ];
 
-const getLoggedInDoctorId = (): number | null => {
-  const token = localStorage.getItem("access_token");
-  if (token) {
-    try {
-      return getIdFromToken(token);
-    } catch (error) {
-      console.error("Failed to decode token", error);
-      return null;
-    }
-  }
-  return null;
-};
+// const getLoggedInDoctorId = (): number | null => {
+//   const token = localStorage.getItem("access_token");
+//   if (token) {
+//     try {
+//       return getIdFromToken(token);
+//     } catch (error) {
+//       console.error("Failed to decode token", error);
+//       return null;
+//     }
+//   }
+//   return null;
+// };
 
 const DoctorProfileForm: React.FC = () => {
   const [loading, setLoading] = useState(true);

@@ -78,9 +78,9 @@ const DoctorDashboardLayout: FC<DoctorDashboardLayoutProps> = () => {
               label: "Dashboard",
             },
             {
-              key: "2",
+              key: "/doctor-dashboard/doctor-schedule",
               icon: <CalendarOutlined />,
-              label: "Schedule Calender",
+              label: "My Schedule",
             },
             {
               key: "/doctor-dashboard/patient-list",

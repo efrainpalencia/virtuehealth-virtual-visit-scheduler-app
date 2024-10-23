@@ -21,6 +21,7 @@ import PatientList from "./components/PatientList/PatientList";
 import DoctorProfileCard from "./components/DoctorProfileCard/DoctorProfileCard";
 import DoctorProfileForm from "./components/DoctorProfileForm/DoctorProfileForm";
 import PatientDetails from "./components/PatientDetails/PatientDetails";
+import DoctorSchedule from "./components/DoctorSchedule/DoctorSchedule";
 
 const App: React.FC = () => {
   return (
@@ -46,6 +47,7 @@ const App: React.FC = () => {
             <Route path="doctor-list" element={<DoctorList />} />
             <Route path="doctor-list/doctor/:id" element={<DoctorDetails />} />
             <Route path="patient-list" element={<PatientList />} />
+            <Route path="doctor-schedule" element={<DoctorSchedule />} />
             <Route
               path="patient-list/patient/:id"
               element={<PatientDetails />}

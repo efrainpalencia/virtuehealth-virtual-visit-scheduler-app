@@ -2,15 +2,18 @@ import React, { useState } from "react";
 import { DatePicker, Button, message } from "antd";
 import moment, { Moment } from "moment";
 import { scheduleAppointment } from "../../services/appointmentService";
+import { updateDoctorProfile } from "../../services/doctorService"; // Assuming there's a service to update the doctor's profile
 
 interface BookAppointmentProps {
   doctor: any; // Doctor data passed from the parent component
   onClose: () => void; // Callback to close the modal
+  refreshDoctorData: () => void; // Callback to refresh doctor's data after booking
 }
 
 const BookAppointment: React.FC<BookAppointmentProps> = ({
   doctor,
   onClose,
+  refreshDoctorData,
 }) => {
   const [selectedDateTime, setSelectedDateTime] = useState<Moment | null>(null); // State for selected appointment date and time
 
@@ -27,6 +30,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
     }
 
     try {
+      // Book the appointment
       await scheduleAppointment({
         patient_id: 1, // Replace with actual patient ID
         doctor_id: doctor.id,
@@ -35,7 +39,16 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
         status: "PENDING",
       });
 
+      // Remove the booked time from the doctor's available schedule
+      const updatedSchedule = doctor.schedule.filter(
+        (time: Date) => !moment(time).isSame(selectedDateTime, "minute")
+      );
+
+      // Update the doctor's profile with the new schedule
+      await updateDoctorProfile(doctor.user_id, { schedule: updatedSchedule });
+
       message.success("Appointment booked successfully!");
+      refreshDoctorData(); // Refresh the doctor's data after booking
       onClose(); // Close the modal after successful booking
     } catch (error) {
       message.error("Failed to book appointment.");

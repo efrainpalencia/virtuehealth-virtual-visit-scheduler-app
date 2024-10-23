@@ -108,6 +108,7 @@ const getItemsForRoute = (route: string): MenuItem[] => {
     case "/doctor-dashboard/patient-list":
     case "/doctor-dashboard/view-profile":
     case "/doctor-dashboard/view-profile/edit-profile":
+    case "/doctor-dashboard/doctor-schedule":
       return doctorItems;
     case "/patient-portal":
     case "/patient-portal/appointments":
