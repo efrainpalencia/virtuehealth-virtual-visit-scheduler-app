@@ -4,8 +4,21 @@ import moment, { Moment } from "moment";
 import {
   updateDoctorProfile,
   getDoctorProfile,
-  getLoggedInDoctorId,
 } from "../../services/doctorService"; // Assuming existing functions to get/update profile
+import { getIdFromToken } from "../../services/authService";
+
+const getLoggedInDoctorId = (): number | null => {
+  const token = localStorage.getItem("access_token");
+  if (token) {
+    try {
+      return getIdFromToken(token);
+    } catch (error) {
+      console.error("Failed to decode token", error);
+      return null;
+    }
+  }
+  return null;
+};
 
 const DoctorSchedule: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Moment | null>(null);
@@ -19,14 +32,19 @@ const DoctorSchedule: React.FC = () => {
   console.log(doctorId);
 
   useEffect(() => {
+    if (!doctorId) {
+      message.error("No doctor ID found.");
+      return;
+    }
     // Fetch current doctor profile and schedule on mount
     const fetchDoctorProfile = async () => {
       try {
         const profile = await getDoctorProfile(doctorId);
+        console.log("Doctor Profile: ", profile);
         if (profile?.schedule) {
           setDoctorSchedule(
             profile.schedule.map((time: Date) => new Date(time))
-          ); // Convert string dates to JS Date
+          );
         }
       } catch (error) {
         message.error("Failed to fetch doctor profile.");
