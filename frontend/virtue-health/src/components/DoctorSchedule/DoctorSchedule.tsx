@@ -88,6 +88,15 @@ const DoctorSchedule: React.FC = () => {
     message.success("Time slot added.");
   };
 
+  // Remove a time slot from the schedule
+  const handleRemoveTimeSlot = (slotToRemove: Date) => {
+    const updatedSchedule = doctorSchedule.filter(
+      (slot) => slot.getTime() !== slotToRemove.getTime()
+    );
+    setDoctorSchedule(updatedSchedule);
+    message.success("Time slot removed.");
+  };
+
   // Save schedule to backend
   const handleSaveSchedule = async () => {
     try {
@@ -133,7 +142,20 @@ const DoctorSchedule: React.FC = () => {
         dataSource={doctorSchedule.map((slot) =>
           moment(slot).format("YYYY-MM-DD HH:mm")
         )}
-        renderItem={(item) => <List.Item>{item}</List.Item>}
+        renderItem={(item, index) => (
+          <List.Item
+            actions={[
+              <Button
+                type="link"
+                onClick={() => handleRemoveTimeSlot(doctorSchedule[index])}
+              >
+                Remove
+              </Button>,
+            ]}
+          >
+            {item}
+          </List.Item>
+        )}
         style={{ marginTop: 16 }}
       />
 
