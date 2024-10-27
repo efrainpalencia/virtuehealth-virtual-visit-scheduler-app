@@ -105,7 +105,23 @@ const AppointmentForm: React.FC = () => {
                   You must ensure a stable internet connection and a suitable
                   device for virtual consultations. Additionally, you are
                   expected to follow the healthcare provider’s instructions and
-                  recommendations.
+                  recommendations. We are committed to protecting your privacy.
+                  All personal and medical information provided during the use
+                  of our service will be kept confidential in accordance with
+                  our Privacy Policy. Fees for virtual consultations will be
+                  clearly stated at the time of booking. Payment must be made in
+                  full before the appointment. We accept Cryptocurrency. You may
+                  cancel or reschedule your appointment up to 24 hours before
+                  the scheduled time. Cancellations made within 24 hours of the
+                  appointment will not be eligible for a refund. Our service is
+                  provided “as is” without any warranties, express or implied.
+                  We do not guarantee the accuracy or completeness of the
+                  information provided by healthcare providers. We are not
+                  liable for any damages arising from the use of our service. We
+                  reserve the right to modify these terms and conditions at any
+                  time. Any changes will be effective immediately upon posting
+                  on our website. Your continued use of the service constitutes
+                  acceptance of the revised terms.
                 </p>
               </div>
             </Form.Item>
@@ -126,6 +142,24 @@ const AppointmentForm: React.FC = () => {
       content: (
         <div>
           <h3>Select the reason for your visit</h3>
+          <div
+            style={{
+              border: "1px solid #d9d9d9",
+              padding: "12px",
+              borderRadius: "4px",
+              maxHeight: "150px",
+              overflowY: "auto",
+            }}
+          >
+            <p style={{ margin: 0 }}>
+              To ensure you receive the best care during your virtual health
+              appointment, we ask that you provide a reason for your visit when
+              scheduling. This helps our healthcare providers prepare in
+              advance, streamline the appointment process, offer personalized
+              care, and ensure your safety. Your cooperation is greatly
+              appreciated. If you have any questions, please contact us.
+            </p>
+          </div>
           <Select
             style={{ width: 300 }}
             placeholder="Select a reason"
