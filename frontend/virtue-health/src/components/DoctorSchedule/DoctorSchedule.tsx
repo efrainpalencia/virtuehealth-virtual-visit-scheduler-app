@@ -41,7 +41,7 @@ const DoctorSchedule: React.FC = () => {
         const profile = await getDoctorProfile(doctorId);
         if (profile?.schedule) {
           setDoctorSchedule(
-            profile.schedule.map((time: Date) => new Date(time))
+            profile.schedule.map((time: string) => new Date(time))
           );
         }
       } catch (error) {
@@ -69,16 +69,17 @@ const DoctorSchedule: React.FC = () => {
       return;
     }
 
-    const startTime = selectedDate.set({
-      hour: selectedTimeRange[0].hour(),
-      minute: selectedTimeRange[0].minute(),
-    });
-    const endTime = selectedDate.set({
-      hour: selectedTimeRange[1].hour(),
-      minute: selectedTimeRange[1].minute(),
-    });
+    // Initialize startTime and endTime with selectedDate and then set the time components
+    const startTime = dayjs(selectedDate)
+      .hour(selectedTimeRange[0].hour())
+      .minute(selectedTimeRange[0].minute())
+      .second(0);
+    const endTime = dayjs(selectedDate)
+      .hour(selectedTimeRange[1].hour())
+      .minute(selectedTimeRange[1].minute())
+      .second(0);
 
-    // Convert Dayjs to Date before adding to schedule
+    // Convert to Date before adding to schedule
     const newSlot = [startTime.toDate(), endTime.toDate()];
     const updatedSchedule = [...doctorSchedule, ...newSlot];
 
@@ -98,7 +99,11 @@ const DoctorSchedule: React.FC = () => {
   // Save schedule to backend
   const handleSaveSchedule = async () => {
     try {
-      const formattedSchedule = doctorSchedule.map((time) => new Date(time));
+      // If no time slots are available, send an empty array to backend
+      const formattedSchedule =
+        doctorSchedule.length > 0
+          ? doctorSchedule.map((time) => new Date(time))
+          : [];
       await updateDoctorProfile(doctorId, { schedule: formattedSchedule });
       message.success("Schedule updated successfully!");
     } catch (error) {
@@ -119,11 +124,25 @@ const DoctorSchedule: React.FC = () => {
       <TimePicker.RangePicker
         minuteStep={15}
         format="HH:mm"
-        disabledHours={() => [
-          0, 1, 2, 3, 4, 5, 6, 7, 8, 18, 19, 20, 21, 22, 23,
-        ]} // Limit to office hours 9 AM to 5 PM
+        disabledTime={(current) => {
+          const disabledHours = Array.from({ length: 24 }, (_, i) => i).filter(
+            (hour) => hour < 9 || hour >= 17
+          );
+
+          return {
+            disabledHours: () => disabledHours,
+            disabledMinutes: () => {
+              // Enable minutes only in 15-minute intervals (0, 15, 30, 45)
+              const allMinutes = Array.from({ length: 60 }, (_, i) => i);
+              return allMinutes.filter(
+                (minute) => ![0, 15, 30, 45].includes(minute)
+              );
+            },
+          };
+        }}
         onChange={handleTimeRangeSelect}
       />
+
       <Button
         type="primary"
         onClick={handleAddTimeSlot}

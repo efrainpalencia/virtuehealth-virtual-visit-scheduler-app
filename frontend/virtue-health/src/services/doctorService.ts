@@ -123,14 +123,27 @@ export const getDoctor = async (id: number): Promise<Doctor | null> => {
     profile: Partial<DoctorProfile>
   ): Promise<DoctorProfile> => {
     try {
-      const response = await axios.patch<DoctorProfile>(`${API_URL}/doctor-profiles/${user_id}/`, profile);
-    return response.data;
+      // Filter unique ISO strings for schedule dates
+      const formattedProfile = {
+        ...profile,
+        schedule: profile.schedule
+          ?.map((date) => (typeof date === "string" ? date : date.toISOString()))
+          .filter((value, index, self) => self.indexOf(value) === index), // Remove duplicates
+      };
+  
+      console.log("Sending formatted profile:", formattedProfile); // Debugging output
+  
+      const response = await axios.patch<DoctorProfile>(
+        `${API_URL}/doctor-profiles/${user_id}/`,
+        formattedProfile
+      );
+      return response.data;
     } catch (error) {
-      console.error(`Failed to update doctor profile`, error);
-      return error;
+      console.error(`Failed to update doctor profile:`, error.response?.data || error);
+      throw error;
     }
-    
   };
+  
   
   // Delete a patient profile
   export const deleteDoctorProfile = async (user_id: number): Promise<void> => {

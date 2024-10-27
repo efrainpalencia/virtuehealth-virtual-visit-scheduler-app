@@ -14,9 +14,10 @@ const API_URL = 'http://localhost:8000/api/appointments';
 
 // Get all appointments
 export const getAppointments = async (patientId: number): Promise<Appointment[]> => {
-  const response = await axios.get(`${API_URL}/`);
+  const response = await axios.get(`${API_URL}?patient_id=${patientId}`);
   return response.data;
 };
+
 
 // Get an appointment by ID
 export const getAppointmentById = async (appointmentId: number): Promise<Appointment> => {
@@ -35,7 +36,7 @@ export const updateAppointment = async (
   appointmentId: number,
   appointmentData: Partial<Appointment>
 ): Promise<Appointment> => {
-  const response = await axios.put(`${API_URL}/${appointmentId}/`, appointmentData);
+  const response = await axios.patch(`${API_URL}/${appointmentId}/`, appointmentData);
   return response.data;
 };
 

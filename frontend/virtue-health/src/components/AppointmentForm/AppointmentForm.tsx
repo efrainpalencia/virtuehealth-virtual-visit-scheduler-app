@@ -97,31 +97,40 @@ const AppointmentForm: React.FC = () => {
                   service. By using our service, you represent and warrant that
                   you meet this age requirement. Our virtual health appointment
                   service allows you to schedule and conduct virtual
-                  consultations with healthcare providers. The service is
-                  intended for non-emergency medical issues. For emergencies,
-                  please call 911 or visit the nearest emergency room. As a
-                  user, you are responsible for providing accurate and complete
-                  information during registration and appointment scheduling.
-                  You must ensure a stable internet connection and a suitable
-                  device for virtual consultations. Additionally, you are
-                  expected to follow the healthcare provider’s instructions and
-                  recommendations. We are committed to protecting your privacy.
-                  All personal and medical information provided during the use
-                  of our service will be kept confidential in accordance with
-                  our Privacy Policy. Fees for virtual consultations will be
-                  clearly stated at the time of booking. Payment must be made in
-                  full before the appointment. We accept Cryptocurrency. You may
-                  cancel or reschedule your appointment up to 24 hours before
-                  the scheduled time. Cancellations made within 24 hours of the
+                  consultations with healthcare providers.
+                </p>
+                <p style={{ margin: 0 }}>
+                  The service is intended for non-emergency medical issues. For
+                  emergencies, please call 911 or visit the nearest emergency
+                  room. As a user, you are responsible for providing accurate
+                  and complete information during registration and appointment
+                  scheduling. You must ensure a stable internet connection and a
+                  suitable device for virtual consultations.
+                </p>
+                <p style={{ margin: 0 }}>
+                  Additionally, you are expected to follow the healthcare
+                  provider’s instructions and recommendations. We are committed
+                  to protecting your privacy. All personal and medical
+                  information provided during the use of our service will be
+                  kept confidential in accordance with our Privacy Policy.
+                </p>
+                <p style={{ margin: 0 }}>
+                  Fees for virtual consultations will be clearly stated at the
+                  time of booking. Payment must be made in full before the
+                  appointment. We accept Cryptocurrency. You may cancel or
+                  reschedule your appointment up to 24 hours before the
+                  scheduled time. Cancellations made within 24 hours of the
                   appointment will not be eligible for a refund. Our service is
                   provided “as is” without any warranties, express or implied.
                   We do not guarantee the accuracy or completeness of the
                   information provided by healthcare providers. We are not
-                  liable for any damages arising from the use of our service. We
-                  reserve the right to modify these terms and conditions at any
-                  time. Any changes will be effective immediately upon posting
-                  on our website. Your continued use of the service constitutes
-                  acceptance of the revised terms.
+                  liable for any damages arising from the use of our service.
+                </p>
+                <p style={{ margin: 0 }}>
+                  We reserve the right to modify these terms and conditions at
+                  any time. Any changes will be effective immediately upon
+                  posting on our website. Your continued use of the service
+                  constitutes acceptance of the revised terms.
                 </p>
               </div>
             </Form.Item>

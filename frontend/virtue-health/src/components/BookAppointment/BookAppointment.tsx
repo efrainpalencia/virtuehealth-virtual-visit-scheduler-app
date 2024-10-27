@@ -17,59 +17,47 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
   const [availableTimes, setAvailableTimes] = useState<Dayjs[]>([]);
   const [selectedTime, setSelectedTime] = useState<Dayjs | null>(null);
 
-  // Filter available times when a date is selected
-  const handleDateChange = (value: Dayjs | null) => {
-    setSelectedDate(value);
-    if (value) {
-      // Filter the schedule to include only times on the selected day
+  // Update available times whenever the date or doctor's schedule changes
+  useEffect(() => {
+    if (selectedDate) {
+      const isToday = selectedDate.isSame(dayjs(), "day");
+
+      // Filter times to include only valid slots for the selected day
       const filteredTimes = doctor.schedule
-        .filter((time: Date) => dayjs(time).isSame(value, "day"))
+        .filter((time: Date) => {
+          const timeObj = dayjs(time);
+          return (
+            timeObj.isSame(selectedDate, "day") &&
+            (!isToday || timeObj.isAfter(dayjs().add(30, "minute"))) // Exclude times within the next 30 min if today
+          );
+        })
         .map((time: Date) => dayjs(time));
+
       setAvailableTimes(filteredTimes);
     } else {
       setAvailableTimes([]);
     }
+  }, [selectedDate, doctor.schedule]);
+
+  const handleDateChange = (value: Dayjs | null) => {
+    setSelectedDate(value);
   };
 
-  // Handle time selection
   const handleTimeChange = (value: Dayjs | null) => {
     setSelectedTime(value);
   };
 
-  // Handle booking submission
   const handleSubmit = () => {
     if (!selectedDate || !selectedTime) {
       message.error("Please select an available date and time.");
       return;
     }
 
-    // Combine selected date and time into a single datetime object
     const selectedDateTime = selectedDate
-      .hour(selectedTime!.hour())
-      .minute(selectedTime!.minute());
+      .hour(selectedTime.hour())
+      .minute(selectedTime.minute());
     onDateSelect(selectedDateTime);
     onClose();
-  };
-
-  // Disable unavailable times
-  const disabledTime = (current: Dayjs) => {
-    const validHours = availableTimes.map((time) => time.hour());
-    const validMinutes = availableTimes.map((time) => time.minute());
-
-    return {
-      disabledHours: () =>
-        Array.from({ length: 24 }, (_, i) => i).filter(
-          (hour) => !validHours.includes(hour)
-        ),
-      disabledMinutes: (selectedHour: number) => {
-        if (validHours.includes(selectedHour)) {
-          return Array.from({ length: 60 }, (_, i) => i).filter(
-            (minute) => !validMinutes.includes(minute)
-          );
-        }
-        return Array.from({ length: 60 }, (_, i) => i);
-      },
-    };
   };
 
   return (
@@ -77,17 +65,27 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
       <DatePicker
         onChange={handleDateChange}
         disabledDate={(currentDate) =>
-          !doctor.schedule.some((time: Date) =>
-            dayjs(time).isSame(currentDate, "day")
-          )
+          currentDate && currentDate.isBefore(dayjs(), "day")
         }
       />
       <TimePicker
         value={selectedTime}
         onChange={handleTimeChange}
-        disabledTime={disabledTime}
         format="HH:mm"
         minuteStep={15}
+        disabledHours={() =>
+          Array.from({ length: 24 }, (_, i) => i).filter(
+            (hour) => !availableTimes.some((time) => time.hour() === hour)
+          )
+        }
+        disabledMinutes={(selectedHour) => {
+          const validMinutes = availableTimes
+            .filter((time) => time.hour() === selectedHour)
+            .map((time) => time.minute());
+          return Array.from({ length: 60 }, (_, i) => i).filter(
+            (minute) => !validMinutes.includes(minute)
+          );
+        }}
       />
       <Button
         type="primary"
