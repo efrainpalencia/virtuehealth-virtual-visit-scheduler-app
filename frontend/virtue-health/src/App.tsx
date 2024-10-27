@@ -22,6 +22,8 @@ import DoctorProfileCard from "./components/DoctorProfileCard/DoctorProfileCard"
 import DoctorProfileForm from "./components/DoctorProfileForm/DoctorProfileForm";
 import PatientDetails from "./components/PatientDetails/PatientDetails";
 import DoctorSchedule from "./components/DoctorSchedule/DoctorSchedule";
+import AppointmentForm from "./components/AppointmentForm/AppointmentForm";
+import PatientAppointments from "./components/PatientAppointments/PatientAppointments";
 
 const App: React.FC = () => {
   return (
@@ -65,8 +67,13 @@ const App: React.FC = () => {
         <Route element={<ProtectedRoute allowedRoles={["PATIENT"]} />}>
           <Route path="/patient-portal" element={<PatientPortalLayout />}>
             <Route index element={<PatientPortal />} />
+            <Route path="appointments" element={<PatientAppointments />} />
             <Route path="doctor-list" element={<DoctorList />} />
             <Route path="doctor-list/doctor/:id" element={<DoctorDetails />} />
+            <Route
+              path="/patient-portal/doctor-list/doctor/:id/appointment-form"
+              element={<AppointmentForm doctor={undefined} selectedDate={""} />}
+            />
             <Route path="view-profile" element={<PatientProfileCard />} />
             <Route
               path="view-profile/edit-profile"

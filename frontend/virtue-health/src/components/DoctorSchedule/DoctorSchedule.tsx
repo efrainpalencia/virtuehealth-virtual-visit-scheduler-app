@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, Button, TimePicker, List, message } from "antd";
-import moment, { Moment } from "moment";
+import dayjs, { Dayjs } from "dayjs";
 import {
   updateDoctorProfile,
   getDoctorProfile,
-} from "../../services/doctorService"; // Assuming existing functions to get/update profile
+} from "../../services/doctorService";
 import { getIdFromToken } from "../../services/authService";
 
 const getLoggedInDoctorId = (): number | null => {
@@ -21,15 +21,14 @@ const getLoggedInDoctorId = (): number | null => {
 };
 
 const DoctorSchedule: React.FC = () => {
-  const [selectedDate, setSelectedDate] = useState<Moment | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
   const [selectedTimeRange, setSelectedTimeRange] = useState<
-    [Moment, Moment] | null
+    [Dayjs, Dayjs] | null
   >(null);
   const [doctorSchedule, setDoctorSchedule] = useState<Date[]>([]); // Store doctor's current schedule
 
   // Get logged-in doctor's ID
   const doctorId = getLoggedInDoctorId();
-  console.log(doctorId);
 
   useEffect(() => {
     if (!doctorId) {
@@ -40,7 +39,6 @@ const DoctorSchedule: React.FC = () => {
     const fetchDoctorProfile = async () => {
       try {
         const profile = await getDoctorProfile(doctorId);
-        console.log("Doctor Profile: ", profile);
         if (profile?.schedule) {
           setDoctorSchedule(
             profile.schedule.map((time: Date) => new Date(time))
@@ -55,7 +53,7 @@ const DoctorSchedule: React.FC = () => {
   }, [doctorId]);
 
   // Handle date selection
-  const handleDateSelect = (value: Moment) => {
+  const handleDateSelect = (value: Dayjs) => {
     setSelectedDate(value);
   };
 
@@ -71,16 +69,16 @@ const DoctorSchedule: React.FC = () => {
       return;
     }
 
-    const startTime = moment(selectedDate).set({
+    const startTime = selectedDate.set({
       hour: selectedTimeRange[0].hour(),
       minute: selectedTimeRange[0].minute(),
     });
-    const endTime = moment(selectedDate).set({
+    const endTime = selectedDate.set({
       hour: selectedTimeRange[1].hour(),
       minute: selectedTimeRange[1].minute(),
     });
 
-    // Convert moments to Date before adding to schedule
+    // Convert Dayjs to Date before adding to schedule
     const newSlot = [startTime.toDate(), endTime.toDate()];
     const updatedSchedule = [...doctorSchedule, ...newSlot];
 
@@ -100,7 +98,6 @@ const DoctorSchedule: React.FC = () => {
   // Save schedule to backend
   const handleSaveSchedule = async () => {
     try {
-      // Convert schedule back to Date format
       const formattedSchedule = doctorSchedule.map((time) => new Date(time));
       await updateDoctorProfile(doctorId, { schedule: formattedSchedule });
       message.success("Schedule updated successfully!");
@@ -140,7 +137,7 @@ const DoctorSchedule: React.FC = () => {
         header={<div>Your Current Availability</div>}
         bordered
         dataSource={doctorSchedule.map((slot) =>
-          moment(slot).format("YYYY-MM-DD HH:mm")
+          dayjs(slot).format("YYYY-MM-DD HH:mm")
         )}
         renderItem={(item, index) => (
           <List.Item

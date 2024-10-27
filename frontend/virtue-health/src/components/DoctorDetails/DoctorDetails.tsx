@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   Avatar,
   Breadcrumb,
@@ -9,6 +9,7 @@ import {
   Descriptions,
   Row,
   Modal,
+  message,
 } from "antd";
 import {
   getDoctorsMap,
@@ -16,7 +17,8 @@ import {
 } from "../../services/doctorService";
 import VirtueLogo from "../../assets/VirtueLogo.png";
 import { getRoleFromToken } from "../../services/authService";
-import BookAppointment from "../BookAppointment/BookAppointment"; // Import the BookAppointment component
+import BookAppointment from "../BookAppointment/BookAppointment";
+import { Dayjs } from "dayjs";
 
 const specialtyMap = {
   GENERAL_DOCTOR: "General Doctor",
@@ -28,9 +30,10 @@ const specialtyMap = {
 };
 
 const DoctorDetails: React.FC = () => {
-  const { id } = useParams<{ id: string }>(); // Get doctor ID from the URL
-  const [doctor, setDoctor] = useState<any>(null); // State to hold doctor data
-  const [isModalVisible, setIsModalVisible] = useState(false); // State to handle modal visibility
+  const { id } = useParams<{ id: string }>();
+  const [doctor, setDoctor] = useState<any>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const navigate = useNavigate();
 
   const token = localStorage.getItem("access_token");
   const userRole = token ? getRoleFromToken(token) : null;
@@ -55,22 +58,30 @@ const DoctorDetails: React.FC = () => {
     return <div>Loading...</div>;
   }
 
-  // Use doctor's image if provided, otherwise fall back to the default image
   const imgSrc = doctor?.img_url || VirtueLogo;
 
   const handleBookAppointmentClick = () => {
-    setIsModalVisible(true); // Show the modal when the button is clicked
+    setIsModalVisible(true);
   };
 
   const handleModalCancel = () => {
-    setIsModalVisible(false); // Hide the modal when canceled
+    setIsModalVisible(false);
   };
 
-  // Create breadcrumb items based on the user role
+  // Navigate to AppointmentForm with doctor data and selected date
+  const handleDateSelect = (selectedDateTime: Dayjs) => {
+    setIsModalVisible(false);
+    if (selectedDateTime) {
+      navigate(`/patient-portal/doctor-list/doctor/${id}/appointment-form`, {
+        state: { doctor, selectedDate: selectedDateTime.toISOString() },
+      });
+    } else {
+      message.error("Please select a date to proceed.");
+    }
+  };
+
   const breadcrumbItems = [
-    {
-      title: "Home",
-    },
+    { title: "Home" },
     {
       title:
         userRole === "DOCTOR" ? (
@@ -79,9 +90,7 @@ const DoctorDetails: React.FC = () => {
           <Link to="/patient-portal/doctor-list">Doctor List</Link>
         ) : null,
     },
-    {
-      title: "Doctor Details",
-    },
+    { title: "Doctor Details" },
   ];
 
   return (
@@ -90,13 +99,13 @@ const DoctorDetails: React.FC = () => {
         <Breadcrumb items={breadcrumbItems.filter((item) => item.title)} />
       </Row>
       <Card
-        title={"Doctor Details"}
+        title="Doctor Details"
         style={{ textAlign: "start", marginTop: "10px" }}
       >
         <Row>
           <Col span={8}>
             <h1>
-              {doctor.last_name}, {doctor.first_name}, MD
+              Dr. {doctor.last_name}, {doctor.first_name}
             </h1>
             <h2>{specialtyMap[doctor.specialty]}</h2>
           </Col>
@@ -118,14 +127,17 @@ const DoctorDetails: React.FC = () => {
         </Row>
       </Card>
 
-      {/* BookAppointment Modal */}
       <Modal
         title="Book an Appointment"
         visible={isModalVisible}
         onCancel={handleModalCancel}
-        footer={null} // Footer is omitted to handle buttons in the modal content
+        footer={null}
       >
-        <BookAppointment doctor={doctor} onClose={handleModalCancel} />
+        <BookAppointment
+          doctor={doctor}
+          onClose={handleModalCancel}
+          onDateSelect={handleDateSelect} // Pass handleDateSelect
+        />
       </Modal>
     </div>
   );

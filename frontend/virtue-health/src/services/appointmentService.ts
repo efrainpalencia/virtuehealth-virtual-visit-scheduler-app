@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export interface Appointment {
   id?: number;
-  patient_id?: number;
+  patient_id: number;
   doctor_id: number;
   date: string;
   reason: 'CHRONIC_CARE' | 'PREVENTATIVE_CARE' | 'SURGICAL_POST_OP' | 'OTHER';
@@ -13,7 +13,7 @@ export interface Appointment {
 const API_URL = 'http://localhost:8000/api/appointments';
 
 // Get all appointments
-export const getAppointments = async (): Promise<Appointment[]> => {
+export const getAppointments = async (patientId: number): Promise<Appointment[]> => {
   const response = await axios.get(`${API_URL}/`);
   return response.data;
 };
@@ -43,26 +43,3 @@ export const updateAppointment = async (
 export const deleteAppointment = async (appointmentId: number): Promise<void> => {
   await axios.delete(`${API_URL}/${appointmentId}/`);
 };
-
-// Schedule an appointment
-export const scheduleAppointment = async (appointment: Appointment) => {
-    try {
-      const response = await axios.post(`${API_URL}/book/`, appointment);
-      return response.data;
-    } catch (error) {
-      console.error("Error scheduling appointment", error);
-      throw error;
-    }
-  };
-  
-  // Cancel an appointment
-  export const cancelAppointment = async (appointmentId: number) => {
-    try {
-      const response = await axios.post(`${API_URL}/cancel/${appointmentId}/`);
-      return response.data;
-    } catch (error) {
-      console.error("Error canceling appointment", error);
-      throw error;
-    }
-  };
-
