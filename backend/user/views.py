@@ -179,3 +179,37 @@ class DoctorProfileViewSet(viewsets.ModelViewSet):
     authentication_classes = [
         authentication.SessionAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.AllowAny]
+
+    # Custom action to remove a specific date from the doctor's schedule
+    @action(detail=True, methods=['patch'], url_path='remove-schedule-date')
+    def remove_schedule_date(self, request, pk=None):
+        doctor_profile = self.get_object()
+        date_to_remove = request.data.get('date')
+
+        if not date_to_remove:
+            return Response(
+                {"error": "Date to remove not provided."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Convert date_to_remove to a DateTime format and remove it if it exists in the schedule
+        try:
+            date_to_remove_obj = datetime.fromisoformat(date_to_remove)
+        except ValueError:
+            return Response(
+                {"error": "Invalid date format. Please provide an ISO format date string."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if date_to_remove_obj in doctor_profile.schedule:
+            doctor_profile.schedule.remove(date_to_remove_obj)
+            doctor_profile.save()
+            return Response(
+                {"message": "Date removed from schedule successfully."},
+                status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {"error": "Date not found in schedule."},
+                status=status.HTTP_404_NOT_FOUND
+            )

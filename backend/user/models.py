@@ -141,7 +141,7 @@ class DoctorProfile(models.Model):
         PEDIATRICIAON = "PEDIATRICIAON", "pediatrician"
 
     specialty = models.CharField(
-        max_length=100, choices=Specialty.choices, null=True, blank=False)
+        max_length=250, choices=Specialty.choices, null=True, blank=False)
     location = models.TextField(null=True, blank=True)
     phone_number = models.CharField(max_length=15, validators=[RegexValidator(
         regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '9999999999'. Up to 15 digits allowed.")], null=True, blank=True)
@@ -197,7 +197,7 @@ class PatientProfile(models.Model):
         NATIVE_HAWAIIAN_PACIFIC_ISLANDER = "NATIVE_HAWAIIAN_PACIFIC_ISLANDER", "Native Hawaiian or Pacific Islander"
 
     race_ethnicity = models.CharField(
-        max_length=100, choices=RaceEthnicity.choices, null=True, blank=True)
+        max_length=250, choices=RaceEthnicity.choices, null=True, blank=True)
 
     class Gender(models.TextChoices):
         MALE = "MALE", "Male"
@@ -212,11 +212,11 @@ class PatientProfile(models.Model):
     medical_record = models.OneToOneField(
         'medical_records.MedicalRecord', on_delete=models.CASCADE, null=True, blank=True, related_name='patient_medical_record')
     img_url = models.TextField(null=True, blank=True)
-    emergency_name = models.CharField(max_length=100, blank=True, null=True)
+    emergency_name = models.CharField(max_length=250, blank=True, null=True)
     emergency_contact = models.CharField(max_length=15, validators=[RegexValidator(
         regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '9999999999'. Up to 15 digits allowed.")], null=True, blank=True)
     emergency_relationship = models.CharField(
-        max_length=50, null=True, blank=True)
+        max_length=250, null=True, blank=True)
 
     def __str__(self):
         return self.user.email

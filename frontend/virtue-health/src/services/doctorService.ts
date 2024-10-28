@@ -145,7 +145,22 @@ export const getDoctor = async (id: number): Promise<Doctor | null> => {
   };
   
   
-  // Delete a patient profile
+  // Delete a doctorprofile
   export const deleteDoctorProfile = async (user_id: number): Promise<void> => {
     await axios.delete(`${API_URL}/doctor-profiles/${user_id}/`);
+  };
+
+  export const removeScheduleDate = async (doctorId: number, dateToRemove: string) => {
+    try {
+      // Target the custom endpoint created in the backend for removing a specific schedule date
+      const response = await axios.patch(
+        `${API_URL}/doctor-profiles/${doctorId}/remove-schedule-date/`,
+        { date: dateToRemove }, // Provide the date in the correct format
+        { headers: { "Content-Type": "application/json" } }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to remove date from doctor profile schedule:", error);
+      throw error;
+    }
   };
