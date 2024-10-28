@@ -1,5 +1,3 @@
-// AppointmentForm.tsx
-
 import React, { useState, useEffect } from "react";
 import { Button, Form, Checkbox, Select, Progress, Steps, message } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -15,6 +13,20 @@ interface Doctor {
   last_name: string;
   first_name: string;
 }
+
+const reasonMap = [
+  { value: "CHRONIC_CARE", label: "Chronic Care" },
+  { value: "PREVENTATIVE_CARE", label: "Preventative Care" },
+  { value: "SURGICAL_POST_OP", label: "Surgical Post-op" },
+  { value: "OTHER", label: "Other" },
+];
+
+const reasonDisplayMap = {
+  CHRONIC_CARE: "Chronic Care",
+  PREVENTATIVE_CARE: "Preventative Care",
+  SURGICAL_POST_OP: "Surgical Post-op",
+  OTHER: "Other",
+};
 
 const AppointmentForm: React.FC = () => {
   const { state } = useLocation();
@@ -170,14 +182,14 @@ const AppointmentForm: React.FC = () => {
             </p>
           </div>
           <Select
-            style={{ width: 300 }}
-            placeholder="Select a reason"
+            placeholder="Select your reason"
             onChange={(value) => setReason(value)}
           >
-            <Option value="CHRONIC_CARE">Chronic Care</Option>
-            <Option value="PREVENTATIVE_CARE">Preventative Care</Option>
-            <Option value="SURGICAL_POST_OP">Surgical Post-op</Option>
-            <Option value="OTHER">Other</Option>
+            {reasonMap.map((option) => (
+              <Option key={option.value} value={option.value}>
+                {option.label}
+              </Option>
+            ))}
           </Select>
         </div>
       ),
@@ -195,7 +207,8 @@ const AppointmentForm: React.FC = () => {
             {selectedDate ? selectedDate.format("YYYY-MM-DD HH:mm") : "N/A"}
           </p>
           <p>
-            <strong>Reason for Visit:</strong> {reason || "N/A"}
+            <strong>Reason for Visit:</strong>{" "}
+            {reasonDisplayMap[reason] || "N/A"}
           </p>
         </div>
       ),

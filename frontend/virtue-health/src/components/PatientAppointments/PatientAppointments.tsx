@@ -7,15 +7,26 @@ import {
   deleteAppointment,
   Appointment,
 } from "../../services/appointmentService";
-import { getDoctorProfile } from "../../services/doctorService";
+import { getDoctor } from "../../services/doctorService";
 import { getIdFromToken } from "../../services/authService";
+
+const reasonDisplayMap = {
+  CHRONIC_CARE: "Chronic Care",
+  PREVENTATIVE_CARE: "Preventative Care",
+  SURGICAL_POST_OP: "Surgical Post-op",
+  OTHER: "Other",
+};
+
+const statusDisplayMap = {
+  PENDING: "Pending",
+  COMPLETED: "Completed",
+  CANCELED: "Canceled",
+};
 
 const PatientAppointments: React.FC = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [doctorProfiles, setDoctorProfiles] = useState<{ [key: number]: any }>(
-    {}
-  );
+  const [doctorNames, setDoctorNames] = useState<{ [key: number]: string }>({});
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
   const [isRescheduleModalVisible, setIsRescheduleModalVisible] =
@@ -38,18 +49,23 @@ const PatientAppointments: React.FC = () => {
       const uniqueDoctorIds = [
         ...new Set(appointmentsData.map((app) => app.doctor_id)),
       ];
-      const profileMap: { [key: number]: any } = {};
+
+      const doctorNameMap: { [key: number]: string } = {};
 
       await Promise.all(
         uniqueDoctorIds.map(async (doctorId) => {
-          const doctorProfile = await getDoctorProfile(doctorId);
-          profileMap[doctorId] = doctorProfile;
+          const doctor = await getDoctor(doctorId); // Fetch doctor details
+          if (doctor) {
+            doctorNameMap[
+              doctorId
+            ] = `${doctor.first_name} ${doctor.last_name}`;
+          }
         })
       );
 
-      setDoctorProfiles(profileMap);
+      setDoctorNames(doctorNameMap);
     } catch (error) {
-      message.error("Failed to load appointments or doctor schedules.");
+      message.error("Failed to load appointments or doctor details.");
     } finally {
       setLoading(false);
     }
@@ -62,19 +78,6 @@ const PatientAppointments: React.FC = () => {
 
   const handleReschedule = async (newDate: Dayjs) => {
     if (selectedAppointment) {
-      const doctorId = selectedAppointment.doctor_id;
-      const doctorSchedule = doctorProfiles[doctorId]?.schedule || [];
-
-      const isWithinSchedule = doctorSchedule.some((slot: string) =>
-        dayjs(slot).isSame(newDate, "minute")
-      );
-      if (!isWithinSchedule) {
-        message.error(
-          "Selected time is outside the doctor’s available schedule."
-        );
-        return;
-      }
-
       try {
         await updateAppointment(selectedAppointment.id!, {
           date: newDate.toISOString(),
@@ -103,9 +106,7 @@ const PatientAppointments: React.FC = () => {
       title: "Doctor",
       dataIndex: "doctor_id",
       key: "doctor_id",
-      render: (doctorId: number) =>
-        `${doctorProfiles[doctorId]?.user.first_name} ${doctorProfiles[doctorId]?.user.last_name}` ||
-        "Loading...",
+      render: (doctorId: number) => doctorNames[doctorId] || "Loading...",
     },
     {
       title: "Date",
@@ -117,11 +118,13 @@ const PatientAppointments: React.FC = () => {
       title: "Reason",
       dataIndex: "reason",
       key: "reason",
+      render: (reason: string) => reasonDisplayMap[reason] || reason,
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
+      render: (status: string) => statusDisplayMap[status] || status,
     },
     {
       title: "Actions",
@@ -169,42 +172,9 @@ const PatientAppointments: React.FC = () => {
               date: date.toISOString(),
             })
           }
-          disabledDate={(currentDate) => {
-            // Disable past dates
-            return currentDate && currentDate.isBefore(dayjs(), "day");
-          }}
-          disabledTime={(date) => {
-            const doctorId = selectedAppointment?.doctor_id;
-            const doctorSchedule = doctorProfiles[doctorId]?.schedule || [];
-            const now = dayjs();
-
-            return {
-              disabledHours: () => {
-                const hoursAvailable = doctorSchedule
-                  .filter(
-                    (time: Date) =>
-                      dayjs(time).isSame(date, "day") &&
-                      dayjs(time).isAfter(now.add(30, "minute"))
-                  )
-                  .map((time: Date) => dayjs(time).hour());
-                return Array.from({ length: 24 }, (_, i) => i).filter(
-                  (hour) => !hoursAvailable.includes(hour)
-                );
-              },
-              disabledMinutes: (selectedHour: number) => {
-                const minutesAvailable = doctorSchedule
-                  .filter(
-                    (time: Date) =>
-                      dayjs(time).hour() === selectedHour &&
-                      dayjs(time).isAfter(now.add(30, "minute"))
-                  )
-                  .map((time: Date) => dayjs(time).minute());
-                return Array.from({ length: 60 }, (_, i) => i).filter(
-                  (minute) => !minutesAvailable.includes(minute)
-                );
-              },
-            };
-          }}
+          disabledDate={(currentDate) =>
+            currentDate && currentDate.isBefore(dayjs(), "day")
+          }
         />
       </Modal>
     </div>

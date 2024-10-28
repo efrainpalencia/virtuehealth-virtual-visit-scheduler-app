@@ -25,10 +25,16 @@ export const getAppointmentById = async (appointmentId: number): Promise<Appoint
   return response.data;
 };
 
-// Create a new appointment
 export const createAppointment = async (appointmentData: Appointment): Promise<Appointment> => {
-  const response = await axios.post(`${API_URL}/`, appointmentData);
-  return response.data;
+  try {
+    const response = await axios.post(`${API_URL}/`, appointmentData, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return response.data;
+  } catch (error: any) {
+    console.error("Error creating appointment:", error.response?.data || error.message);
+    throw error; 
+  }
 };
 
 // Update an appointment

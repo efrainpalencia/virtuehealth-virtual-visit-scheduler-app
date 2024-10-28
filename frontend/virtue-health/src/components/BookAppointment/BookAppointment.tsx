@@ -72,7 +72,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
         value={selectedTime}
         onChange={handleTimeChange}
         format="HH:mm"
-        minuteStep={15}
+        minuteStep={30} // Set minute step to 30 to limit to 30-minute intervals
         disabledHours={() =>
           Array.from({ length: 24 }, (_, i) => i).filter(
             (hour) => !availableTimes.some((time) => time.hour() === hour)

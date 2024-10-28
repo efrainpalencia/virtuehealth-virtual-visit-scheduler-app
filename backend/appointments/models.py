@@ -12,7 +12,7 @@ class Appointment(models.Model):
     class Reason(models.TextChoices):
         CHRONIC_CARE = "CHRONIC_CARE", "chronic care"
         PREVENTATIVE_CARE = "PREVENTATIVE_CARE", "preventative care"
-        SURGICAL_POST_OP = "SURGICAL_POST_OP ", "surgical post-op"
+        SURGICAL_POST_OP = "SURGICAL_POST_OP", "surgical post-op"
         OTHER = "OTHER", "other"
 
     reason = models.CharField(

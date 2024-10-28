@@ -10,6 +10,7 @@ import {
   Row,
   Modal,
   message,
+  DescriptionsProps,
 } from "antd";
 import {
   getDoctorsMap,
@@ -28,6 +29,9 @@ const specialtyMap = {
   PSYCHIATRIST: "Psychiatrist",
   PEDIATRICIAN: "Pediatrician",
 };
+
+const insuranceDisclaimer =
+  "Most insurances are accepted by physicians on staff. You should contact the office for questions about financial arrangements and insurance acceptance.";
 
 const DoctorDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -80,6 +84,57 @@ const DoctorDetails: React.FC = () => {
     }
   };
 
+  const contactItems: DescriptionsProps["items"] = [
+    {
+      key: "1",
+      label: "Primary Location",
+      children: doctor.location || "Not provided",
+    },
+    {
+      key: "2",
+      label: "Phone",
+      children: doctor.phone_number || "Not provided",
+    },
+    {
+      key: "3",
+      label: "Languages",
+      children: doctor.languages || "Not provided",
+    },
+    {
+      key: "4",
+      label: "Email",
+      children: doctor.email || "Not provided",
+    },
+    {
+      key: "5",
+      label: "Fax",
+      children: doctor.fax_number || "Not provided",
+    },
+    {
+      key: "6",
+      label: "Primary Location",
+      children: doctor.location || "Not provided",
+    },
+  ];
+
+  const aboutItems: DescriptionsProps["items"] = [
+    {
+      key: "1",
+      label: "Medical School",
+      children: doctor.medical_school || "Not provided",
+    },
+    {
+      key: "2",
+      label: "Residency Program",
+      children: doctor.residency_program || "Not provided",
+    },
+    {
+      key: "3",
+      label: "Insurance",
+      children: `${insuranceDisclaimer}` || "Not provided",
+    },
+  ];
+
   const breadcrumbItems = [
     { title: "Home" },
     {
@@ -115,14 +170,35 @@ const DoctorDetails: React.FC = () => {
         </Row>
         <Row>
           <Col>
-            <Descriptions title="Doctor Info:" />
+            <Descriptions
+              title="Doctor Info:"
+              items={contactItems}
+              style={{ justifyContent: "center" }}
+            />
           </Col>
         </Row>
         <Row>
-          <Col span={12}>
+          <Col
+            span={12}
+            style={{ justifyContent: "center", paddingTop: "25px" }}
+          >
             <Button type="primary" onClick={handleBookAppointmentClick}>
               Book Appointment
             </Button>
+          </Col>
+        </Row>
+      </Card>
+      <Card
+        title={`About Dr. ${doctor.first_name} ${doctor.last_name}`}
+        style={{ textAlign: "start", marginTop: "10px" }}
+      >
+        <Row>
+          <Col>
+            <Descriptions
+              title="Education:"
+              items={aboutItems}
+              style={{ justifyContent: "center" }}
+            />
           </Col>
         </Row>
       </Card>

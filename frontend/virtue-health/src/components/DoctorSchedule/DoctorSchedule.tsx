@@ -22,12 +22,9 @@ const getLoggedInDoctorId = (): number | null => {
 
 const DoctorSchedule: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
-  const [selectedTimeRange, setSelectedTimeRange] = useState<
-    [Dayjs, Dayjs] | null
-  >(null);
+  const [selectedTime, setSelectedTime] = useState<Dayjs | null>(null);
   const [doctorSchedule, setDoctorSchedule] = useState<Date[]>([]); // Store doctor's current schedule
 
-  // Get logged-in doctor's ID
   const doctorId = getLoggedInDoctorId();
 
   useEffect(() => {
@@ -57,33 +54,25 @@ const DoctorSchedule: React.FC = () => {
     setSelectedDate(value);
   };
 
-  // Handle time range selection
-  const handleTimeRangeSelect = (times: any) => {
-    setSelectedTimeRange(times);
+  // Handle time selection
+  const handleTimeSelect = (value: Dayjs | null) => {
+    setSelectedTime(value);
   };
 
   // Add available time slot to the schedule
   const handleAddTimeSlot = () => {
-    if (!selectedDate || !selectedTimeRange) {
-      message.error("Please select a date and time.");
+    if (!selectedDate || !selectedTime) {
+      message.error("Please select a date and start time.");
       return;
     }
 
-    // Initialize startTime and endTime with selectedDate and then set the time components
-    const startTime = dayjs(selectedDate)
-      .hour(selectedTimeRange[0].hour())
-      .minute(selectedTimeRange[0].minute())
-      .second(0);
-    const endTime = dayjs(selectedDate)
-      .hour(selectedTimeRange[1].hour())
-      .minute(selectedTimeRange[1].minute())
-      .second(0);
+    const newSlot = selectedDate
+      .hour(selectedTime.hour())
+      .minute(selectedTime.minute())
+      .second(0)
+      .toDate();
 
-    // Convert to Date before adding to schedule
-    const newSlot = [startTime.toDate(), endTime.toDate()];
-    const updatedSchedule = [...doctorSchedule, ...newSlot];
-
-    setDoctorSchedule(updatedSchedule);
+    setDoctorSchedule([...doctorSchedule, newSlot]);
     message.success("Time slot added.");
   };
 
@@ -99,11 +88,7 @@ const DoctorSchedule: React.FC = () => {
   // Save schedule to backend
   const handleSaveSchedule = async () => {
     try {
-      // If no time slots are available, send an empty array to backend
-      const formattedSchedule =
-        doctorSchedule.length > 0
-          ? doctorSchedule.map((time) => new Date(time))
-          : [];
+      const formattedSchedule = doctorSchedule.map((time) => new Date(time));
       await updateDoctorProfile(doctorId, { schedule: formattedSchedule });
       message.success("Schedule updated successfully!");
     } catch (error) {
@@ -121,28 +106,17 @@ const DoctorSchedule: React.FC = () => {
           current && (current.day() === 0 || current.day() === 6)
         } // Disable weekends
       />
-      <TimePicker.RangePicker
-        minuteStep={15}
+      <TimePicker
+        value={selectedTime}
+        onChange={handleTimeSelect}
         format="HH:mm"
-        disabledTime={(current) => {
-          const disabledHours = Array.from({ length: 24 }, (_, i) => i).filter(
-            (hour) => hour < 9 || hour >= 17
-          );
-
-          return {
-            disabledHours: () => disabledHours,
-            disabledMinutes: () => {
-              // Enable minutes only in 15-minute intervals (0, 15, 30, 45)
-              const allMinutes = Array.from({ length: 60 }, (_, i) => i);
-              return allMinutes.filter(
-                (minute) => ![0, 15, 30, 45].includes(minute)
-              );
-            },
-          };
-        }}
-        onChange={handleTimeRangeSelect}
+        minuteStep={30}
+        disabledHours={() => [
+          ...Array.from({ length: 9 }, (_, i) => i),
+          ...Array.from({ length: 8 }, (_, i) => i + 17),
+        ]}
+        style={{ marginTop: 16 }}
       />
-
       <Button
         type="primary"
         onClick={handleAddTimeSlot}
