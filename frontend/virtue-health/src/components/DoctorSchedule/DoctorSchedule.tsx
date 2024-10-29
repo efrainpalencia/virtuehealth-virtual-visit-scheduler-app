@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, Button, TimePicker, List, message } from "antd";
 import dayjs, { Dayjs } from "dayjs";
+import utc from "dayjs/plugin/utc"; // import dayjs UTC plugin
 import {
   updateDoctorProfile,
   getDoctorProfile,
 } from "../../services/doctorService";
 import { getIdFromToken } from "../../services/authService";
+
+dayjs.extend(utc); // enable UTC plugin for dayjs
 
 const getLoggedInDoctorId = (): number | null => {
   const token = localStorage.getItem("access_token");
@@ -59,36 +62,32 @@ const DoctorSchedule: React.FC = () => {
     setSelectedTime(value);
   };
 
-  // Add available time slot to the schedule
+  // Ensure UTC before adding to schedule
   const handleAddTimeSlot = () => {
     if (!selectedDate || !selectedTime) {
       message.error("Please select a date and start time.");
       return;
     }
 
+    // Combine selected date and time, set to UTC, and format to ISO string
     const newSlot = selectedDate
       .hour(selectedTime.hour())
       .minute(selectedTime.minute())
       .second(0)
-      .toDate();
+      .utc()
+      .toISOString(); // Save as ISO string in UTC
 
-    setDoctorSchedule([...doctorSchedule, newSlot]);
+    setDoctorSchedule([...doctorSchedule, new Date(newSlot)]);
     message.success("Time slot added.");
   };
 
-  // Remove a time slot from the schedule
-  const handleRemoveTimeSlot = (slotToRemove: Date) => {
-    const updatedSchedule = doctorSchedule.filter(
-      (slot) => slot.getTime() !== slotToRemove.getTime()
-    );
-    setDoctorSchedule(updatedSchedule);
-    message.success("Time slot removed.");
-  };
-
-  // Save schedule to backend
+  // Save schedule to backend with dates in UTC
   const handleSaveSchedule = async () => {
     try {
-      const formattedSchedule = doctorSchedule.map((time) => new Date(time));
+      // Convert each slot to ISO string for consistent storage
+      const formattedSchedule = doctorSchedule.map((time) =>
+        time.toISOString()
+      );
       await updateDoctorProfile(doctorId, { schedule: formattedSchedule });
       message.success("Schedule updated successfully!");
     } catch (error) {

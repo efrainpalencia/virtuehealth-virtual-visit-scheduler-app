@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+from datetime import datetime
 from VirtueHealthCore.settings import FRONTEND_URL, EMAIL_HOST_USER
 import logging
 import os
@@ -62,13 +64,10 @@ class PatientRegisterViewSet(viewsets.ModelViewSet, TokenObtainPairView):
 
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
-            print(serializer.errors)  # Print validation errors
+            print(serializer.errors)  # Log validation errors
             return Response(serializer.errors, status=400)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
 
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+        user = serializer.save()  # Save only once
         refresh = RefreshToken.for_user(user)
         res = {
             "refresh": str(refresh),
@@ -180,7 +179,11 @@ class DoctorProfileViewSet(viewsets.ModelViewSet):
         authentication.SessionAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.AllowAny]
 
-    # Custom action to remove a specific date from the doctor's schedule
+
+# Custom action to remove a specific date from the doctor's schedule
+
+    logger = logging.getLogger(__name__)
+
     @action(detail=True, methods=['patch'], url_path='remove-schedule-date')
     def remove_schedule_date(self, request, pk=None):
         doctor_profile = self.get_object()
@@ -192,24 +195,45 @@ class DoctorProfileViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Convert date_to_remove to a DateTime format and remove it if it exists in the schedule
+        # Convert date_to_remove to a timezone-aware datetime object in UTC
         try:
-            date_to_remove_obj = datetime.fromisoformat(date_to_remove)
+            date_to_remove_obj = datetime.fromisoformat(
+                date_to_remove.replace("Z", "+00:00")).astimezone(timezone.utc)
         except ValueError:
             return Response(
                 {"error": "Invalid date format. Please provide an ISO format date string."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if date_to_remove_obj in doctor_profile.schedule:
-            doctor_profile.schedule.remove(date_to_remove_obj)
-            doctor_profile.save()
-            return Response(
-                {"message": "Date removed from schedule successfully."},
-                status=status.HTTP_200_OK
-            )
-        else:
+        # Prepare an updated schedule without the matching date
+        updated_schedule = []
+        for date in doctor_profile.schedule:
+            # Ensure the date is converted to a datetime object if it's a string
+            if isinstance(date, str):
+                try:
+                    date_obj = datetime.fromisoformat(
+                        date.replace("Z", "+00:00")).astimezone(timezone.utc)
+                except ValueError:
+                    continue
+            else:
+                date_obj = date
+
+            # Append only non-matching dates to the updated schedule
+            if date_obj != date_to_remove_obj:
+                updated_schedule.append(date)
+
+        # Check if any dates were removed
+        if len(updated_schedule) == len(doctor_profile.schedule):
             return Response(
                 {"error": "Date not found in schedule."},
                 status=status.HTTP_404_NOT_FOUND
             )
+
+        # Update and save the modified schedule
+        doctor_profile.schedule = updated_schedule
+        doctor_profile.save()
+
+        return Response(
+            {"message": "Date removed from schedule successfully."},
+            status=status.HTTP_200_OK
+        )

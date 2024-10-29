@@ -1,17 +1,19 @@
 import React from "react";
 import { Form, Input, Button, message } from "antd";
 import { registerPatient } from "../../services/authService";
+import { useNavigate } from "react-router-dom";
 
 const PatientRegistration: React.FC = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
 
   const onFinish = async (values: { email: string; password: string }) => {
     try {
       const response = await registerPatient(values.email, values.password);
       message.success("Registration successful!");
-      // Save tokens to local storage
       localStorage.setItem("refresh_token", response.refresh);
       localStorage.setItem("access_token", response.token);
+      navigate("/login");
     } catch (error) {
       message.error("Registration failed. Please try again.");
     }

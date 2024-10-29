@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, Input, Button, message, Link } from "antd";
+import { Form, Input, Button, message } from "antd";
 import { loginUser, getRoleFromToken } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
 import PasswordResetLink from "../PasswordResetLink/PasswordResetLink";
@@ -12,21 +12,25 @@ const Login: React.FC = () => {
     try {
       const response = await loginUser(values.email, values.password);
       message.success("Login successful!");
+
+      // Store tokens
       localStorage.setItem("refresh_token", response.refresh);
       localStorage.setItem("access_token", response.access);
 
+      // Navigate based on role
       const role = getRoleFromToken(response.access);
-      console.log("User role:", role);
-
-      if (role === "DOCTOR") {
-        navigate("/doctor-dashboard");
-        console.log("Navigating to /doctor-dashboard");
-      } else if (role === "PATIENT") {
-        navigate("/patient-portal");
-        console.log("Navigating to /patient-portal");
-      } else if (role === "ADMIN") {
-        navigate("/admin");
-        console.log("Navigating to /admin");
+      switch (role) {
+        case "DOCTOR":
+          navigate("/doctor-dashboard");
+          break;
+        case "PATIENT":
+          navigate("/patient-portal");
+          break;
+        case "ADMIN":
+          navigate("/admin");
+          break;
+        default:
+          message.error("Unrecognized role. Please contact support.");
       }
     } catch (error) {
       message.error(
@@ -61,11 +65,9 @@ const Login: React.FC = () => {
           <Button type="primary" htmlType="submit">
             Login
           </Button>
-          <Form.Item>
-            <PasswordResetLink />
-          </Form.Item>
         </Form.Item>
       </Form>
+      <PasswordResetLink />
     </div>
   );
 };

@@ -9,8 +9,6 @@ from .models import Doctor, Patient, DoctorProfile, PatientProfile
 
 
 class UserSerializer(serializers.ModelSerializer):
-    # date_of_birth = serializers.DateTimeField(
-    #     format='%Y-%m-%dT%H:%M', input_formats=['%Y-%m-%dT%H:%M', '%Y-%m-%d'])
 
     class Meta:
         model = User

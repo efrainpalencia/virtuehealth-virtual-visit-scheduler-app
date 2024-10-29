@@ -109,7 +109,7 @@ export const getDoctor = async (id: number): Promise<Doctor | null> => {
     doctor: Partial<Doctor>
   ): Promise<Doctor> => {
     try {
-      const response = await axios.patch<Doctor>(`${API_URL}/doctor/${id}/, doctor`);
+      const response = await axios.patch<Doctor>(`${API_URL}/doctor/${id}/`, doctor);
     return response.data;
     } catch (error) {
       console.error(`Failed to update doctor`, error);
@@ -150,17 +150,18 @@ export const getDoctor = async (id: number): Promise<Doctor | null> => {
     await axios.delete(`${API_URL}/doctor-profiles/${user_id}/`);
   };
 
-  export const removeScheduleDate = async (doctorId: number, dateToRemove: string) => {
+  export const removeScheduleDate = async (user_id: number, dateToRemove: string) => {
     try {
-      // Target the custom endpoint created in the backend for removing a specific schedule date
-      const response = await axios.patch(
-        `${API_URL}/doctor-profiles/${doctorId}/remove-schedule-date/`,
-        { date: dateToRemove }, // Provide the date in the correct format
-        { headers: { "Content-Type": "application/json" } }
-      );
-      return response.data;
+        console.log("Attempting to remove date:", dateToRemove);  // Log the date for debugging
+        const response = await axios.patch(
+            `${API_URL}/doctor-profiles/${user_id}/remove-schedule-date/`,
+            { date: dateToRemove },
+            { headers: { "Content-Type": "application/json" } }
+        );
+        return response.data;
     } catch (error) {
-      console.error("Failed to remove date from doctor profile schedule:", error);
-      throw error;
+        console.error("Failed to remove date from doctor profile schedule:", error);
+        throw error;
     }
-  };
+};
+

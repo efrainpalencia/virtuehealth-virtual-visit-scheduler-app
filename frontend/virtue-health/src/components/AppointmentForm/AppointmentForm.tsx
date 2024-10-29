@@ -3,11 +3,13 @@ import { Button, Form, Checkbox, Select, Progress, Steps, message } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import { createAppointment } from "../../services/appointmentService";
 import { getIdFromToken } from "../../services/authService";
-import { removeScheduleDate } from "../../services/doctorService"; // Import the removeScheduleDate function
+import { removeScheduleDate } from "../../services/doctorService";
 import dayjs, { Dayjs } from "dayjs";
+import utc from "dayjs/plugin/utc";
 
 const { Step } = Steps;
 const { Option } = Select;
+dayjs.extend(utc);
 
 interface Doctor {
   id: number;
@@ -62,7 +64,7 @@ const AppointmentForm: React.FC = () => {
     setCurrentStep(currentStep - 1);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (): Promise<void> => {
     if (!reason || !doctor || !selectedDate || !patientId) {
       message.error("Missing information for appointment booking.");
       return;
@@ -78,10 +80,16 @@ const AppointmentForm: React.FC = () => {
 
     try {
       await createAppointment(appointmentData);
-      await removeScheduleDate(doctor.id, selectedDate.toISOString()); // Remove the booked date from the doctor's schedule
+
+      // Format the date to UTC before sending it to the backend
+      const formattedDate: string = selectedDate.utc().toISOString();
+      console.log("Attempting to remove date:", formattedDate); // For debugging purposes
+      await removeScheduleDate(doctor.id, formattedDate);
+
       message.success("Appointment booked successfully!");
       navigate("/patient-portal");
     } catch (error) {
+      console.error("Failed to remove date from doctor's schedule:", error);
       message.error("Failed to book appointment.");
     }
   };

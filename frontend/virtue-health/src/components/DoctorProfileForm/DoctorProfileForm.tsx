@@ -123,12 +123,11 @@ const DoctorProfileForm: React.FC = () => {
 
       // Update DoctorProfile data
       const profileData = {
-        specialty: specialtyMap[values.specialty],
+        specialty: values.specialty, // Use the selected value directly
         location: values.location,
         phone_number: values.phone_number,
         fax_number: values.fax_number,
         languages: values.languages,
-        emergency_name: values.emergency_name,
         medical_school: values.medical_school,
         residency_program: values.residency_program,
       };
