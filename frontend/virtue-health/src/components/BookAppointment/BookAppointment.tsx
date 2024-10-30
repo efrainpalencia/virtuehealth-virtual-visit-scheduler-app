@@ -22,16 +22,16 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
     if (selectedDate) {
       const isToday = selectedDate.isSame(dayjs(), "day");
 
-      // Filter times to include only valid slots for the selected day
+      // Filter and format times to include only valid slots for the selected day, with seconds/milliseconds set to 0
       const filteredTimes = doctor.schedule
         .filter((time: Date) => {
-          const timeObj = dayjs(time);
+          const timeObj = dayjs(time).second(0).millisecond(0); // Remove seconds and milliseconds here
           return (
             timeObj.isSame(selectedDate, "day") &&
             (!isToday || timeObj.isAfter(dayjs().add(30, "minute"))) // Exclude times within the next 30 min if today
           );
         })
-        .map((time: Date) => dayjs(time));
+        .map((time: Date) => dayjs(time).second(0).millisecond(0)); // Also ensure time is formatted on display
 
       setAvailableTimes(filteredTimes);
     } else {
@@ -44,7 +44,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
   };
 
   const handleTimeChange = (value: Dayjs | null) => {
-    setSelectedTime(value);
+    setSelectedTime(value ? value.second(0).millisecond(0) : null); // Remove seconds/milliseconds here too
   };
 
   const handleSubmit = () => {
@@ -55,7 +55,9 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
 
     const selectedDateTime = selectedDate
       .hour(selectedTime.hour())
-      .minute(selectedTime.minute());
+      .minute(selectedTime.minute())
+      .second(0)
+      .millisecond(0); // Finalize removing seconds and milliseconds for consistency
     onDateSelect(selectedDateTime);
     onClose();
   };

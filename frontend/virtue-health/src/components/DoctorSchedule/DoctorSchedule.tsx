@@ -26,7 +26,7 @@ const getLoggedInDoctorId = (): number | null => {
 const DoctorSchedule: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
   const [selectedTime, setSelectedTime] = useState<Dayjs | null>(null);
-  const [doctorSchedule, setDoctorSchedule] = useState<Date[]>([]); // Store doctor's current schedule
+  const [doctorSchedule, setDoctorSchedule] = useState<string[]>([]); // Store doctor's current schedule
 
   const doctorId = getLoggedInDoctorId();
 
@@ -40,9 +40,7 @@ const DoctorSchedule: React.FC = () => {
       try {
         const profile = await getDoctorProfile(doctorId);
         if (profile?.schedule) {
-          setDoctorSchedule(
-            profile.schedule.map((time: string) => new Date(time))
-          );
+          setDoctorSchedule(profile.schedule);
         }
       } catch (error) {
         message.error("Failed to fetch doctor profile.");
@@ -62,33 +60,39 @@ const DoctorSchedule: React.FC = () => {
     setSelectedTime(value);
   };
 
-  // Ensure UTC before adding to schedule
+  // Ensure UTC with zeroed seconds and milliseconds before adding to schedule
   const handleAddTimeSlot = () => {
     if (!selectedDate || !selectedTime) {
       message.error("Please select a date and start time.");
       return;
     }
 
-    // Combine selected date and time, set to UTC, and format to ISO string
+    // Combine selected date and time, set seconds/milliseconds to 0, then format as ISO UTC string
     const newSlot = selectedDate
       .hour(selectedTime.hour())
       .minute(selectedTime.minute())
       .second(0)
+      .millisecond(0)
       .utc()
-      .toISOString(); // Save as ISO string in UTC
+      .toISOString(); // Save as ISO string in UTC with no seconds or milliseconds
 
-    setDoctorSchedule([...doctorSchedule, new Date(newSlot)]);
+    setDoctorSchedule([...doctorSchedule, newSlot]);
     message.success("Time slot added.");
+  };
+
+  // Remove a time slot from the schedule
+  const handleRemoveTimeSlot = (slotToRemove: string) => {
+    const updatedSchedule = doctorSchedule.filter(
+      (slot) => slot !== slotToRemove
+    );
+    setDoctorSchedule(updatedSchedule);
+    message.success("Time slot removed.");
   };
 
   // Save schedule to backend with dates in UTC
   const handleSaveSchedule = async () => {
     try {
-      // Convert each slot to ISO string for consistent storage
-      const formattedSchedule = doctorSchedule.map((time) =>
-        time.toISOString()
-      );
-      await updateDoctorProfile(doctorId, { schedule: formattedSchedule });
+      await updateDoctorProfile(doctorId, { schedule: doctorSchedule });
       message.success("Schedule updated successfully!");
     } catch (error) {
       message.error("Failed to update schedule.");

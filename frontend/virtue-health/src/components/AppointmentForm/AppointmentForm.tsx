@@ -114,7 +114,45 @@ const AppointmentForm: React.FC = () => {
                 <p style={{ margin: 0 }}>
                   By using our service, you agree to comply with and be bound by
                   the following terms and conditions. Please review them
-                  carefully...
+                  carefully. You must be at least 18 years old to use our
+                  service. By using our service, you represent and warrant that
+                  you meet this age requirement.
+                </p>
+                <p style={{ margin: 0 }}>
+                  Our virtual health appointment service allows you to schedule
+                  and conduct virtual consultations with healthcare providers.
+                  The service is intended for non-emergency medical issues. For
+                  emergencies, please call 911 or visit the nearest emergency
+                  room. As a user, you are responsible for providing accurate
+                  and complete information during registration and appointment
+                  scheduling.
+                </p>
+                <p style={{ margin: 0 }}>
+                  You must ensure a stable internet connection and a suitable
+                  device for virtual consultations. Additionally, you are
+                  expected to follow the healthcare provider’s instructions and
+                  recommendations. We are committed to protecting your privacy.
+                  All personal and medical information provided during the use
+                  of our service will be kept confidential in accordance with
+                  our Privacy Policy.
+                </p>
+                <p style={{ margin: 0 }}>
+                  Fees for virtual consultations will be clearly stated at the
+                  time of booking. Payment must be made in full before the
+                  appointment. We accept Bitcoin. You may cancel or reschedule
+                  your appointment up to 24 hours before the scheduled time.
+                  Cancellations made within 24 hours of the appointment will not
+                  be eligible for a refund. Our service is provided “as is”
+                  without any warranties, express or implied. We do not
+                  guarantee the accuracy or completeness of the information
+                  provided by healthcare providers.
+                </p>
+                <p style={{ margin: 0 }}>
+                  We are not liable for any damages arising from the use of our
+                  service. We reserve the right to modify these terms and
+                  conditions at any time. Any changes will be effective
+                  immediately upon posting on our website. Your continued use of
+                  the service constitutes acceptance of the revised terms.
                 </p>
               </div>
             </Form.Item>
@@ -135,9 +173,28 @@ const AppointmentForm: React.FC = () => {
       content: (
         <div>
           <h3>Select the reason for your visit</h3>
+          <div
+            style={{
+              border: "1px solid #d9d9d9",
+              padding: "12px",
+              borderRadius: "4px",
+              maxHeight: "150px",
+              overflowY: "auto",
+            }}
+          >
+            <p style={{ margin: 0 }}>
+              To ensure you receive the best care during your virtual health
+              appointment, we ask that you provide a reason for your visit when
+              scheduling. This helps our healthcare providers prepare in
+              advance, streamline the appointment process, offer personalized
+              care, and ensure your safety. Your cooperation is greatly
+              appreciated. If you have any questions, please contact us.
+            </p>
+          </div>
           <Select
             placeholder="Select your reason"
             onChange={(value) => setReason(value)}
+            style={{ margin: "10px" }}
           >
             {reasonMap.map((option) => (
               <Option key={option.value} value={option.value}>
