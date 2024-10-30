@@ -7,7 +7,11 @@ import {
   deleteAppointment,
   Appointment,
 } from "../../services/appointmentService";
-import { getDoctor } from "../../services/doctorService";
+import {
+  getDoctor,
+  addScheduleDate,
+  removeScheduleDate,
+} from "../../services/doctorService";
 import { getIdFromToken } from "../../services/authService";
 
 const reasonDisplayMap = {
@@ -79,9 +83,22 @@ const PatientAppointments: React.FC = () => {
   const handleReschedule = async (newDate: Dayjs) => {
     if (selectedAppointment) {
       try {
+        const previousDate = selectedAppointment.date;
+
+        // Add the previous date back to the doctor's schedule
+        await addScheduleDate(selectedAppointment.doctor_id, previousDate);
+
+        // Update the appointment with the new date
         await updateAppointment(selectedAppointment.id!, {
-          date: newDate.toISOString(),
+          date: newDate.utc().format("YYYY-MM-DDTHH:mm:ss[Z]"),
         });
+
+        // Remove the new date from the doctor's schedule
+        await removeScheduleDate(
+          selectedAppointment.doctor_id,
+          newDate.utc().format("YYYY-MM-DDTHH:mm:ss[Z]")
+        );
+
         message.success("Appointment rescheduled successfully.");
         setIsRescheduleModalVisible(false);
         fetchAppointments();
@@ -91,8 +108,15 @@ const PatientAppointments: React.FC = () => {
     }
   };
 
-  const handleCancel = async (appointmentId: number) => {
+  const handleCancel = async (
+    appointmentId: number,
+    appointmentDate: string,
+    doctorId: number
+  ) => {
     try {
+      // Add the canceled appointment's date back to the doctor's schedule
+      await addScheduleDate(doctorId, appointmentDate);
+
       await deleteAppointment(appointmentId);
       message.success("Appointment canceled successfully.");
       fetchAppointments();
@@ -134,7 +158,13 @@ const PatientAppointments: React.FC = () => {
           <Button type="link" onClick={() => handleOpenRescheduleModal(record)}>
             Reschedule
           </Button>
-          <Button type="link" danger onClick={() => handleCancel(record.id!)}>
+          <Button
+            type="link"
+            danger
+            onClick={() =>
+              handleCancel(record.id!, record.date, record.doctor_id)
+            }
+          >
             Cancel
           </Button>
         </>
@@ -169,7 +199,7 @@ const PatientAppointments: React.FC = () => {
             date &&
             setSelectedAppointment({
               ...selectedAppointment!,
-              date: date.toISOString(),
+              date: date.utc().format("YYYY-MM-DDTHH:mm:ss[Z]"),
             })
           }
           disabledDate={(currentDate) =>

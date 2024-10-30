@@ -150,6 +150,20 @@ export const getDoctor = async (id: number): Promise<Doctor | null> => {
     await axios.delete(`${API_URL}/doctor-profiles/${user_id}/`);
   };
 
+  export const addScheduleDate = async (doctorId: number, dateToAdd: string) => {
+    try {
+      const response = await axios.patch(
+        `${API_URL}/doctor-profiles/${doctorId}/add-schedule-date/`,
+        { date: dateToAdd }, 
+        { headers: { "Content-Type": "application/json" } }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to add date to doctor profile schedule:", error);
+      throw error;
+    }
+  };
+
   export const removeScheduleDate = async (user_id: number, dateToRemove: string) => {
     try {
         console.log("Attempting to remove date:", dateToRemove);  // Log the date for debugging

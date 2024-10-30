@@ -181,7 +181,6 @@ class DoctorProfileViewSet(viewsets.ModelViewSet):
 
 
 # Custom action to remove a specific date from the doctor's schedule
-
     logger = logging.getLogger(__name__)
 
     @action(detail=True, methods=['patch'], url_path='remove-schedule-date')
@@ -237,3 +236,27 @@ class DoctorProfileViewSet(viewsets.ModelViewSet):
             {"message": "Date removed from schedule successfully."},
             status=status.HTTP_200_OK
         )
+
+    # Custom action to add a specific date from the doctor's schedule
+
+    @action(detail=True, methods=['patch'], url_path='add-schedule-date')
+    def add_schedule_date(self, request, pk=None):
+        doctor_profile = self.get_object()
+        date_to_add = request.data.get('date')
+
+        if not date_to_add:
+            return Response({"error": "Date to add not provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            date_to_add_obj = datetime.fromisoformat(
+                date_to_add.replace("Z", "+00:00")).astimezone(timezone.utc)
+        except ValueError:
+            return Response({"error": "Invalid date format."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if date_to_add not in doctor_profile.schedule:
+            doctor_profile.schedule.append(date_to_add)
+            doctor_profile.save()
+
+            return Response({"message": "Date added to schedule successfully."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Date already in schedule."}, status=status.HTTP_400_BAD_REQUEST)

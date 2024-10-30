@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, Button, TimePicker, List, message } from "antd";
 import dayjs, { Dayjs } from "dayjs";
-import utc from "dayjs/plugin/utc"; // import dayjs UTC plugin
+import utc from "dayjs/plugin/utc";
 import {
   updateDoctorProfile,
   getDoctorProfile,
