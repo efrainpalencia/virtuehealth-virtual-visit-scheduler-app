@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Avatar, Menu, Space } from "antd";
+import { Avatar, Col, Flex, Menu, Row, Space } from "antd";
 import {
   AppstoreOutlined,
   SettingOutlined,
@@ -16,16 +16,15 @@ import {
 import type { MenuProps } from "antd";
 import { logoutUser } from "../../services/authService";
 import VirtueLogo from "../../assets/VirtueLogo.png";
+import LogoLink from "../Logolink/Logolink";
 
 type MenuItem = {
   label: React.ReactNode;
   key: string;
   icon?: React.ReactNode;
-  disabled?: boolean;
   children?: MenuItem[];
 };
 
-// Define the menu items for different roles
 const doctorItems: MenuItem[] = [
   { label: "Home", key: "/doctor-dashboard", icon: <HomeOutlined /> },
   { label: "Email", key: "", icon: <MailOutlined /> },
@@ -33,15 +32,6 @@ const doctorItems: MenuItem[] = [
 ];
 
 const patientItems: MenuItem[] = [
-  {
-    label: "",
-    key: "/patient-portal",
-    icon: (
-      <Space size={15} wrap>
-        <Avatar size={50} src={<img src={VirtueLogo} alt="logo" />} />
-      </Space>
-    ),
-  },
   { label: "Home", key: "/patient-portal", icon: <HomeOutlined /> },
   {
     label: "Appointments",
@@ -59,16 +49,10 @@ const patientItems: MenuItem[] = [
     key: "SubMenu",
     icon: <SettingOutlined />,
     children: [
-      {
-        type: "group",
-        label: "Profile Settings",
-        children: [
-          { label: "View My Profile", key: "/patient-portal/view-profile" },
-          { label: "Logout", key: "/logout", icon: <LogoutOutlined /> },
-        ],
-      },
+      { label: "View My Profile", key: "/patient-portal/view-profile" },
     ],
   },
+  { label: "Logout", key: "/logout", icon: <LogoutOutlined /> },
 ];
 
 const loggedOutItems: MenuItem[] = [
@@ -85,57 +69,61 @@ const loggedOutItems: MenuItem[] = [
   },
 ];
 
-// Helper functions to determine if the current route matches a dynamic route like "/patient-portal/doctor/:id"
-const isDoctorDetailsRoute = (route: string) =>
-  /^\/patient-portal\/doctor-list\/doctor\/\d+$/.test(route);
+const determineMenuItems = (route: string): MenuItem[] => {
+  const doctorRoutes = [
+    "/doctor-dashboard",
+    "/doctor-dashboard/doctor-list",
+    "/doctor-dashboard/patient-list",
+    "/doctor-dashboard/view-profile",
+    "/doctor-dashboard/view-profile/edit-profile",
+    "/doctor-dashboard/doctor-schedule",
+  ];
 
-const isPatientDetailsRoute = (route: string) =>
-  /^\/doctor-dashboard\/patient-list\/patient\/\d+$/.test(route);
+  const patientRoutes = [
+    "/patient-portal",
+    "/patient-portal/appointments",
+    "/patient-portal/doctor-list",
+    "/patient-portal/about",
+    "/patient-portal/view-profile",
+    "/patient-portal/view-profile/edit-profile",
+  ];
 
-// Function to get the proper menu items based on the current route
-const getItemsForRoute = (route: string): MenuItem[] => {
-  if (isDoctorDetailsRoute(route)) {
-    return patientItems;
-  }
-  if (isPatientDetailsRoute(route)) {
+  if (
+    doctorRoutes.includes(route) ||
+    /^\/doctor-dashboard\/patient-list\/patient\/\d+$/.test(route)
+  ) {
     return doctorItems;
   }
 
-  // Specific pages
-  switch (route) {
-    case "/doctor-dashboard":
-    case "/doctor-dashboard/doctor-list":
-    case "/doctor-dashboard/patient-list":
-    case "/doctor-dashboard/view-profile":
-    case "/doctor-dashboard/view-profile/edit-profile":
-    case "/doctor-dashboard/doctor-schedule":
-      return doctorItems;
-    case "/patient-portal":
-    case "/patient-portal/appointments":
-    case "/patient-portal/doctor-list":
-    case "/patient-portal/about":
-    case "/patient-portal/view-profile":
-    case "/patient-portal/view-profile/edit-profile":
-      return patientItems;
-    default:
-      return loggedOutItems;
+  if (
+    patientRoutes.includes(route) ||
+    /^\/patient-portal\/doctor-list\/doctor\/\d+$/.test(route)
+  ) {
+    return patientItems;
   }
+
+  return loggedOutItems;
 };
 
-// Menu component
+// Helper functions to determine the current route type
+const isPatientRoute = (route: string) => route.startsWith("/patient-portal");
+const isDoctorRoute = (route: string) => route.startsWith("/doctor-dashboard");
+
 const AppMenu: React.FC<{ route: string }> = ({ route }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [items, setItems] = React.useState(getItemsForRoute(route));
+  const [items, setItems] = React.useState<MenuItem[]>(
+    determineMenuItems(route)
+  );
 
   useEffect(() => {
-    setItems(getItemsForRoute(location.pathname));
+    setItems(determineMenuItems(location.pathname));
   }, [location.pathname]);
 
   const onClick: MenuProps["onClick"] = (e) => {
     if (e.key === "/logout") {
       logoutUser();
-      navigate(e.key);
+      navigate("/login");
     } else {
       navigate(e.key);
     }
@@ -143,12 +131,17 @@ const AppMenu: React.FC<{ route: string }> = ({ route }) => {
 
   return (
     <div style={{ flex: 1, minWidth: 0 }}>
-      <Menu
-        onClick={onClick}
-        mode="horizontal"
-        items={items}
-        selectedKeys={[location.pathname]}
-      />
+      <Row>
+        <Col span={8}>{isPatientRoute(location.pathname) && <LogoLink />}</Col>
+        <Col span={16}>
+          <Menu
+            onClick={onClick}
+            mode="horizontal"
+            items={items}
+            selectedKeys={[location.pathname]}
+          />
+        </Col>
+      </Row>
     </div>
   );
 };
