@@ -41,6 +41,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls,)),
     path('api/auth/', include('user.urls')),
-    # path('api/doctor-dashboard/', include('doctor_dashboard.urls')),
-    # path('api/patient-portal/', include('patient_portal.urls')),
+    path('api/medical-records/', include('medical_records.urls')),
 ]
