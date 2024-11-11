@@ -30,6 +30,17 @@ export interface DoctorProfile {
     img_url: string | null;
 }
 
+export const specialtyMap = {
+  GENERAL_DOCTOR: "General Doctor",
+  CARDIOLOGIST: "Cardiologist",
+  ORTHOPEDIST: "Orthopedist",
+  NEUROLOGIST: "Neurologist",
+  PSYCHIATRIST: "Psychiatrist",
+  PEDIATRICIAN: "Pediatrician",
+};
+
+
+
 export const getDoctors = async (): Promise<Doctor[]> => {
     const response = await axios.get<Doctor[]>(`${API_URL }/doctor/`);
     return response.data;

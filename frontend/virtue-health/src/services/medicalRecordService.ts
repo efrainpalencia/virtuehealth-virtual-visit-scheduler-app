@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { getIdFromToken } from './authService';
 
-const API_BASE_URL = 'http://localhost:8000/api/patient-portal';
+const API_BASE_URL = 'http://localhost:8000/api/medical-records/view-medical-records';
 
 export interface MedicalRecord {
   id?: number;
@@ -19,10 +20,14 @@ export interface MedicalRecord {
   side_effects?: string;
 }
 
-// Fetch the medical record of a patient by their profile ID
-export const getMedicalRecord = async (patientProfileId: number): Promise<MedicalRecord> => {
+// Fetch the medical record for the current patient or by patient ID (for doctors)
+export const getMedicalRecord = async (patientProfileId?: number): Promise<MedicalRecord> => {
   try {
-    const response = await axios.get<MedicalRecord>(`${API_BASE_URL}/${patientProfileId}/medical-record/`);
+    const id = patientProfileId ?? getIdFromToken(localStorage.getItem("access_token") || "");
+    const url = id
+      ? `${API_BASE_URL}?patient_id=${id}`
+      : `${API_BASE_URL}`;
+    const response = await axios.get<MedicalRecord>(url);
     return response.data;
   } catch (error: any) {
     console.error("Error fetching medical record:", error.response?.data || error.message);
@@ -30,10 +35,16 @@ export const getMedicalRecord = async (patientProfileId: number): Promise<Medica
   }
 };
 
-// Create a new medical record for a patient
-export const createMedicalRecord = async (patientProfileId: number, recordData: MedicalRecord): Promise<MedicalRecord> => {
+// Create a new medical record only if one does not exist
+export const createMedicalRecord = async (
+  recordData: MedicalRecord
+): Promise<MedicalRecord> => {
   try {
-    const response = await axios.post<MedicalRecord>(`${API_BASE_URL}/${patientProfileId}/medical-record/`, recordData, {
+    const existingRecord = await getMedicalRecord(recordData.patient);
+    if (existingRecord) {
+      throw new Error("A medical record already exists for this patient.");
+    }
+    const response = await axios.post<MedicalRecord>(API_BASE_URL, recordData, {
       headers: { 'Content-Type': 'application/json' },
     });
     return response.data;
@@ -44,11 +55,16 @@ export const createMedicalRecord = async (patientProfileId: number, recordData: 
 };
 
 // Update an existing medical record by record ID
-export const updateMedicalRecord = async (patientProfileId: number, recordData: Partial<MedicalRecord>): Promise<MedicalRecord> => {
+export const updateMedicalRecord = async (
+  recordId: number,
+  recordData: Partial<MedicalRecord>
+): Promise<MedicalRecord> => {
   try {
-    const response = await axios.patch<MedicalRecord>(`${API_BASE_URL}/${patientProfileId}/medical-record/`, recordData, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    const response = await axios.patch<MedicalRecord>(
+      `${API_BASE_URL}/${recordId}/`,
+      recordData,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
     return response.data;
   } catch (error: any) {
     console.error("Error updating medical record:", error.response?.data || error.message);
@@ -57,9 +73,9 @@ export const updateMedicalRecord = async (patientProfileId: number, recordData: 
 };
 
 // Delete a medical record by record ID
-export const deleteMedicalRecord = async (patientProfileId: number): Promise<void> => {
+export const deleteMedicalRecord = async (recordId: number): Promise<void> => {
   try {
-    await axios.delete(`${API_BASE_URL}/${patientProfileId}/medical-record/`);
+    await axios.delete(`${API_BASE_URL}/${recordId}/`);
   } catch (error: any) {
     console.error("Error deleting medical record:", error.response?.data || error.message);
     throw error;

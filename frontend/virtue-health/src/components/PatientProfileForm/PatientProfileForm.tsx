@@ -20,12 +20,17 @@ import {
   updatePatient,
 } from "../../services/patientService"; // Adjust path
 import { Patient, PatientProfile } from "../../services/patientService"; // Adjust path
-import { getIdFromToken } from "../../services/authService";
-import { Link } from "react-router-dom";
 import { UploadOutlined } from "@ant-design/icons";
 
 const { TextArea } = Input;
 const { Option } = Select;
+
+interface PatientProfileFormProps {
+  patient: Patient | null;
+  profile: PatientProfile | null;
+  onSave: (updatedProfile: PatientProfile) => void;
+  onCancel: () => void;
+}
 
 const raceEthnicityOptions = [
   { value: "WHITE", label: "White (not of Hispanic origin)" },
@@ -47,319 +52,215 @@ const genderOptions = [
   { value: "FEMALE", label: "Female" },
 ];
 
-const getLoggedInPatientId = (): number | null => {
-  const token = localStorage.getItem("access_token");
-  if (token) {
-    try {
-      return getIdFromToken(token);
-    } catch (error) {
-      console.error("Failed to decode token", error);
-      return null;
-    }
-  }
-  return null;
-};
-
-const PatientProfileForm: React.FC = () => {
-  const [loading, setLoading] = useState(true);
-  const [patient, setPatient] = useState<Patient | null>(null);
-  const [profile, setProfile] = useState<PatientProfile | null>(null);
-  const [profileImage, setProfileImage] = useState<File | null>(null);
+const PatientProfileForm: React.FC<PatientProfileFormProps> = ({
+  patient,
+  profile,
+  onSave,
+  onCancel,
+}) => {
+  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
 
-  // Get logged-in patient's ID
-  const patientId = getLoggedInPatientId();
-  console.log(patientId);
-
   useEffect(() => {
-    if (!patientId) {
-      message.error("No patient ID found.");
-      return;
+    if (patient) {
+      form.setFieldsValue({
+        first_name: patient.first_name,
+        last_name: patient.last_name,
+        email: patient.email,
+        date_of_birth: patient.date_of_birth,
+        gender: profile?.gender || undefined,
+        phone_number: profile?.phone_number || undefined,
+        address: profile?.address || undefined,
+        insurance_provider: profile?.insurance_provider || undefined,
+        race_ethnicity: profile?.race_ethnicity || undefined,
+        emergency_name: profile?.emergency_name || undefined,
+        emergency_contact: profile?.emergency_contact || undefined,
+        emergency_relationship: profile?.emergency_relationship || undefined,
+      });
     }
+  }, [patient, profile, form]);
 
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const fetchedPatient = await getPatient(patientId);
-        setPatient(fetchedPatient);
-
-        const fetchedProfile = await getPatientProfile(patientId);
-        setProfile(fetchedProfile);
-
-        if (fetchedPatient) {
-          form.setFieldsValue({
-            first_name: fetchedPatient.first_name,
-            last_name: fetchedPatient.last_name,
-            gender: fetchedProfile?.gender || undefined,
-            date_of_birth: fetchedPatient.date_of_birth,
-            phone_number: fetchedProfile?.phone_number || undefined,
-            email: fetchedPatient.email,
-            address: fetchedProfile?.address || undefined,
-            insurance_provider: fetchedProfile?.insurance_provider || undefined,
-            race_ethnicity: fetchedProfile?.race_ethnicity || undefined,
-            emergency_name: fetchedProfile?.emergency_name || undefined,
-            emergency_contact: fetchedProfile?.emergency_contact || undefined,
-            emergency_relationship:
-              fetchedProfile?.emergency_relationship || undefined,
-          });
-        }
-      } catch (error) {
-        message.error("Failed to fetch data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [patientId, form]);
-
-  // Handle form submission
   const handleSubmit = async (values: any) => {
+    setLoading(true);
     try {
-      setLoading(true);
-
-      // Update Patient data
       const patientData = {
         first_name: values.first_name,
         last_name: values.last_name,
         email: values.email,
         date_of_birth: values.date_of_birth,
       };
+      await updatePatient(patient?.id || 0, patientData);
 
-      console.log("Patient Data being sent:", patientData);
-      await updatePatient(patientId, patientData);
-
-      // Update PatientProfile data
-      const profileData = {
-        race_ethnicity: values.race_ethnicity,
-        address: values.address,
-        phone_number: values.phone_number,
-        insurance_provider: values.insurance_provider,
+      const profileData: Partial<PatientProfile> = {
         gender: values.gender,
+        phone_number: values.phone_number,
+        address: values.address,
+        insurance_provider: values.insurance_provider,
+        race_ethnicity: values.race_ethnicity,
         emergency_name: values.emergency_name,
         emergency_contact: values.emergency_contact,
         emergency_relationship: values.emergency_relationship,
       };
 
-      console.log("Profile Data being sent:", profileData);
-
+      let updatedProfile;
       if (profile) {
-        await updatePatientProfile(patientId, profileData);
+        updatedProfile = await updatePatientProfile(
+          patient?.id || 0,
+          profileData
+        );
         message.success("Profile updated successfully!");
       } else {
-        await createPatientProfile(patientId, profileData);
+        updatedProfile = await createPatientProfile(
+          patient?.id || 0,
+          profileData
+        );
         message.success("Profile created successfully!");
       }
+
+      onSave(updatedProfile); // Notify parent component
     } catch (error) {
-      if (error.response) {
-        console.error("Error response:", error.response.data);
-        message.error(`Error: ${error.response.data.detail || "Bad Request"}`);
-      } else {
-        message.error("Error submitting profile.");
-      }
+      message.error("Error saving profile. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle image upload
-  const handleImageUpload = (info: any) => {
-    if (info.file.status === "done") {
-      // Assuming the backend returns the image URL in the response
-      setProfileImage(info.file.originFileObj);
-      message.success(`${info.file.name} file uploaded successfully.`);
-    } else if (info.file.status === "error") {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  };
-
-  if (loading) {
-    return <Spin tip="Loading data..." />;
-  }
-
   return (
-    <div>
-      <Row style={{ paddingBottom: "24px" }}>
-        <Breadcrumb
-          items={[
+    <Card
+      title={
+        patient
+          ? `Edit Profile of ${patient.first_name}`
+          : "New Patient Profile"
+      }
+      style={{ width: 800 }}
+    >
+      <Form form={form} layout="horizontal" onFinish={handleSubmit}>
+        <Form.Item
+          label="First Name"
+          name="first_name"
+          rules={[{ required: true, message: "Please enter first name" }]}
+        >
+          <Input placeholder="Enter first name" />
+        </Form.Item>
+
+        <Form.Item
+          label="Last Name"
+          name="last_name"
+          rules={[{ required: true, message: "Please enter last name" }]}
+        >
+          <Input placeholder="Enter last name" />
+        </Form.Item>
+
+        <Form.Item
+          label="Date of Birth"
+          name="date_of_birth"
+          rules={[{ required: true, message: "Please enter date of birth" }]}
+        >
+          <Input type="date" />
+        </Form.Item>
+
+        <Form.Item
+          label="Phone Number"
+          name="phone_number"
+          rules={[{ required: true, message: "Please enter phone number" }]}
+        >
+          <Input placeholder="Enter phone number" />
+        </Form.Item>
+
+        <Form.Item
+          label="Email"
+          name="email"
+          rules={[{ required: true, message: "Please enter email" }]}
+        >
+          <Input type="email" placeholder="Enter email" />
+        </Form.Item>
+
+        <Form.Item
+          label="Address"
+          name="address"
+          rules={[{ required: true, message: "Please enter address" }]}
+        >
+          <TextArea placeholder="Enter address" />
+        </Form.Item>
+
+        <Form.Item
+          label="Gender"
+          name="gender"
+          rules={[{ required: true, message: "Please select gender" }]}
+        >
+          <Select placeholder="Select your gender">
+            {genderOptions.map((option) => (
+              <Option key={option.value} value={option.value}>
+                {option.label}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item
+          label="Race/Ethnicity"
+          name="race_ethnicity"
+          rules={[{ required: true, message: "Please select race/ethnicity" }]}
+        >
+          <Select placeholder="Select your race/ethnicity">
+            {raceEthnicityOptions.map((option) => (
+              <Option key={option.value} value={option.value}>
+                {option.label}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="Insurance Provider" name="insurance_provider">
+          <Input placeholder="Enter insurance provider" />
+        </Form.Item>
+
+        <Form.Item
+          label="Emergency Contact Name"
+          name="emergency_name"
+          rules={[
+            { required: true, message: "Please enter emergency contact name" },
+          ]}
+        >
+          <Input placeholder="Enter emergency contact name" />
+        </Form.Item>
+
+        <Form.Item
+          label="Emergency Contact Number"
+          name="emergency_contact"
+          rules={[
             {
-              title: "Home",
-            },
-            {
-              title: (
-                <Link to={`/patient-portal/view-profile`}>My Profile</Link>
-              ),
-            },
-            {
-              title: "Edit My Profile",
+              required: true,
+              message: "Please enter emergency contact number",
             },
           ]}
-        />
-      </Row>
-      <Card
-        title={
-          patient
-            ? `Profile of ${patient.first_name} ${patient.last_name}`
-            : "New Patient Profile"
-        }
-        style={{ width: 800 }}
-      >
-        <Form
-          form={form}
-          labelCol={{ flex: "180px" }}
-          labelAlign="right"
-          labelWrap
-          wrapperCol={{ span: 24, offset: 0 }}
-          style={{ maxWidth: 600 }}
-          onFinish={handleSubmit}
         >
-          <Form.Item label="Profile Image" name="profile_image">
-            <Upload
-              name="profile_image"
-              listType="picture"
-              showUploadList={false}
-              beforeUpload={() => false} // Prevent automatic upload
-              onChange={handleImageUpload}
-            >
-              <Button icon={<UploadOutlined />}>Click to Upload</Button>
-            </Upload>
-            {profileImage && (
-              <Avatar
-                src={URL.createObjectURL(profileImage)}
-                size={128}
-                style={{ marginTop: 10 }}
-              />
-            )}
-          </Form.Item>
+          <Input placeholder="Enter emergency contact number" />
+        </Form.Item>
 
-          <Form.Item
-            label="First Name"
-            name="first_name"
-            rules={[{ required: true, message: "Please enter first name" }]}
-          >
-            <Input placeholder="Enter first name" />
-          </Form.Item>
+        <Form.Item
+          label="Emergency Contact Relationship"
+          name="emergency_relationship"
+          rules={[
+            {
+              required: true,
+              message: "Please enter relationship to emergency contact",
+            },
+          ]}
+        >
+          <Input placeholder="Enter relationship to emergency contact" />
+        </Form.Item>
 
-          <Form.Item
-            label="Last Name"
-            name="last_name"
-            rules={[{ required: true, message: "Please enter last name" }]}
-          >
-            <Input placeholder="Enter last name" />
-          </Form.Item>
-
-          <Form.Item
-            label="Date of Birth"
-            name="date_of_birth"
-            rules={[{ required: true, message: "Please enter date of birth" }]}
-          >
-            <Input type="date" />
-          </Form.Item>
-
-          <Form.Item
-            label="Phone Number"
-            name="phone_number"
-            rules={[{ required: true, message: "Please enter phone number" }]}
-          >
-            <Input placeholder="Enter phone number" />
-          </Form.Item>
-
-          <Form.Item
-            label="Email"
-            name="email"
-            rules={[{ required: true, message: "Please enter email" }]}
-          >
-            <Input type="email" placeholder="Enter email" />
-          </Form.Item>
-
-          <Form.Item
-            label="Address"
-            name="address"
-            rules={[{ required: true, message: "Please enter address" }]}
-          >
-            <TextArea placeholder="Enter address" />
-          </Form.Item>
-
-          <Form.Item
-            label="Gender"
-            name="gender"
-            rules={[{ required: true, message: "Please select gender" }]}
-          >
-            <Select placeholder="Select your gender">
-              {genderOptions.map((option) => (
-                <Option key={option.value} value={option.value}>
-                  {option.label}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item
-            label="Race/Ethnicity"
-            name="race_ethnicity"
-            rules={[
-              { required: true, message: "Please select race/ethnicity" },
-            ]}
-          >
-            <Select placeholder="Select your race/ethnicity">
-              {raceEthnicityOptions.map((option) => (
-                <Option key={option.value} value={option.value}>
-                  {option.label}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item label="Insurance Provider" name="insurance_provider">
-            <Input placeholder="Enter insurance provider" />
-          </Form.Item>
-
-          <Form.Item
-            label="Emergency Contact Name"
-            name="emergency_name"
-            rules={[
-              {
-                required: true,
-                message: "Please enter emergency contact name",
-              },
-            ]}
-          >
-            <Input placeholder="Enter emergency contact name" />
-          </Form.Item>
-
-          <Form.Item
-            label="Emergency Contact Number"
-            name="emergency_contact"
-            rules={[
-              {
-                required: true,
-                message: "Please enter emergency contact number",
-              },
-            ]}
-          >
-            <Input placeholder="Enter emergency contact number" />
-          </Form.Item>
-
-          <Form.Item
-            label="Emergency Contact Relationship"
-            name="emergency_relationship"
-            rules={[
-              {
-                required: true,
-                message: "Please enter relationship to emergency contact",
-              },
-            ]}
-          >
-            <Input placeholder="Enter relationship to emergency contact" />
-          </Form.Item>
-
-          <Form.Item wrapperCol={{ span: 14, offset: 18 }}>
-            <Button type="primary" htmlType="submit" loading={loading}>
-              {profile ? "Update Profile" : "Create Profile"}
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
-    </div>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" loading={loading}>
+            {profile ? "Save Changes" : "Create Profile"}
+          </Button>
+          <Button onClick={onCancel} style={{ marginLeft: 8 }}>
+            Cancel
+          </Button>
+        </Form.Item>
+      </Form>
+    </Card>
   );
 };
 

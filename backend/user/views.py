@@ -165,22 +165,6 @@ class PatientProfileViewSet(viewsets.ModelViewSet):
         authentication.SessionAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.AllowAny]
 
-    @action(detail=True, methods=['get'], url_path='medical-record')
-    def retrieve_with_medical_record(self, request, pk=None):
-        patient_profile = self.get_object()
-        try:
-            medical_record = MedicalRecord.objects.get(
-                patient=patient_profile.user)
-            profile_data = self.get_serializer(patient_profile).data
-            medical_record_data = MedicalRecordSerializer(medical_record).data
-            combined_data = {
-                "profile": profile_data,
-                "medical_record": medical_record_data,
-            }
-            return Response(combined_data, status=status.HTTP_200_OK)
-        except MedicalRecord.DoesNotExist:
-            return Response({"error": "Medical record not found"}, status=status.HTTP_404_NOT_FOUND)
-
 
 class DoctorViewSet(viewsets.ModelViewSet):
     queryset = Doctor.doctor.all()

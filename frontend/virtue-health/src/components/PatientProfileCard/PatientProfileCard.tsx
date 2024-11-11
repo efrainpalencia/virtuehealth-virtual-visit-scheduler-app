@@ -1,21 +1,22 @@
+// PatientProfileCard.tsx
+
 import React, { useEffect, useState } from "react";
 import {
   Card,
   Button,
   Spin,
   message,
-  DescriptionsProps,
   Descriptions,
   Row,
   Col,
   Avatar,
   Breadcrumb,
 } from "antd";
-import { useNavigate } from "react-router-dom";
 import { calculateAge } from "../../services/formatService";
 import { getPatient, getPatientProfile } from "../../services/patientService";
 import { Patient, PatientProfile } from "../../services/patientService";
 import { getIdFromToken } from "../../services/authService";
+import PatientProfileForm from "../PatientProfileForm/PatientProfileForm";
 import VirtueLogo from "../../assets/VirtueLogo.png";
 
 const genderMap = {
@@ -25,24 +26,11 @@ const genderMap = {
 
 const PatientProfileCard: React.FC = () => {
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
   const [patient, setPatient] = useState<Patient | null>(null);
   const [profile, setProfile] = useState<PatientProfile | null>(null);
-  const navigate = useNavigate();
 
-  const getLoggedInPatientId = (): number | null => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      try {
-        return getIdFromToken(token);
-      } catch (error) {
-        console.error("Failed to decode token", error);
-        return null;
-      }
-    }
-    return null;
-  };
-
-  const patientId = getLoggedInPatientId();
+  const patientId = getIdFromToken(localStorage.getItem("access_token") || "");
 
   useEffect(() => {
     if (!patientId) {
@@ -54,9 +42,6 @@ const PatientProfileCard: React.FC = () => {
         setLoading(true);
         const fetchedPatient = await getPatient(patientId);
         const fetchedProfile = await getPatientProfile(patientId);
-        console.log(fetchedPatient);
-        console.log(fetchedProfile);
-
         setPatient(fetchedPatient);
         setProfile(fetchedProfile);
       } catch (error) {
@@ -72,53 +57,55 @@ const PatientProfileCard: React.FC = () => {
     return <Spin tip="Loading data..." />;
   }
 
-  // Use patient's image if provided, otherwise fall back to the default image
-  const imgSrc = profile?.img_url || VirtueLogo;
+  const handleSaveProfile = (updatedProfile: PatientProfile) => {
+    setProfile(updatedProfile);
+    setIsEditing(false);
+    message.success("Profile saved successfully!");
+  };
 
-  // Calculate patient's age
-  const dob = patient?.date_of_birth;
-  const age = calculateAge(dob);
+  // Display default message and create button if no profile exists
+  if (!profile && !isEditing) {
+    return (
+      <Card title="No Profile Found" style={{ textAlign: "center" }}>
+        <p>No profile information is available.</p>
+        <Button type="primary" onClick={() => setIsEditing(true)}>
+          Create Profile
+        </Button>
+      </Card>
+    );
+  }
 
-  const items: DescriptionsProps["items"] = [
+  if (isEditing) {
+    return (
+      <PatientProfileForm
+        patient={patient}
+        profile={profile}
+        onSave={handleSaveProfile}
+        onCancel={() => setIsEditing(false)}
+      />
+    );
+  }
+
+  // Display the profile in view mode
+  const age = calculateAge(patient?.date_of_birth);
+  const items = [
+    { label: "Phone", children: profile?.phone_number || "Not provided" },
+    { label: "Email", children: patient?.email || "Not provided" },
+    { label: "Address", children: profile?.address || "Not provided" },
     {
-      key: "1",
-      label: "Phone",
-      children: profile?.phone_number || "Not provided",
-    },
-    {
-      key: "2",
-      label: "Email",
-      children: patient?.email || "Not provided",
-    },
-    {
-      key: "3",
-      label: "Address",
-      children: profile?.address || "Not provided",
-    },
-    {
-      key: "4",
       label: "Insurance",
       children: profile?.insurance_provider || "Not provided",
     },
     {
-      key: "5",
       label: "Race/Ethnicity",
       children: profile?.race_ethnicity || "Not provided",
     },
   ];
-  const EmergencyItems: DescriptionsProps["items"] = [
+
+  const emergencyItems = [
+    { label: "Name", children: profile?.emergency_name || "Not provided" },
+    { label: "Phone", children: profile?.emergency_contact || "Not provided" },
     {
-      key: "1",
-      label: "Name",
-      children: profile?.emergency_name || "Not provided",
-    },
-    {
-      key: "2",
-      label: "Phone",
-      children: profile?.emergency_contact || "Not provided",
-    },
-    {
-      key: "3",
       label: "Relationship",
       children: profile?.emergency_relationship || "Not provided",
     },
@@ -127,27 +114,10 @@ const PatientProfileCard: React.FC = () => {
   return (
     <div>
       <Row style={{ paddingBottom: "0" }}>
-        <Breadcrumb
-          items={[
-            {
-              title: "Home",
-            },
-            {
-              title: "My Profile",
-            },
-          ]}
-        />
+        <Breadcrumb items={[{ title: "Home" }, { title: "My Profile" }]} />
       </Row>
-      <Row gutter={16}>
-        <Col span={8} offset={20} style={{ paddingTop: "5px" }}>
-          <Button type="primary" onClick={() => navigate("edit-profile")}>
-            Edit Profile
-          </Button>
-        </Col>
-      </Row>
-
       <Card
-        title={"My Profile"}
+        title="My Profile"
         style={{ textAlign: "start", marginTop: "10px" }}
       >
         <Row>
@@ -160,23 +130,22 @@ const PatientProfileCard: React.FC = () => {
             </h2>
           </Col>
           <Col span={8} offset={8}>
-            <Avatar src={imgSrc} size={224} />
+            <Avatar src={profile?.img_url || VirtueLogo} size={224} />
           </Col>
         </Row>
-        <Row>
-          <Col>
-            <Descriptions items={items} style={{ justifyContent: "center" }} />
-          </Col>
-        </Row>
-        <Row>
-          <Col style={{ justifyContent: "center", paddingTop: "12px" }}>
-            <Descriptions
-              title={"Emergency Contact Info"}
-              items={EmergencyItems}
-              style={{ justifyContent: "center", paddingTop: "12px" }}
-            />
-          </Col>
-        </Row>
+        <Descriptions title="Contact Information" items={items} />
+        <Descriptions
+          title="Emergency Contact Info"
+          items={emergencyItems}
+          style={{ paddingTop: "12px" }}
+        />
+        <Button
+          type="primary"
+          onClick={() => setIsEditing(true)}
+          style={{ marginTop: 16 }}
+        >
+          Edit Profile
+        </Button>
       </Card>
     </div>
   );

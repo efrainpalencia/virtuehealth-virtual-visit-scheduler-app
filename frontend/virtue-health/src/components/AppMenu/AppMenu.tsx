@@ -50,6 +50,10 @@ const patientItems: MenuItem[] = [
     icon: <SettingOutlined />,
     children: [
       { label: "View My Profile", key: "/patient-portal/view-profile" },
+      {
+        label: "View My Medical Records",
+        key: "/patient-portal/medical-records",
+      },
     ],
   },
   { label: "Logout", key: "/logout", icon: <LogoutOutlined /> },
@@ -84,6 +88,8 @@ const determineMenuItems = (route: string): MenuItem[] => {
     "/patient-portal/appointments",
     "/patient-portal/doctor-list",
     "/patient-portal/about",
+    "/patient-portal/medical-records",
+    "/patient-portal/view-medical-records/edit-medical-records",
     "/patient-portal/view-profile",
     "/patient-portal/view-profile/edit-profile",
   ];

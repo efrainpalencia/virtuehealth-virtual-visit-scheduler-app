@@ -24,6 +24,7 @@ import PatientDetails from "./components/PatientDetails/PatientDetails";
 import DoctorSchedule from "./components/DoctorSchedule/DoctorSchedule";
 import AppointmentForm from "./components/AppointmentForm/AppointmentForm";
 import PatientAppointments from "./components/PatientAppointments/PatientAppointments";
+import MedicalRecordCard from "./components/MedicalRecordCard/MedicalRecordCard";
 
 const App: React.FC = () => {
   return (
@@ -78,6 +79,10 @@ const App: React.FC = () => {
             <Route
               path="view-profile/edit-profile"
               element={<PatientProfileForm />}
+            />
+            <Route
+              path="medical-records"
+              element={<MedicalRecordCard patientId={0} />}
             />
           </Route>
         </Route>

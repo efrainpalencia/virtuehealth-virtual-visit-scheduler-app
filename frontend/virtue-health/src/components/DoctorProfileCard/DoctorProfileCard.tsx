@@ -11,7 +11,7 @@ import {
   Avatar,
   Breadcrumb,
 } from "antd";
-import { useNavigate } from "react-router-dom";
+import { specialtyMap } from "../../services/doctorService";
 import {
   Doctor,
   DoctorProfile,
@@ -19,41 +19,20 @@ import {
   getDoctorProfile,
 } from "../../services/doctorService";
 import { getIdFromToken } from "../../services/authService";
+import DoctorProfileForm from "../DoctorProfileForm/DoctorProfileForm";
 import VirtueLogo from "../../assets/VirtueLogo.png";
-
-const specialtyMap = {
-  GENERAL_DOCTOR: "General Doctor",
-  CARDIOLOGIST: "Cardiologist",
-  ORTHOPEDIST: "Orthopedist",
-  NEUROLOGIST: "Neurologist",
-  PSYCHIATRIST: "Psychiatrist",
-  PEDIATRICIAN: "Pediatrician",
-};
 
 const DoctorProfileCard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [doctor, setDoctor] = useState<Doctor | null>(null);
   const [profile, setProfile] = useState<DoctorProfile | null>(null);
-  const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState(false);
 
-  const getLoggedInPatientId = (): number | null => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      try {
-        return getIdFromToken(token);
-      } catch (error) {
-        console.error("Failed to decode token", error);
-        return null;
-      }
-    }
-    return null;
-  };
-
-  const doctorId = getLoggedInPatientId();
+  const doctorId = getIdFromToken(localStorage.getItem("access_token") || "");
 
   useEffect(() => {
     if (!doctorId) {
-      message.error("No patient ID found.");
+      message.error("No doctor ID found.");
       return;
     }
     const fetchData = async () => {
@@ -61,9 +40,6 @@ const DoctorProfileCard: React.FC = () => {
         setLoading(true);
         const fetchedDoctor = await getDoctor(doctorId);
         const fetchedProfile = await getDoctorProfile(doctorId);
-        console.log(fetchedDoctor);
-        console.log(fetchedProfile);
-
         setDoctor(fetchedDoctor);
         setProfile(fetchedProfile);
       } catch (error) {
@@ -75,11 +51,22 @@ const DoctorProfileCard: React.FC = () => {
     fetchData();
   }, [doctorId]);
 
-  // Use patient's image if provided, otherwise fall back to the default image
-  const imgSrc = profile?.img_url || VirtueLogo;
-
   if (loading) {
     return <Spin tip="Loading data..." />;
+  }
+
+  if (isEditing) {
+    return (
+      <DoctorProfileForm
+        doctor={doctor}
+        profile={profile}
+        onSave={(updatedProfile) => {
+          setProfile(updatedProfile);
+          setIsEditing(false);
+        }}
+        onCancel={() => setIsEditing(false)}
+      />
+    );
   }
 
   const items: DescriptionsProps["items"] = [
@@ -88,16 +75,8 @@ const DoctorProfileCard: React.FC = () => {
       label: "Phone",
       children: profile?.phone_number || "Not provided",
     },
-    {
-      key: "2",
-      label: "Fax",
-      children: profile?.fax_number || "Not provided",
-    },
-    {
-      key: "3",
-      label: "Email",
-      children: doctor?.email || "Not provided",
-    },
+    { key: "2", label: "Fax", children: profile?.fax_number || "Not provided" },
+    { key: "3", label: "Email", children: doctor?.email || "Not provided" },
     {
       key: "4",
       label: "Primary Location",
@@ -109,6 +88,7 @@ const DoctorProfileCard: React.FC = () => {
       children: profile?.languages || "Not provided",
     },
   ];
+
   const EducationItems: DescriptionsProps["items"] = [
     {
       key: "1",
@@ -125,20 +105,11 @@ const DoctorProfileCard: React.FC = () => {
   return (
     <div>
       <Row style={{ paddingBottom: "0" }}>
-        <Breadcrumb
-          items={[
-            {
-              title: "Home",
-            },
-            {
-              title: "My Profile",
-            },
-          ]}
-        />
+        <Breadcrumb items={[{ title: "Home" }, { title: "My Profile" }]} />
       </Row>
       <Row gutter={16}>
         <Col span={8} offset={20} style={{ paddingTop: "5px" }}>
-          <Button type="primary" onClick={() => navigate("edit-profile")}>
+          <Button type="primary" onClick={() => setIsEditing(true)}>
             Edit Profile
           </Button>
         </Col>
@@ -173,7 +144,7 @@ const DoctorProfileCard: React.FC = () => {
             <Descriptions
               title={"Education"}
               items={EducationItems}
-              style={{ justifyContent: "center", paddingTop: "12px" }}
+              style={{ justifyContent: "center" }}
             />
           </Col>
         </Row>
