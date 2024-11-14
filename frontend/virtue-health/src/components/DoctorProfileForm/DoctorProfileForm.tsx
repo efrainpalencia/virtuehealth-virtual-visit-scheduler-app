@@ -1,15 +1,7 @@
+// DoctorProfileForm.tsx
+
 import React, { useEffect, useState } from "react";
-import {
-  Card,
-  Form,
-  Input,
-  Button,
-  message,
-  Select,
-  Upload,
-  Avatar,
-} from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { Card, Form, Input, Button, message, Select } from "antd";
 import {
   Doctor,
   DoctorProfile,
@@ -100,7 +92,7 @@ const DoctorProfileForm: React.FC<DoctorProfileFormProps> = ({
         message.success("Profile created successfully!");
       }
 
-      onSave(updatedProfile);
+      onSave(updatedProfile); // Notify parent component
     } catch (error) {
       message.error("Error saving profile. Please try again.");
     } finally {
@@ -110,7 +102,7 @@ const DoctorProfileForm: React.FC<DoctorProfileFormProps> = ({
 
   return (
     <Card
-      title={`Edit Profile of ${doctor?.first_name} ${doctor?.last_name}`}
+      title={`Edit Profile of ${doctor?.first_name || "Doctor"}`}
       style={{ width: 800 }}
     >
       <Form form={form} layout="vertical" onFinish={handleSubmit}>
@@ -131,19 +123,19 @@ const DoctorProfileForm: React.FC<DoctorProfileFormProps> = ({
         </Form.Item>
 
         <Form.Item
+          label="Email"
+          name="email"
+          rules={[{ required: true, message: "Please enter email" }]}
+        >
+          <Input placeholder="Enter email" />
+        </Form.Item>
+
+        <Form.Item
           label="Date of Birth"
           name="date_of_birth"
           rules={[{ required: true, message: "Please enter date of birth" }]}
         >
           <Input type="date" />
-        </Form.Item>
-
-        <Form.Item
-          label="Phone Number"
-          name="phone_number"
-          rules={[{ required: true, message: "Please enter phone number" }]}
-        >
-          <Input placeholder="Enter phone number" />
         </Form.Item>
 
         <Form.Item
@@ -158,6 +150,22 @@ const DoctorProfileForm: React.FC<DoctorProfileFormProps> = ({
               </Option>
             ))}
           </Select>
+        </Form.Item>
+
+        <Form.Item
+          label="Location"
+          name="location"
+          rules={[{ required: true, message: "Please enter location" }]}
+        >
+          <TextArea placeholder="Enter location" />
+        </Form.Item>
+
+        <Form.Item
+          label="Phone Number"
+          name="phone_number"
+          rules={[{ required: true, message: "Please enter phone number" }]}
+        >
+          <Input placeholder="Enter phone number" />
         </Form.Item>
 
         <Form.Item wrapperCol={{ span: 14, offset: 18 }}>

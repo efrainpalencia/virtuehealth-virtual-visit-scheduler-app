@@ -92,6 +92,7 @@ const determineMenuItems = (route: string): MenuItem[] => {
     "/patient-portal/view-medical-records/edit-medical-records",
     "/patient-portal/view-profile",
     "/patient-portal/view-profile/edit-profile",
+    "/patient-portal/doctor-list/doctor/1/appointment-form",
   ];
 
   if (
