@@ -80,10 +80,7 @@ const App: React.FC = () => {
               path="view-profile/edit-profile"
               element={<PatientProfileForm />}
             />
-            <Route
-              path="medical-records"
-              element={<MedicalRecordCard patientId={0} />}
-            />
+            <Route path="medical-records" element={<MedicalRecordCard />} />
           </Route>
         </Route>
 

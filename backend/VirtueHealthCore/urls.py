@@ -42,4 +42,5 @@ urlpatterns = [
     path('api/', include(router.urls,)),
     path('api/auth/', include('user.urls')),
     path('api/medical-records/', include('medical_records.urls')),
+    path("api/email/", include("email_service.urls")),
 ]
