@@ -22,8 +22,8 @@ urlpatterns = [
         'login/', LoginViewSet.as_view({'post': 'login'}), name='custom-login'),
     path('refresh/',
          RefreshViewSet.as_view({'post': 'refresh'}), name='refresh'),
-    path('reset-password/', PasswordResetViewSet.as_view(
+    path('reset_password', PasswordResetViewSet.as_view(
         {'post': 'reset_password'}), name='reset-password'),
-    path('reset-password-confirm/', PasswordResetConfirmViewSet.as_view(
+    path('reset_password_confirm', PasswordResetConfirmViewSet.as_view(
         {'post': 'reset_password_confirm'}), name='reset-password-confirm'),
 ]

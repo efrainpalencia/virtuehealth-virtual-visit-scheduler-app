@@ -18,6 +18,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets, permissions, authentication
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.core.mail import send_mail
@@ -97,6 +100,7 @@ logger = logging.getLogger(__name__)
 
 
 class PasswordResetViewSet(viewsets.ViewSet):
+    authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
     @action(detail=False, methods=['post'])
@@ -104,12 +108,13 @@ class PasswordResetViewSet(viewsets.ViewSet):
         email = request.data.get('email')
         user = User.objects.filter(email=email).first()
         if user:
-            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = PasswordResetTokenGenerator().make_token(user)
             reset_url = f"{
-                FRONTEND_URL}/reset-password?token={token}&email={email}"
+                FRONTEND_URL}/reset_password?uid={uid}&token={token}"
             send_mail(
-                'Password Reset Request',
-                f'Click the link below to reset your password:\n{reset_url}',
+                "Password Reset Request",
+                f"Click the link below to reset your password:\n{reset_url}",
                 EMAIL_HOST_USER,
                 [email],
                 fail_silently=False,
@@ -119,20 +124,25 @@ class PasswordResetViewSet(viewsets.ViewSet):
 
 
 class PasswordResetConfirmViewSet(viewsets.ViewSet):
+    authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
     @action(detail=False, methods=['post'])
     def reset_password_confirm(self, request):
+        uid = request.data.get('uid')
         token = request.data.get('token')
-        email = request.data.get('email')
         new_password = request.data.get('new_password')
 
-        user = User.objects.filter(email=email).first()
-        if user and default_token_generator.check_token(user, token):
-            user.set_password(new_password)
-            user.save()
-            return Response({"message": "Password updated successfully!"})
-        return Response({"error": "Invalid token or email"}, status=400)
+        try:
+            user_id = force_str(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=user_id)
+            if PasswordResetTokenGenerator().check_token(user, token):
+                user.set_password(new_password)
+                user.save()
+                return Response({"message": "Password updated successfully!"})
+            return Response({"error": "Invalid token"}, status=400)
+        except Exception:
+            return Response({"error": "Invalid token or user"}, status=400)
 
 
 class RefreshViewSet(viewsets.ViewSet, TokenRefreshView):

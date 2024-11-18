@@ -6,7 +6,6 @@ import DoctorDashboard from "./components/DoctorDashboard/DoctorDashboard";
 import DoctorRegistration from "./components/DoctorRegistration/DoctorRegistration";
 import PatientRegistration from "./components/PatientRegistration/PatientRegistration";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
-import PasswordResetRequestForm from "./components/PasswordResetRequestForm/PasswordResetRequestForm";
 import PasswordResetForm from "./components/PasswordResetForm/PasswordResetForm";
 import LogoutPage from "./components/LogoutPage/LogoutPage";
 import PatientProfileForm from "./components/PatientProfileForm/PatientProfileForm";
@@ -36,11 +35,7 @@ const App: React.FC = () => {
           <Route path="logout" element={<LogoutPage />} />
           <Route path="register/patient" element={<PatientRegistration />} />
           <Route path="register/doctor" element={<DoctorRegistration />} />
-          <Route path="reset-password" element={<PasswordResetRequestForm />} />
-          <Route
-            path="reset-password-confirm"
-            element={<PasswordResetForm />}
-          />
+          <Route path="reset_password" element={<PasswordResetForm />} />
         </Route>
 
         {/* Doctor Dashboard Layout Routes */}
