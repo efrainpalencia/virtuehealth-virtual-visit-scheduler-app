@@ -2,6 +2,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .utils import send_appointment_email
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class AppointmentEmailView(APIView):
@@ -24,4 +27,5 @@ class AppointmentEmailView(APIView):
             return Response({"message": "Email sent successfully."}, status=status.HTTP_200_OK)
 
         except Exception as e:
+            logger.error(f"Error sending email: {e}")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
