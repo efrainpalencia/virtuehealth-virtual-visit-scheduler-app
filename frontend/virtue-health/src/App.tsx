@@ -24,6 +24,7 @@ import DoctorSchedule from "./components/DoctorSchedule/DoctorSchedule";
 import AppointmentForm from "./components/AppointmentForm/AppointmentForm";
 import PatientAppointments from "./components/PatientAppointments/PatientAppointments";
 import MedicalRecordCard from "./components/MedicalRecordCard/MedicalRecordCard";
+import VideoCallPage from "./components/VideoCallPage/VideoCallPage";
 
 const App: React.FC = () => {
   return (
@@ -76,6 +77,7 @@ const App: React.FC = () => {
               element={<PatientProfileForm />}
             />
             <Route path="medical-records" element={<MedicalRecordCard />} />
+            <Route path="virtual-session" element={<VideoCallPage />} />
           </Route>
         </Route>
 

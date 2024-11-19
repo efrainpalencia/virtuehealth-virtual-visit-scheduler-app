@@ -11,12 +11,15 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.1",
+    "@daily-co/daily-js": "^0.73.0",
+    "@daily-co/daily-react": "^0.22.0",
     "@types/antd": "^0.12.32",
     "@types/moment": "^2.11.29",
     "@types/react-router-dom": "^5.3.3",
     "antd": "^5.21.2",
     "axios": "^1.7.7",
     "consola": "^3.2.3",
+    "jotai": "^2.0.0",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
     "jwt-decode": "^4.0.0",
@@ -26,6 +29,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2",
+    "recoil": "^0.7.7",
     "virtue-health": "file:",
     "vite-plugin-style-import": "^2.0.0"
   },

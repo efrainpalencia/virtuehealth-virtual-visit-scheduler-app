@@ -45,6 +45,11 @@ const patientItems: MenuItem[] = [
   },
   { label: "About", key: "/patient-portal/about", icon: <QuestionOutlined /> },
   {
+    label: "Video Chat",
+    key: "/patient-portal/virtual-session",
+    icon: <VideoCameraOutlined />,
+  },
+  {
     label: "My Profile",
     key: "SubMenu",
     icon: <SettingOutlined />,
@@ -89,6 +94,7 @@ const determineMenuItems = (route: string): MenuItem[] => {
     "/patient-portal/doctor-list",
     "/patient-portal/about",
     "/patient-portal/medical-records",
+    "/patient-portal/video-session",
     "/patient-portal/view-medical-records/edit-medical-records",
     "/patient-portal/view-profile",
     "/patient-portal/view-profile/edit-profile",
