@@ -1,3 +1,7 @@
+from user.serializers import DoctorSerializer, DoctorProfileSerializer
+from user.models import Doctor, DoctorProfile
+from rest_framework import viewsets, status, authentication, permissions
+from django.utils import timezone
 from datetime import datetime, timezone
 from datetime import datetime
 from VirtueHealthCore.settings import FRONTEND_URL, EMAIL_HOST_USER
@@ -10,6 +14,7 @@ from medical_records.models import MedicalRecord
 from medical_records.serializers import MedicalRecordSerializer
 from user.serializers import DoctorRegisterSerializer, PatientRegisterSerializer, LoginSerializer, DoctorSerializer, PatientProfile, PatientProfileSerializer, PatientSerializer, DoctorProfileSerializer
 from .models import DoctorProfile, User, Doctor, Patient
+from user.permissions import IsDoctor, IsPatient
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -163,135 +168,156 @@ class RefreshViewSet(viewsets.ViewSet, TokenRefreshView):
 class PatientViewSet(viewsets.ModelViewSet):
     queryset = Patient.patient.all()
     serializer_class = PatientSerializer
-    authentication_classes = [
-        authentication.SessionAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsDoctor]
 
 
 class PatientProfileViewSet(viewsets.ModelViewSet):
     queryset = PatientProfile.objects.all()
     serializer_class = PatientProfileSerializer
-    authentication_classes = [
-        authentication.SessionAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsDoctor]
 
 
 class DoctorViewSet(viewsets.ModelViewSet):
     queryset = Doctor.doctor.all()
     serializer_class = DoctorSerializer
-    authentication_classes = [
-        authentication.SessionAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsDoctor]
 
 
 class DoctorProfileViewSet(viewsets.ModelViewSet):
     queryset = DoctorProfile.objects.all()
     serializer_class = DoctorProfileSerializer
-    authentication_classes = [
-        authentication.SessionAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsDoctor]
 
-    @action(detail=True, methods=['get'], url_path='booked-slots')
-    def booked_slots(self, request, pk=None):
-        doctor_profile = self.get_object()  # Fetch DoctorProfile by ID
-
-        # Directly return the schedule field as the response
-        return Response(doctor_profile.schedule, status=200)
-
-
-# Custom action to remove a specific date from the doctor's schedule
     logger = logging.getLogger(__name__)
 
-    @action(detail=True, methods=['patch'], url_path='remove-schedule-date')
-    def remove_schedule_date(self, request, pk=None):
+    def perform_create(self, serializer):
+        # Automatically set an empty list if schedule is not provided
+        serializer.save(schedule=serializer.validated_data.get("schedule", []))
+
+    def perform_update(self, serializer):
+        # Allow updates with no changes to schedule
+        serializer.save(schedule=serializer.validated_data.get(
+            "schedule", self.get_object().schedule))
+
+    # def create(self, request, *args, **kwargs):
+    #     # Ensure no duplicate profiles are created
+    #     user_id = request.data.get("user_id")
+    #     if DoctorProfile.objects.filter(user_id=user_id).exists():
+    #         return Response(
+    #             {"error": "Profile already exists. Use PATCH to update."},
+    #             status=status.HTTP_400_BAD_REQUEST,
+    #         )
+    #     return super().create(request, *args, **kwargs)
+
+    @action(detail=True, methods=["get"], url_path="booked-slots")
+    def booked_slots(self, request, pk=None):
+        """
+        Fetch all booked slots for a doctor's schedule.
+        """
         doctor_profile = self.get_object()
-        date_to_remove = request.data.get('date')
+        return Response(doctor_profile.schedule, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["patch"], url_path="remove-schedule-date")
+    def remove_schedule_date(self, request, pk=None):
+        """
+        Remove a specific date from the doctor's schedule.
+        """
+        doctor_profile = self.get_object()
+        date_to_remove = request.data.get("date")
 
         if not date_to_remove:
             return Response(
                 {"error": "Date to remove not provided."},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Convert date_to_remove to a timezone-aware datetime object in UTC
         try:
-            date_to_remove_obj = datetime.fromisoformat(
-                date_to_remove.replace("Z", "+00:00")).astimezone(timezone.utc)
-        except ValueError:
-            return Response(
-                {"error": "Invalid date format. Please provide an ISO format date string."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            date_to_remove_obj = self._convert_to_datetime(date_to_remove)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Prepare an updated schedule without the matching date
-        updated_schedule = []
-        for date in doctor_profile.schedule:
-            # Ensure the date is converted to a datetime object if it's a string
-            if isinstance(date, str):
-                try:
-                    date_obj = datetime.fromisoformat(
-                        date.replace("Z", "+00:00")).astimezone(timezone.utc)
-                except ValueError:
-                    continue
-            else:
-                date_obj = date
+        # Filter out the date to remove
+        updated_schedule = [
+            date
+            for date in doctor_profile.schedule
+            if self._convert_to_datetime(date) != date_to_remove_obj
+        ]
 
-            # Append only non-matching dates to the updated schedule
-            if date_obj != date_to_remove_obj:
-                updated_schedule.append(date)
-
-        # Check if any dates were removed
         if len(updated_schedule) == len(doctor_profile.schedule):
             return Response(
                 {"error": "Date not found in schedule."},
-                status=status.HTTP_404_NOT_FOUND
+                status=status.HTTP_404_NOT_FOUND,
             )
 
-        # Update and save the modified schedule
         doctor_profile.schedule = updated_schedule
         doctor_profile.save()
 
         return Response(
             {"message": "Date removed from schedule successfully."},
-            status=status.HTTP_200_OK
+            status=status.HTTP_200_OK,
         )
 
-    # Custom action to add a specific date from the doctor's schedule
-
-    @action(detail=True, methods=['patch'], url_path='add-schedule-date')
+    @action(detail=True, methods=["patch"], url_path="add-schedule-date")
     def add_schedule_date(self, request, pk=None):
+        """
+        Add a specific date to the doctor's schedule.
+        """
         doctor_profile = self.get_object()
-        date_to_add = request.data.get('date')
+        date_to_add = request.data.get("date")
 
         if not date_to_add:
-            return Response({"error": "Date to add not provided."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Date to add not provided."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
-            date_to_add_obj = datetime.fromisoformat(
-                date_to_add.replace("Z", "+00:00")).astimezone(timezone.utc)
-        except ValueError:
-            return Response({"error": "Invalid date format."}, status=status.HTTP_400_BAD_REQUEST)
+            date_to_add_obj = self._convert_to_datetime(date_to_add)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Validation: Check if slot is within working hours (9:00 AM - 5:00 PM)
-        if not (9 <= date_to_add_obj.hour < 17):
+        if not self._is_valid_time_slot(date_to_add_obj):
             return Response(
                 {"error": "Time slot must be within working hours (9:00 AM to 5:00 PM)."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Validation: Check if slot is in the past
         if date_to_add_obj < timezone.now():
             return Response(
                 {"error": "Cannot add a time slot in the past."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Validation: Check if slot is already in the schedule
-        if date_to_add_obj in doctor_profile.schedule:
-            return Response({"error": "Date already in schedule."}, status=status.HTTP_400_BAD_REQUEST)
+        if self._convert_to_datetime(date_to_add_obj) in [
+            self._convert_to_datetime(date) for date in doctor_profile.schedule
+        ]:
+            return Response(
+                {"error": "Date already in schedule."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
-        # Add slot
         doctor_profile.schedule.append(date_to_add_obj)
         doctor_profile.save()
 
-        return Response({"message": "Date added to schedule successfully."}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "Date added to schedule successfully."},
+            status=status.HTTP_200_OK,
+        )
+
+    def _convert_to_datetime(self, date_str):
+        """
+        Helper method to convert ISO string to timezone-aware datetime.
+        """
+        try:
+            return datetime.fromisoformat(date_str.replace("Z", "+00:00")).astimezone(
+                timezone.utc
+            )
+        except ValueError:
+            raise ValueError(
+                "Invalid date format. Please provide an ISO format date string."
+            )
+
+    def _is_valid_time_slot(self, date_obj):
+        """
+        Helper method to validate if a time slot is within working hours.
+        """
+        return 9 <= date_obj.hour < 17

@@ -1,202 +1,185 @@
-import axios from 'axios';
+import API from './AuthService'; // Use centralized Axios instance
 
 const API_URL = 'http://localhost:8000/api/auth';
 
 export interface User {
     id: number;
     email: string;
-    date_of_birth: Date| null;
+    date_of_birth: Date | null;
     first_name: string;
     last_name: string;
     role: 'ADMIN' | 'DOCTOR' | 'PATIENT';
 }
 
 export interface Doctor extends User {
-    base_role: 'DOCTOR'
-    // other fields...
+    base_role: 'DOCTOR';
+    // additional fields...
 }
 
 export interface DoctorProfile {
     user: Doctor;
     user_id: number;
-    specialty: 'GENERAL_DOCTOR' | 'CARDIOLOGIST' | 'ORTHOPEDIST' | 'NEUROLIGIST' | 'PSYCHIATRIST' | 'PEDIATRICIAN' | null;
+    specialty:
+        | 'GENERAL_DOCTOR'
+        | 'CARDIOLOGIST'
+        | 'ORTHOPEDIST'
+        | 'NEUROLOGIST'
+        | 'PSYCHIATRIST'
+        | 'PEDIATRICIAN'
+        | null;
     location: string | null;
     phone_number: string | null;
     fax_number: string | null;
     languages: string | null;
-    schedule: Date[];
+    schedule: Date[] | string[]; // Allow both types
     medical_school: string | null;
     residency_program: string | null;
     img_url: string | null;
 }
 
 export const specialtyMap = {
-  GENERAL_DOCTOR: "General Doctor",
-  CARDIOLOGIST: "Cardiologist",
-  ORTHOPEDIST: "Orthopedist",
-  NEUROLOGIST: "Neurologist",
-  PSYCHIATRIST: "Psychiatrist",
-  PEDIATRICIAN: "Pediatrician",
+    GENERAL_DOCTOR: 'General Doctor',
+    CARDIOLOGIST: 'Cardiologist',
+    ORTHOPEDIST: 'Orthopedist',
+    NEUROLOGIST: 'Neurologist',
+    PSYCHIATRIST: 'Psychiatrist',
+    PEDIATRICIAN: 'Pediatrician',
 };
 
+// Utility: Format schedule dates
+const formatScheduleDates = (schedule: Date[] | string[]): string[] => {
+    return schedule
+        .map((date) => (typeof date === 'string' ? date : date.toISOString()))
+        .filter((value, index, self) => self.indexOf(value) === index); // Remove duplicates
+};
 
-
+// Fetch all doctors
 export const getDoctors = async (): Promise<Doctor[]> => {
-    const response = await axios.get<Doctor[]>(`${API_URL }/doctor/`);
+    const response = await API.get<Doctor[]>(`${API_URL}/doctor/`);
     return response.data;
 };
 
+// Fetch all doctor profiles
 export const getDoctorProfiles = async (): Promise<DoctorProfile[]> => {
-    const response = await axios.get<DoctorProfile[]>(`${API_URL}/doctor-profiles/`);
+    const response = await API.get<DoctorProfile[]>(`${API_URL}/doctor-profiles/`);
     return response.data;
 };
 
+// Utility: Transform array to map
+const arrayToMap = <T extends { id: number }>(array: T[]): { [key: number]: T } => {
+    return array.reduce((acc, item) => {
+        acc[item.id] = item;
+        return acc;
+    }, {} as { [key: number]: T });
+};
 
-// Utility functions to transform data into hash maps
 export const getDoctorsMap = async (): Promise<{ [key: number]: Doctor }> => {
-    const doctorsArray = await getDoctors();
-    const doctorsMap = doctorsArray.reduce((acc: { [key: number]: Doctor }, doctor: Doctor) => {
-        acc[doctor.id] = doctor;
-        return acc;
-    }, {});
-    return doctorsMap;
+  console.log("Fetching Doctors with Authorization Header");
+  const response = await API.get<Doctor[]>('/doctor/');
+  return arrayToMap(response.data); // Assuming `arrayToMap` is a utility function
 };
 
-export const getDoctorProfilesMap = async (): Promise<{ [key: number]: DoctorProfile }> => {
-    const profilesArray = await getDoctorProfiles();
-    const profilesMap = profilesArray.reduce((acc: { [key: number]: DoctorProfile }, profile: DoctorProfile) => {
-        acc[profile.user] = profile;
-        return acc;
-    }, {});
-    return profilesMap;
+// Utility: Transform array to map by key
+const arrayToMapByKey = <T, K extends keyof T>(
+    array: T[],
+    key: K
+  ): { [key: string]: T } => {
+    return array.reduce((acc, item) => {
+      const keyValue = item[key];
+      if (keyValue !== undefined && keyValue !== null) {
+        acc[keyValue as unknown as string] = item; // Ensure key is stringified
+      }
+      return acc;
+    }, {} as { [key: string]: T });
+  };
+  
 
-};
+  export const getDoctorProfilesMap = async (): Promise<{ [key: number]: DoctorProfile }> => {
+    try {
+      const profilesArray = await getDoctorProfiles();
+      console.log("Profiles Array:", profilesArray);
+  
+      // Use `arrayToMapByKey` with the `user` key
+      const profilesMap = arrayToMapByKey(profilesArray, "user");
+      console.log("Profiles Map:", profilesMap);
+  
+      return profilesMap;
+    } catch (error) {
+      console.error("Failed to fetch doctor profiles map:", error);
+      return {};
+    }
+  };
+  
 
-// Get a single patient from the hash map by id
+
+
+// Fetch a single doctor
 export const getDoctor = async (id: number): Promise<Doctor | null> => {
-  try {
-    const doctorsMap = await getDoctorsMap();
-    return doctorsMap[id] || null;
-  } catch (error) {
-    console.error(`Failed to fetch doctor with id ${id}:`, error);
-    return null;
-  }
+    try {
+        const doctorsMap = await getDoctorsMap();
+        return doctorsMap[id] || null;
+    } catch (error) {
+        console.error(`Failed to fetch doctor with id ${id}:`, error);
+        return null;
+    }
 };
 
-  
-  // Get a single patient profile from the hash map by user_id
-  export const getDoctorProfile = async (user: number): Promise<DoctorProfile | null> => {
+// Fetch a single doctor profile
+export const getDoctorProfile = async (user_id: number): Promise<DoctorProfile | null> => {
     try {
-      const profilesMap = await getDoctorProfilesMap();
-      return profilesMap[user] || null;
+        const profilesMap = await getDoctorProfilesMap();
+        return profilesMap[user_id] || null;
     } catch (error) {
-      console.error(`Failed to fetch doctor profile with id ${user}:`, error);
-      return null;
+        console.error(`Failed to fetch doctor profile with user_id ${user_id}:`, error);
+        return null;
     }
-    
-  };
-  
-  // Create a new patient and return the updated profile
-  export const createDoctor = async (id: number, doctor: Doctor): Promise<Doctor> => {
-    try {
-      const response = await axios.post<Doctor>(`${API_URL }/doctor/${id}/`, doctor);
+};
+
+// Create a doctor
+export const createDoctor = async (id: number, doctor: Doctor): Promise<Doctor> => {
+    const response = await API.post<Doctor>(`${API_URL}/doctor/${id}/`, doctor);
     return response.data;
-    } catch (error) {
-      console.error(`Failed to create doctor`, error);
-      return error;
-    }
-    
-  };
+};
 
-  // Create a new patient profile and return the updated profile
-  export const createDoctorProfile = async (user_id: number, profile: Partial<DoctorProfile>,): Promise<DoctorProfile> => {
-    const response = await axios.post<DoctorProfile>(`${API_URL}/doctor-profiles/${user_id}/`, profile);
-    return response.data; // Newly created profile returned from the server
-  };
-  
-  // Update an existing patient profile
-  export const updateDoctor = async (
-    id: number,
-    doctor: Partial<Doctor>
-  ): Promise<Doctor> => {
-    try {
-      const response = await axios.patch<Doctor>(`${API_URL}/doctor/${id}/`, doctor);
+// Create a doctor profile
+export const createDoctorProfile = async (user_id: number, profile: Partial<DoctorProfile>): Promise<DoctorProfile> => {
+    const formattedProfile = { ...profile, schedule: formatScheduleDates(profile.schedule || []) };
+    const response = await API.post<DoctorProfile>(`${API_URL}/doctor-profiles/${user_id}/`, formattedProfile);
     return response.data;
-    } catch (error) {
-      console.error(`Failed to update doctor`, error);
-      return error;
-    }
-    
-  };
-
-  export const updateDoctorProfile = async (
-    user_id: number,
-    profile: Partial<DoctorProfile>
-  ): Promise<DoctorProfile> => {
-    try {
-      // Filter unique ISO strings for schedule dates
-      const formattedProfile = {
-        ...profile,
-        schedule: profile.schedule
-          ?.map((date) => (typeof date === "string" ? date : date.toISOString()))
-          .filter((value, index, self) => self.indexOf(value) === index), // Remove duplicates
-      };
-  
-      console.log("Sending formatted profile:", formattedProfile); // Debugging output
-  
-      const response = await axios.patch<DoctorProfile>(
-        `${API_URL}/doctor-profiles/${user_id}/`,
-        formattedProfile
-      );
-      return response.data;
-    } catch (error) {
-      console.error(`Failed to update doctor profile:`, error.response?.data || error);
-      throw error;
-    }
-  };
-  
-  
-  // Delete a doctorprofile
-  export const deleteDoctorProfile = async (user_id: number): Promise<void> => {
-    await axios.delete(`${API_URL}/doctor-profiles/${user_id}/`);
-  };
-
-  export const getBookedSlots = async (doctorProfileId: string): Promise<string[]> => {
-    const response = await fetch(`/api/auth/doctor-profiles/${doctorProfileId}/booked-slots`);
-    if (!response.ok) {
-        throw new Error("Failed to fetch booked slots");
-    }
-    return response.json(); // API should return the `schedule` array
 };
 
-
-
-  export const addScheduleDate = async (doctorId: number, dateToAdd: string) => {
-    try {
-      const response = await axios.patch(
-        `${API_URL}/doctor-profiles/${doctorId}/add-schedule-date/`,
-        { date: dateToAdd }, 
-        { headers: { "Content-Type": "application/json" } }
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Failed to add date to doctor profile schedule:", error);
-      throw error;
-    }
-  };
-
-  export const removeScheduleDate = async (user_id: number, dateToRemove: string) => {
-    try {
-        console.log("Attempting to remove date:", dateToRemove);  // Log the date for debugging
-        const response = await axios.patch(
-            `${API_URL}/doctor-profiles/${user_id}/remove-schedule-date/`,
-            { date: dateToRemove },
-            { headers: { "Content-Type": "application/json" } }
-        );
-        return response.data;
-    } catch (error) {
-        console.error("Failed to remove date from doctor profile schedule:", error);
-        throw error;
-    }
+// Update a doctor
+export const updateDoctor = async (id: number, doctor: Partial<Doctor>): Promise<Doctor> => {
+    const response = await API.patch<Doctor>(`${API_URL}/doctor/${id}/`, doctor);
+    return response.data;
 };
 
+// Update a doctor profile
+export const updateDoctorProfile = async (user_id: number, profile: Partial<DoctorProfile>): Promise<DoctorProfile> => {
+    const formattedProfile = { ...profile, schedule: formatScheduleDates(profile.schedule || []) };
+    const response = await API.patch<DoctorProfile>(`${API_URL}/doctor-profiles/${user_id}/`, formattedProfile);
+    return response.data;
+};
+
+// Delete a doctor profile
+export const deleteDoctorProfile = async (user_id: number): Promise<void> => {
+    await API.delete(`${API_URL}/doctor-profiles/${user_id}/`);
+};
+
+// Get booked slots for a doctor
+export const getBookedSlots = async (doctorProfileId: string): Promise<string[]> => {
+    const response = await API.get<string[]>(`${API_URL}/doctor-profiles/${doctorProfileId}/booked-slots/`);
+    return response.data;
+};
+
+// Add a schedule date to a doctor profile
+export const addScheduleDate = async (doctorId: number, dateToAdd: string): Promise<void> => {
+    const response = await API.patch(`${API_URL}/doctor-profiles/${doctorId}/add-schedule-date/`, { date: dateToAdd });
+    return response.data;
+};
+
+// Remove a schedule date from a doctor profile
+export const removeScheduleDate = async (user_id: number, dateToRemove: string): Promise<void> => {
+    const response = await API.patch(`${API_URL}/doctor-profiles/${user_id}/remove-schedule-date/`, { date: dateToRemove });
+    return response.data;
+};

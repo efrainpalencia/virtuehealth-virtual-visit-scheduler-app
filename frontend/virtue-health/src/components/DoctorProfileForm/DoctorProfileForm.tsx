@@ -1,5 +1,3 @@
-// DoctorProfileForm.tsx
-
 import React, { useEffect, useState } from "react";
 import { Card, Form, Input, Button, message, Select } from "antd";
 import {
@@ -8,6 +6,7 @@ import {
   createDoctorProfile,
   updateDoctorProfile,
   updateDoctor,
+  getDoctorProfile,
 } from "../../services/doctorService";
 
 const { TextArea } = Input;
@@ -20,7 +19,7 @@ interface DoctorProfileFormProps {
   onCancel: () => void;
 }
 
-const selectSpecialtyMap = [
+const specialtyOptions = [
   { value: "GENERAL_DOCTOR", label: "General Doctor" },
   { value: "CARDIOLOGIST", label: "Cardiologist" },
   { value: "ORTHOPEDIST", label: "Orthopedist" },
@@ -39,19 +38,10 @@ const DoctorProfileForm: React.FC<DoctorProfileFormProps> = ({
   const [form] = Form.useForm();
 
   useEffect(() => {
-    if (doctor) {
+    if (doctor || profile) {
       form.setFieldsValue({
-        first_name: doctor.first_name,
-        last_name: doctor.last_name,
-        email: doctor.email,
-        date_of_birth: doctor.date_of_birth,
-        specialty: profile?.specialty || undefined,
-        phone_number: profile?.phone_number || undefined,
-        fax_number: profile?.fax_number || undefined,
-        location: profile?.location || undefined,
-        languages: profile?.languages || undefined,
-        medical_school: profile?.medical_school || undefined,
-        residency_program: profile?.residency_program || undefined,
+        ...doctor,
+        ...profile,
       });
     }
   }, [doctor, profile, form]);
@@ -59,14 +49,6 @@ const DoctorProfileForm: React.FC<DoctorProfileFormProps> = ({
   const handleSubmit = async (values: any) => {
     setLoading(true);
     try {
-      const doctorData = {
-        first_name: values.first_name,
-        last_name: values.last_name,
-        email: values.email,
-        date_of_birth: values.date_of_birth,
-      };
-      await updateDoctor(doctor?.id || 0, doctorData);
-
       const profileData = {
         specialty: values.specialty,
         location: values.location,
@@ -75,6 +57,7 @@ const DoctorProfileForm: React.FC<DoctorProfileFormProps> = ({
         languages: values.languages,
         medical_school: values.medical_school,
         residency_program: values.residency_program,
+        ...(profile?.schedule?.length ? { schedule: profile.schedule } : {}), // Add schedule only if it's not empty
       };
 
       let updatedProfile;
@@ -92,9 +75,10 @@ const DoctorProfileForm: React.FC<DoctorProfileFormProps> = ({
         message.success("Profile created successfully!");
       }
 
-      onSave(updatedProfile); // Notify parent component
+      onSave(updatedProfile);
     } catch (error) {
-      message.error("Error saving profile. Please try again.");
+      console.error("Error saving profile:", error.response?.data || error);
+      message.error("Failed to save profile. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -103,9 +87,10 @@ const DoctorProfileForm: React.FC<DoctorProfileFormProps> = ({
   return (
     <Card
       title={`Edit Profile of ${doctor?.first_name || "Doctor"}`}
-      style={{ width: 800 }}
+      style={{ width: "100%", maxWidth: 800 }}
     >
       <Form form={form} layout="vertical" onFinish={handleSubmit}>
+        {/* Doctor's General Information */}
         <Form.Item
           label="First Name"
           name="first_name"
@@ -125,7 +110,10 @@ const DoctorProfileForm: React.FC<DoctorProfileFormProps> = ({
         <Form.Item
           label="Email"
           name="email"
-          rules={[{ required: true, message: "Please enter email" }]}
+          rules={[
+            { required: true, message: "Please enter email" },
+            { type: "email", message: "Please enter a valid email" },
+          ]}
         >
           <Input placeholder="Enter email" />
         </Form.Item>
@@ -138,13 +126,14 @@ const DoctorProfileForm: React.FC<DoctorProfileFormProps> = ({
           <Input type="date" />
         </Form.Item>
 
+        {/* Doctor's Profile Information */}
         <Form.Item
           label="Specialty"
           name="specialty"
           rules={[{ required: true, message: "Please select specialty" }]}
         >
           <Select placeholder="Select specialty">
-            {selectSpecialtyMap.map((option) => (
+            {specialtyOptions.map((option) => (
               <Option key={option.value} value={option.value}>
                 {option.label}
               </Option>
@@ -157,24 +146,75 @@ const DoctorProfileForm: React.FC<DoctorProfileFormProps> = ({
           name="location"
           rules={[{ required: true, message: "Please enter location" }]}
         >
-          <TextArea placeholder="Enter location" />
+          <TextArea rows={2} placeholder="Enter location" />
         </Form.Item>
 
         <Form.Item
           label="Phone Number"
           name="phone_number"
-          rules={[{ required: true, message: "Please enter phone number" }]}
+          rules={[
+            { required: true, message: "Please enter phone number" },
+            {
+              pattern: /^\+?[1-9]\d{1,14}$/,
+              message: "Please enter a valid phone number",
+            },
+          ]}
         >
           <Input placeholder="Enter phone number" />
         </Form.Item>
 
-        <Form.Item wrapperCol={{ span: 14, offset: 18 }}>
-          <Button type="primary" htmlType="submit" loading={loading}>
+        <Form.Item
+          label="Fax Number"
+          name="fax_number"
+          rules={[
+            {
+              pattern: /^\+?[1-9]\d{1,14}$/,
+              message: "Please enter a valid fax number",
+            },
+          ]}
+        >
+          <Input placeholder="Enter fax number" />
+        </Form.Item>
+
+        <Form.Item
+          label="Languages"
+          name="languages"
+          rules={[
+            { required: false, message: "Please enter languages spoken" },
+          ]}
+        >
+          <Input placeholder="Enter languages (comma-separated)" />
+        </Form.Item>
+
+        <Form.Item
+          label="Medical School"
+          name="medical_school"
+          rules={[{ required: false, message: "Please enter medical school" }]}
+        >
+          <Input placeholder="Enter medical school" />
+        </Form.Item>
+
+        <Form.Item
+          label="Residency Program"
+          name="residency_program"
+          rules={[
+            { required: false, message: "Please enter residency program" },
+          ]}
+        >
+          <Input placeholder="Enter residency program" />
+        </Form.Item>
+
+        {/* Buttons */}
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            style={{ marginRight: 8 }}
+          >
             Save Changes
           </Button>
-          <Button onClick={onCancel} style={{ marginLeft: 8 }}>
-            Cancel
-          </Button>
+          <Button onClick={onCancel}>Cancel</Button>
         </Form.Item>
       </Form>
     </Card>

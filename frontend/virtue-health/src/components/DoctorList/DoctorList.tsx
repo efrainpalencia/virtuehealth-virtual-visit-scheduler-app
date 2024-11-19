@@ -5,11 +5,8 @@ import {
   Doctor,
   DoctorProfile,
 } from "../../services/doctorService";
-import { Avatar, Col, List, Row, Select } from "antd"; // Import Select for dropdown
+import { Avatar, Col, List, Row, Select } from "antd";
 import man1 from "../../assets/man1.jpg";
-import man2 from "../../assets/man2.jpg";
-import man3 from "../../assets/man3.jpg";
-import man4 from "../../assets/man4.jpg";
 import SearchBar from "../SearchBar/SearchBar";
 import { Link } from "react-router-dom";
 
@@ -19,17 +16,9 @@ const specialtyMap = {
   GENERAL_DOCTOR: "General Doctor",
   CARDIOLOGIST: "Cardiologist",
   ORTHOPEDIST: "Orthopedist",
-  NEUROLIGIST: "Neurologist",
+  NEUROLOGIST: "Neurologist",
   PSYCHIATRIST: "Psychiatrist",
-  PEDIATRICIAON: "Pediatrician",
-};
-
-// Mapping of image URLs to imported images
-const imgMap: { [key: string]: string } = {
-  "man1.jpg": man1,
-  "man2.jpg": man2,
-  "man3.jpg": man3,
-  "man4.jpg": man4,
+  PEDIATRICIAN: "Pediatrician",
 };
 
 const DoctorList: React.FC = () => {
@@ -39,9 +28,8 @@ const DoctorList: React.FC = () => {
   const [filteredDoctors, setFilteredDoctors] = useState<
     Array<Doctor & Partial<DoctorProfile>>
   >([]);
-  const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(
-    null
-  );
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string>("ALL");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDoctorsAndProfiles = async () => {
@@ -51,6 +39,9 @@ const DoctorList: React.FC = () => {
           getDoctorProfilesMap(),
         ]);
 
+        console.log("Doctors Map:", doctorsMap);
+        console.log("Profiles Map:", profilesMap);
+
         const combinedList = Object.keys(doctorsMap).map((doctorId) => {
           const doctor = doctorsMap[parseInt(doctorId)];
           const profile = profilesMap[parseInt(doctorId)] || {};
@@ -58,22 +49,23 @@ const DoctorList: React.FC = () => {
         });
 
         setCombinedDoctors(combinedList);
-        setFilteredDoctors(combinedList); // Initialize filteredDoctors with all doctors
-        console.log("Combined Doctors with Profiles:", combinedList);
-      } catch (error) {
-        console.error("Error fetching doctors or profiles:", error);
+        setFilteredDoctors(combinedList);
+      } catch (err) {
+        console.error("Error fetching doctors or profiles:", err);
+        setError(
+          "Failed to fetch doctors or profiles. Please try again later."
+        );
       }
     };
 
     fetchDoctorsAndProfiles();
   }, []);
 
-  // Handle specialty change
   const handleSpecialtyChange = (value: string) => {
     setSelectedSpecialty(value);
 
     if (value === "ALL") {
-      setFilteredDoctors(combinedDoctors); // Show all doctors
+      setFilteredDoctors(combinedDoctors);
     } else {
       const filtered = combinedDoctors.filter(
         (doctor) => doctor.specialty === value
@@ -82,7 +74,6 @@ const DoctorList: React.FC = () => {
     }
   };
 
-  // Handle search by name
   const handleSearch = (searchTerm: string) => {
     const filtered = combinedDoctors.filter(
       (doctor) =>
@@ -95,9 +86,10 @@ const DoctorList: React.FC = () => {
   return (
     <div>
       <h1>Doctors List</h1>
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
       <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-        <Col className="gutter-row" span={12}>
+        <Col span={12}>
           <Select
             style={{ width: 200, marginBottom: 20 }}
             placeholder="Select Specialty"
@@ -112,7 +104,7 @@ const DoctorList: React.FC = () => {
             ))}
           </Select>
         </Col>
-        <Col className="gutter-row" span={12}>
+        <Col span={12}>
           <SearchBar
             placeholder="Search doctors by name..."
             onSearch={handleSearch}
@@ -120,15 +112,13 @@ const DoctorList: React.FC = () => {
         </Col>
       </Row>
 
-      {/* Render the filtered doctor list */}
       <List
         style={{ display: "grid", alignItems: "center", minWidth: "500px" }}
         size="large"
         itemLayout="horizontal"
         dataSource={filteredDoctors}
         renderItem={(doctor) => {
-          // Fallback to a default image if img_url is not found in the imgMap
-          const imgSrc = imgMap[doctor.img_url] || man1;
+          const imgSrc = doctor.img_url || man1;
 
           return (
             <List.Item style={{ padding: "15px 0" }}>
@@ -143,11 +133,9 @@ const DoctorList: React.FC = () => {
                   </Link>
                 }
                 description={
-                  <>
-                    <p style={{ fontSize: "1rem" }}>
-                      Specialty: {specialtyMap[doctor.specialty] || "N/A"}
-                    </p>
-                  </>
+                  <p style={{ fontSize: "1rem" }}>
+                    Specialty: {specialtyMap[doctor.specialty] || "N/A"}
+                  </p>
                 }
               />
             </List.Item>

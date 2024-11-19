@@ -38,6 +38,12 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
         model = DoctorProfile
         fields = fields = '__all__'
 
+    def validate_schedule(self, value):
+        # If the schedule is null or empty, allow it (optional based on requirements)
+        if value is None or not value:
+            return []
+        return value
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
