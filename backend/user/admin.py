@@ -3,36 +3,6 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from user.models import User, Patient, Doctor
 
 
-# class UserProfileInline(admin.StackedInline):
-#     model = User
-
-
-# class CustomUserAdmin(BaseUserAdmin):
-#     ordering = ['email']
-#     inlines = [UserProfileInline]
-
-
-# class PatientProfileInline(admin.StackedInline):
-#     model = Patient
-
-
-# class CustomPatientAdmin(BaseUserAdmin):
-#     ordering = ['email']
-#     inlines = [PatientProfileInline]
-
-
-# class DoctorProfileInline(admin.StackedInline):
-#     model = Doctor
-
-
-# class CustomDoctorAdmin(BaseUserAdmin):
-#     ordering = ['email']
-#     inlines = [DoctorProfileInline]
-
-
-# admin.site.register(User, CustomUserAdmin)
-
-
 class CustomUserAdmin(BaseUserAdmin):
     model = User
     list_display = (
@@ -43,6 +13,7 @@ class CustomUserAdmin(BaseUserAdmin):
         "role",
         "is_active",
     )
+    readonly_fields = ("role",)
     list_filter = (
         "email",
         "first_name",
@@ -74,7 +45,6 @@ class CustomUserAdmin(BaseUserAdmin):
             "password1",
             "password2",
             "date_of_birth",
-            "role",
             "is_staff",
             "is_active",
             "groups",
@@ -92,9 +62,9 @@ class CustomDoctorAdmin(BaseUserAdmin):
         "first_name",
         "last_name",
         "date_of_birth",
-        "role",
         "is_active",
     )
+    readonly_fields = ("role",)
     list_filter = (
         "email",
         "first_name",
@@ -126,7 +96,6 @@ class CustomDoctorAdmin(BaseUserAdmin):
             "password1",
             "password2",
             "date_of_birth",
-            "role",
             "is_staff",
             "is_active",
             "groups",
@@ -144,9 +113,9 @@ class CustomPatientAdmin(BaseUserAdmin):
         "first_name",
         "last_name",
         "date_of_birth",
-        "role",
         "is_active",
     )
+    readonly_fields = ("role",)
     list_filter = (
         "email",
         "first_name",
@@ -179,7 +148,6 @@ class CustomPatientAdmin(BaseUserAdmin):
             "password1",
             "password2",
             "date_of_birth",
-            "role",
             "is_staff",
             "is_active",
             "groups",

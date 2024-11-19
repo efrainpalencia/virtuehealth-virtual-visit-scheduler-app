@@ -85,7 +85,7 @@ class User(AbstractUser):
         DOCTOR = "DOCTOR", 'doctor'
         PATIENT = "PATIENT", 'patient'
 
-    base_role = Role.PATIENT
+    base_role = Role.ADMIN
 
     role = models.CharField(max_length=50, choices=Role.choices)
 

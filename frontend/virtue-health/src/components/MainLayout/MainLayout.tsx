@@ -32,7 +32,7 @@ const MainLayout: FC<MainLayoutProps> = () => {
         >
           <Flex align="center">
             <div>
-              <h1>Main Layout</h1>
+              <h1>Welcome to VirtueHealth</h1>
               <Outlet />
             </div>
           </Flex>

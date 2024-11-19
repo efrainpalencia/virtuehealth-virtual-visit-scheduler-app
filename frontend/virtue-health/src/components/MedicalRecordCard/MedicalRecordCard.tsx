@@ -12,13 +12,23 @@ import {
   getMedicalRecord,
   MedicalRecord,
 } from "../../services/medicalRecordService";
+import {
+  physicalActivityMap,
+  psychologicalAssessmentMap,
+  drugsAlcoholMap,
+  medicalConditionMap,
+  injuryIllnessMap,
+  familyHistoryMap,
+  treatmentSurgeryMap,
+  currentMedicationMap,
+  allergyMap,
+  sideEffectsMap,
+} from "../../services/medicalRecordService";
 import { getPatient } from "../../services/patientService";
 import MedicalRecordForm from "../MedicalRecordForm/MedicalRecordForm";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { getIdFromToken } from "../../services/authService";
-
-interface MedicalRecordCardProps {}
+import { getIdFromToken, getRoleFromToken } from "../../services/authService";
 
 const MedicalRecordCard: React.FC = () => {
   const [medicalRecord, setMedicalRecord] = useState<MedicalRecord | null>(
@@ -30,44 +40,64 @@ const MedicalRecordCard: React.FC = () => {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const patientId = getIdFromToken(localStorage.getItem("access_token") || "");
+  const [role, setRole] = useState<string | null>(null);
+
+  const token = localStorage.getItem("access_token") || "";
 
   useEffect(() => {
-    const fetchRecord = async () => {
-      try {
-        const records = await getMedicalRecord(patientId);
-        setMedicalRecord(records[0] || null);
-      } catch (error) {
-        message.error("No medical record found.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRecord();
-  }, [patientId]);
+    if (token) {
+      const roleFromToken = getRoleFromToken(token);
+      const idFromToken = getIdFromToken(token);
 
-  useEffect(() => {
-    const fetchPatient = async () => {
-      try {
-        const patient = await getPatient(patientId);
-        console.log("Patient: ", patient);
-        if (patient) {
-          setPatientName({
-            firstName: patient.first_name,
-            lastName: patient.last_name,
-          });
-        }
-      } catch (error) {
-        message.error("Failed to fetch patient details.");
+      console.log("User Role:", roleFromToken);
+      console.log("User ID:", idFromToken);
+
+      setRole(roleFromToken);
+      fetchRecord(idFromToken);
+      fetchPatient(idFromToken);
+    } else {
+      message.error("No valid token found. Please log in.");
+      setLoading(false);
+    }
+  }, [token]);
+
+  const fetchRecord = async (patientId: number) => {
+    try {
+      const record = await getMedicalRecord(patientId);
+      console.log("Fetched Medical Record:", record);
+      setMedicalRecord(record);
+    } catch (error) {
+      console.error("Error fetching medical record:", error);
+      message.error("No medical record found.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPatient = async (patientId: number) => {
+    try {
+      const patient = await getPatient(patientId);
+      if (patient) {
+        setPatientName({
+          firstName: patient.first_name,
+          lastName: patient.last_name,
+        });
       }
-    };
-    fetchPatient();
-  }, [patientId]);
+    } catch (error) {
+      console.error("Error fetching patient details:", error);
+      message.error("Failed to fetch patient details.");
+    }
+  };
 
   const handleSave = (updatedRecord: MedicalRecord) => {
     setMedicalRecord(updatedRecord);
     setIsEditing(false);
     message.success("Medical record saved successfully!");
+  };
+
+  const handleDelete = () => {
+    setMedicalRecord(null); // Clear the record after deletion
+    message.info("You can create a new medical record now.");
   };
 
   const handleDownloadPDF = () => {
@@ -76,7 +106,7 @@ const MedicalRecordCard: React.FC = () => {
 
     doc.setFontSize(16);
     doc.text(
-      `Medical Record for ${patientName?.firstName || ""} ${
+      `Medical Report for ${patientName?.firstName || ""} ${
         patientName?.lastName || ""
       }`,
       14,
@@ -88,22 +118,42 @@ const MedicalRecordCard: React.FC = () => {
     const recordData = [
       ["Height", medicalRecord?.height || "Not provided"],
       ["Weight", medicalRecord?.weight || "Not provided"],
-      ["Physical Activity", medicalRecord?.physical_activity || "Not provided"],
+      [
+        "Physical Activity",
+        physicalActivityMap[medicalRecord?.physical_activity || "NONE"],
+      ],
       [
         "Psychological Assessment",
-        medicalRecord?.psychological_assessment || "Not provided",
+        psychologicalAssessmentMap[
+          medicalRecord?.psychological_assessment || "NONE"
+        ],
       ],
-      ["Drugs/Alcohol", medicalRecord?.drugs_alcohol || "Not provided"],
-      ["Medical Condition", medicalRecord?.medical_condition || "Not provided"],
-      ["Injury/Illness", medicalRecord?.injury_illness || "Not provided"],
-      ["Family History", medicalRecord?.family_history || "Not provided"],
-      ["Treatment/Surgery", medicalRecord?.treatment_surgery || "Not provided"],
+      [
+        "Drugs/Alcohol",
+        drugsAlcoholMap[medicalRecord?.drugs_alcohol || "NONE"],
+      ],
+      [
+        "Medical Condition",
+        medicalConditionMap[medicalRecord?.medical_condition || "NONE"],
+      ],
+      [
+        "Injury/Illness",
+        injuryIllnessMap[medicalRecord?.injury_illness || "NONE"],
+      ],
+      [
+        "Family History",
+        familyHistoryMap[medicalRecord?.family_history || "NONE"],
+      ],
+      [
+        "Treatment/Surgery",
+        treatmentSurgeryMap[medicalRecord?.treatment_surgery || "NONE"],
+      ],
       [
         "Current Medication",
-        medicalRecord?.current_medication || "Not provided",
+        currentMedicationMap[medicalRecord?.current_medication || "NONE"],
       ],
-      ["Allergies", medicalRecord?.allergy || "Not provided"],
-      ["Side Effects", medicalRecord?.side_effects || "Not provided"],
+      ["Allergies", allergyMap[medicalRecord?.allergy || "NONE"]],
+      ["Side Effects", sideEffectsMap[medicalRecord?.side_effects || "NONE"]],
     ];
 
     doc.autoTable({
@@ -113,7 +163,7 @@ const MedicalRecordCard: React.FC = () => {
     });
 
     doc.save(
-      `Medical_Record_${patientName?.firstName || ""}_${
+      `Medical_Report_${patientName?.firstName || ""}_${
         patientName?.lastName || ""
       }.pdf`
     );
@@ -124,40 +174,47 @@ const MedicalRecordCard: React.FC = () => {
     { label: "Weight", content: medicalRecord?.weight || "Not provided" },
     {
       label: "Physical Activity",
-      content: medicalRecord?.physical_activity || "Not provided",
+      content: physicalActivityMap[medicalRecord?.physical_activity || "NONE"],
     },
     {
       label: "Psychological Assessment",
-      content: medicalRecord?.psychological_assessment || "Not provided",
+      content:
+        psychologicalAssessmentMap[
+          medicalRecord?.psychological_assessment || "NONE"
+        ],
     },
     {
       label: "Drugs/Alcohol",
-      content: medicalRecord?.drugs_alcohol || "Not provided",
+      content: drugsAlcoholMap[medicalRecord?.drugs_alcohol || "NONE"],
     },
     {
       label: "Medical Condition",
-      content: medicalRecord?.medical_condition || "Not provided",
+      content: medicalConditionMap[medicalRecord?.medical_condition || "NONE"],
     },
     {
       label: "Injury/Illness",
-      content: medicalRecord?.injury_illness || "Not provided",
+      content: injuryIllnessMap[medicalRecord?.injury_illness || "NONE"],
     },
     {
       label: "Family History",
-      content: medicalRecord?.family_history || "Not provided",
+      content: familyHistoryMap[medicalRecord?.family_history || "NONE"],
     },
     {
       label: "Treatment/Surgery",
-      content: medicalRecord?.treatment_surgery || "Not provided",
+      content: treatmentSurgeryMap[medicalRecord?.treatment_surgery || "NONE"],
     },
     {
       label: "Current Medication",
-      content: medicalRecord?.current_medication || "Not provided",
+      content:
+        currentMedicationMap[medicalRecord?.current_medication || "NONE"],
     },
-    { label: "Allergies", content: medicalRecord?.allergy || "Not provided" },
+    {
+      label: "Allergies",
+      content: allergyMap[medicalRecord?.allergy || "NONE"],
+    },
     {
       label: "Side Effects",
-      content: medicalRecord?.side_effects || "Not provided",
+      content: sideEffectsMap[medicalRecord?.side_effects || "NONE"],
     },
   ];
 
@@ -169,12 +226,12 @@ const MedicalRecordCard: React.FC = () => {
     <div>
       <Row style={{ paddingBottom: "0" }}>
         <Breadcrumb
-          items={[{ title: "Home" }, { title: "My Medical Records" }]}
+          items={[{ title: "Home" }, { title: "My Medical Report" }]}
         />
       </Row>
       {medicalRecord && !isEditing ? (
         <Card
-          title="Medical Record"
+          title="Medical Report"
           extra={
             <>
               <Button type="primary" onClick={() => setIsEditing(true)}>
@@ -197,9 +254,10 @@ const MedicalRecordCard: React.FC = () => {
         </Card>
       ) : isEditing ? (
         <MedicalRecordForm
-          patientProfileId={patientId}
+          patientProfileId={getIdFromToken(token)}
           medicalRecord={medicalRecord}
           onSave={handleSave}
+          onDelete={handleDelete}
           onCancel={() => setIsEditing(false)}
         />
       ) : (

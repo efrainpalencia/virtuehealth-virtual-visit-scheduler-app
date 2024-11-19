@@ -21,14 +21,12 @@ from rest_framework.routers import DefaultRouter
 
 from medical_records.views import MedicalRecordViewSet
 from appointments.views import AppointmentViewset
-from lab_tests.views import LabTestViewSet
 from patient_portal.views import DoctorList
 from user.views import DoctorProfileViewSet, PatientProfileViewSet
 
 
 router = DefaultRouter()
 router.register(r'appointments', AppointmentViewset, basename='appointment')
-router.register(r'lab-tests', LabTestViewSet, basename='lab-test')
 # doctor_dashboard
 router.register(r'doctor-dashboard', DoctorProfileViewSet,
                 basename='doctor-dashboard')

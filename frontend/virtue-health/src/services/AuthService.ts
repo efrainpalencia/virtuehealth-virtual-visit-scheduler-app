@@ -7,6 +7,7 @@ interface RegisterResponse {
     user: unknown;
     refresh: string;
     token: string;
+    exp: number;
 }
 
 interface DecodedToken {
