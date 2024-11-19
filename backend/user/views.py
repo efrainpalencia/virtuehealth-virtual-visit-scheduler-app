@@ -165,7 +165,7 @@ class PatientViewSet(viewsets.ModelViewSet):
     serializer_class = PatientSerializer
     authentication_classes = [
         authentication.SessionAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class PatientProfileViewSet(viewsets.ModelViewSet):
@@ -173,7 +173,7 @@ class PatientProfileViewSet(viewsets.ModelViewSet):
     serializer_class = PatientProfileSerializer
     authentication_classes = [
         authentication.SessionAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class DoctorViewSet(viewsets.ModelViewSet):
@@ -181,7 +181,7 @@ class DoctorViewSet(viewsets.ModelViewSet):
     serializer_class = DoctorSerializer
     authentication_classes = [
         authentication.SessionAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class DoctorProfileViewSet(viewsets.ModelViewSet):
@@ -189,7 +189,14 @@ class DoctorProfileViewSet(viewsets.ModelViewSet):
     serializer_class = DoctorProfileSerializer
     authentication_classes = [
         authentication.SessionAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    @action(detail=True, methods=['get'], url_path='booked-slots')
+    def booked_slots(self, request, pk=None):
+        doctor_profile = self.get_object()  # Fetch DoctorProfile by ID
+
+        # Directly return the schedule field as the response
+        return Response(doctor_profile.schedule, status=200)
 
 
 # Custom action to remove a specific date from the doctor's schedule
@@ -265,10 +272,26 @@ class DoctorProfileViewSet(viewsets.ModelViewSet):
         except ValueError:
             return Response({"error": "Invalid date format."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if date_to_add not in doctor_profile.schedule:
-            doctor_profile.schedule.append(date_to_add)
-            doctor_profile.save()
+        # Validation: Check if slot is within working hours (9:00 AM - 5:00 PM)
+        if not (9 <= date_to_add_obj.hour < 17):
+            return Response(
+                {"error": "Time slot must be within working hours (9:00 AM to 5:00 PM)."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-            return Response({"message": "Date added to schedule successfully."}, status=status.HTTP_200_OK)
-        else:
+        # Validation: Check if slot is in the past
+        if date_to_add_obj < timezone.now():
+            return Response(
+                {"error": "Cannot add a time slot in the past."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Validation: Check if slot is already in the schedule
+        if date_to_add_obj in doctor_profile.schedule:
             return Response({"error": "Date already in schedule."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Add slot
+        doctor_profile.schedule.append(date_to_add_obj)
+        doctor_profile.save()
+
+        return Response({"message": "Date added to schedule successfully."}, status=status.HTTP_200_OK)

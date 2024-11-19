@@ -161,6 +161,16 @@ export const getDoctor = async (id: number): Promise<Doctor | null> => {
     await axios.delete(`${API_URL}/doctor-profiles/${user_id}/`);
   };
 
+  export const getBookedSlots = async (doctorProfileId: string): Promise<string[]> => {
+    const response = await fetch(`/api/auth/doctor-profiles/${doctorProfileId}/booked-slots`);
+    if (!response.ok) {
+        throw new Error("Failed to fetch booked slots");
+    }
+    return response.json(); // API should return the `schedule` array
+};
+
+
+
   export const addScheduleDate = async (doctorId: number, dateToAdd: string) => {
     try {
       const response = await axios.patch(
