@@ -27,8 +27,11 @@ type MenuItem = {
 
 const doctorItems: MenuItem[] = [
   { label: "Home", key: "/doctor-dashboard", icon: <HomeOutlined /> },
-  { label: "Email", key: "", icon: <MailOutlined /> },
-  { label: "Video Chat", key: "/appointments", icon: <VideoCameraOutlined /> },
+  {
+    label: "Video Chat",
+    key: "/doctor-dashboard/virtual-session",
+    icon: <VideoCameraOutlined />,
+  },
 ];
 
 const patientItems: MenuItem[] = [
@@ -43,7 +46,6 @@ const patientItems: MenuItem[] = [
     key: "/patient-portal/doctor-list",
     icon: <ProfileOutlined />,
   },
-  { label: "About", key: "/patient-portal/about", icon: <QuestionOutlined /> },
   {
     label: "Video Chat",
     key: "/patient-portal/virtual-session",
@@ -56,7 +58,7 @@ const patientItems: MenuItem[] = [
     children: [
       { label: "View My Profile", key: "/patient-portal/view-profile" },
       {
-        label: "View My Medical Records",
+        label: "View My Medical Report",
         key: "/patient-portal/medical-records",
       },
     ],
@@ -65,6 +67,7 @@ const patientItems: MenuItem[] = [
 ];
 
 const loggedOutItems: MenuItem[] = [
+  { label: "Home", key: "/", icon: <HomeOutlined /> },
   { label: "Login", key: "/login", icon: <LoginOutlined /> },
   {
     label: "Patient Registration",
@@ -86,10 +89,12 @@ const determineMenuItems = (route: string): MenuItem[] => {
     "/doctor-dashboard/view-profile",
     "/doctor-dashboard/view-profile/edit-profile",
     "/doctor-dashboard/doctor-schedule",
+    "/doctor-dashboard/virtual-session",
   ];
 
   const patientRoutes = [
     "/patient-portal",
+    "/patient-portal/virtual-session",
     "/patient-portal/appointments",
     "/patient-portal/doctor-list",
     "/patient-portal/about",
@@ -146,7 +151,7 @@ const AppMenu: React.FC<{ route: string }> = ({ route }) => {
     <div style={{ flex: 1, minWidth: 0 }}>
       <Row>
         <Col span={8}>{isPatientRoute(location.pathname) && <LogoLink />}</Col>
-        <Col span={16}>
+        <Col span={24}>
           <Menu
             onClick={onClick}
             mode="horizontal"

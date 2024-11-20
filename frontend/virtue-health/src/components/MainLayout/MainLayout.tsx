@@ -1,44 +1,54 @@
-import { Flex, Layout, theme } from "antd";
+import { Button, Card, Layout, Row, Col, theme } from "antd";
 import React, { FC } from "react";
 import { Outlet } from "react-router-dom";
 import AppMenu from "../AppMenu/AppMenu";
 
 const { Header, Content, Footer } = Layout;
 
-interface MainLayoutProps {}
-
-const MainLayout: FC<MainLayoutProps> = () => {
+const MainLayout: FC = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
   return (
-    <Layout className="layout">
+    <Layout className="layout" style={{ minHeight: "100vh" }}>
       <Header
         className="custom-component"
-        style={{ display: "flex", alignItems: "center" }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 24px",
+        }}
       >
         <div className="demo-logo" />
         <AppMenu route={window.location.pathname} />
       </Header>
-      <Content style={{ padding: "0 48px" }}>
+      <Content
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: "24px",
+          backgroundColor: colorBgContainer,
+        }}
+      >
         <div
           style={{
-            background: colorBgContainer,
-            minHeight: "100vh",
-            padding: 24,
+            width: "100%",
+            maxWidth: "1200px",
+            padding: "24px",
             borderRadius: borderRadiusLG,
+            backgroundColor: "#ffffff",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <Flex align="center">
-            <div>
-              <h1>Welcome to VirtueHealth</h1>
-              <Outlet />
-            </div>
-          </Flex>
+          <Outlet />
         </div>
       </Content>
-      <Footer style={{ textAlign: "center" }}>Virtue Health ©2024</Footer>
+      <Footer style={{ textAlign: "center", background: "#f0f2f5" }}>
+        Virtue Health ©2024
+      </Footer>
     </Layout>
   );
 };

@@ -12,7 +12,7 @@ const LogoLink: React.FC = () => {
       onClick={() => navigate("/patient-portal")}
       style={{ cursor: "pointer" }}
     >
-      <Avatar size={50} src={<img src={VirtueLogo} alt="logo" />} />
+      <Avatar size={80} src={<img src={VirtueLogo} alt="logo" />} />
     </div>
   );
 };

@@ -25,6 +25,7 @@ import AppointmentForm from "./components/AppointmentForm/AppointmentForm";
 import PatientAppointments from "./components/PatientAppointments/PatientAppointments";
 import MedicalRecordCard from "./components/MedicalRecordCard/MedicalRecordCard";
 import VideoCallPage from "./components/VideoCallPage/VideoCallPage";
+import Home from "./components/Home/Home";
 
 const App: React.FC = () => {
   return (
@@ -32,6 +33,7 @@ const App: React.FC = () => {
       <Routes>
         {/* Main Layout Routes */}
         <Route path="/" element={<MainLayout />}>
+          <Route path="/" element={<Home />} />
           <Route path="login" element={<Login />} />
           <Route path="logout" element={<LogoutPage />} />
           <Route path="register/patient" element={<PatientRegistration />} />
@@ -56,6 +58,7 @@ const App: React.FC = () => {
               path="view-profile/edit-profile"
               element={<DoctorProfileForm />}
             />
+            <Route path="virtual-session" element={<VideoCallPage />} />
             <Route path="logout" element={<LogoutPage />} />
           </Route>
         </Route>
