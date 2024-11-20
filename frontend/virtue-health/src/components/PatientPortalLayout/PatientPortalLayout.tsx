@@ -1,13 +1,11 @@
-import { Flex, Layout, theme } from "antd";
+import { Layout, theme } from "antd";
 import React, { FC } from "react";
 import { Outlet } from "react-router-dom";
 import AppMenu from "../AppMenu/AppMenu";
 
 const { Header, Content, Footer } = Layout;
 
-interface PatientPortalLayoutProps {}
-
-const PatientPortalLayout: FC<PatientPortalLayoutProps> = () => {
+const PatientPortalLayout: FC = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -16,25 +14,36 @@ const PatientPortalLayout: FC<PatientPortalLayoutProps> = () => {
     <Layout className="layout">
       <Header
         className="custom-component"
-        style={{ display: "flex", alignItems: "center" }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
       >
         <div className="demo-logo" />
         <AppMenu route={window.location.pathname} />
       </Header>
-      <Content style={{ padding: "0 48px" }}>
+      <Content
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: "24px",
+          minHeight: "100vh",
+          backgroundColor: colorBgContainer,
+        }}
+      >
         <div
           style={{
-            background: colorBgContainer,
-            minHeight: "100vh",
-            padding: 24,
+            width: "100%",
+            maxWidth: "1200px",
+            padding: "24px",
             borderRadius: borderRadiusLG,
+            backgroundColor: "#ffffff", // Ensures a consistent background
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)", // Optional for aesthetic
           }}
         >
-          <Flex align="center">
-            <div>
-              <Outlet />
-            </div>
-          </Flex>
+          <Outlet />
         </div>
       </Content>
       <Footer style={{ textAlign: "center" }}>Virtue Health ©2024</Footer>

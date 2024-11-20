@@ -1,4 +1,5 @@
 import React from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 import { Button, Card, Col, Divider, Flex, Row, Space } from "antd";
 import VirtueHealthTitle from "../../assets/VirtueHealthTitle.png";
 import HeroImgLeft from "../../assets/HeroImgLeft.jpg";
@@ -19,54 +20,65 @@ const imgStyle: React.CSSProperties = {
 };
 
 const PatientPortal: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleHandleFindDoctor = () => {
+    navigate("/patient-portal/doctor-list");
+  };
+
   return (
     <div>
-      <Flex
-        wrap
-        gap="large"
-        align="flex-start"
-        justify="space-between"
-        style={{ padding: 10 }}
-      >
-        <Flex vertical align="center">
-          <div>
-            <img src={VirtueHealthTitle} alt="Title" />
-          </div>
+      <Row gutter={[16, 16]} justify="start" align="middle">
+        <Col>
+          <h1 style={{ textAlign: "center", marginBottom: "0px" }}>
+            Welcome to
+          </h1>
+        </Col>
+      </Row>
+      <Row gutter={[16, 16]} justify="start" align="middle">
+        <Col>
+          <img
+            src={VirtueHealthTitle}
+            alt="Virtue Health Title"
+            style={{ maxWidth: "300px", display: "block" }}
+          />
+        </Col>
+      </Row>
+      <Row gutter={[16, 16]} justify="center" align="middle">
+        <Col>
           <Card
             title="Book A Virtual Health Visit"
             bordered={true}
-            hoverable
             style={cardStyle}
           >
-            <div>
-              <p>
-                We are committed to providing a user-friendly and reliable
-                platform that prioritizes your health and well-being. Our team
-                of dedicated professionals works tirelessly to ensure that
-                VirtueHealth meets the highest standards of security and
-                privacy, so you can focus on what matters most—your health.
-              </p>
-              <Button type="primary" href="https://ant.design" target="_blank">
-                Learn More
-              </Button>
-            </div>
+            <p>
+              We are committed to providing a user-friendly and reliable
+              platform that prioritizes your health and well-being. Our team of
+              dedicated professionals works tirelessly to ensure that
+              VirtueHealth meets the highest standards of security and privacy,
+              so you can focus on what matters most—your health.
+            </p>
+            <Button type="primary" onClick={handleHandleFindDoctor}>
+              Find A Doctor
+            </Button>
           </Card>
-        </Flex>
-        <Flex
-          align="flex-start"
-          justify="space-between"
-          style={{ paddingTop: "100px" }}
-        >
-          <Space>
-            <img style={imgStyle} src={HeroImgLeft} alt="" />
-            <img style={imgStyle} src={HeroImgMiddle} alt="" />
-            <img style={imgStyle} src={HeroImgRight} alt="" />
-          </Space>
-        </Flex>
-      </Flex>
-      <Divider orientation="center">
-        <h2>Under Construction</h2>
-      </Divider>
+        </Col>
+        <Col>
+          <img style={imgStyle} src={HeroImgLeft} alt="Hero Left" />
+        </Col>
+        <Col>
+          <img style={imgStyle} src={HeroImgMiddle} alt="Hero Middle" />
+        </Col>
+        <Col>
+          <img style={imgStyle} src={HeroImgRight} alt="Hero Right" />
+        </Col>
+      </Row>
+      <Row
+        gutter={[24, 24]}
+        justify="center"
+        align="middle"
+        style={{ marginTop: "50px" }}
+      ></Row>
     </div>
   );
 };

@@ -14,7 +14,7 @@ from medical_records.models import MedicalRecord
 from medical_records.serializers import MedicalRecordSerializer
 from user.serializers import DoctorRegisterSerializer, PatientRegisterSerializer, LoginSerializer, DoctorSerializer, PatientProfile, PatientProfileSerializer, PatientSerializer, DoctorProfileSerializer
 from .models import DoctorProfile, User, Doctor, Patient
-from user.permissions import IsDoctor, IsPatient
+from user.permissions import IsAdmin, IsDoctor, IsPatient
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -168,25 +168,25 @@ class RefreshViewSet(viewsets.ViewSet, TokenRefreshView):
 class PatientViewSet(viewsets.ModelViewSet):
     queryset = Patient.patient.all()
     serializer_class = PatientSerializer
-    permission_classes = [permissions.IsAuthenticated, IsDoctor]
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class PatientProfileViewSet(viewsets.ModelViewSet):
     queryset = PatientProfile.objects.all()
     serializer_class = PatientProfileSerializer
-    permission_classes = [permissions.IsAuthenticated, IsDoctor]
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class DoctorViewSet(viewsets.ModelViewSet):
     queryset = Doctor.doctor.all()
     serializer_class = DoctorSerializer
-    permission_classes = [permissions.IsAuthenticated, IsDoctor]
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class DoctorProfileViewSet(viewsets.ModelViewSet):
     queryset = DoctorProfile.objects.all()
     serializer_class = DoctorProfileSerializer
-    permission_classes = [permissions.IsAuthenticated, IsDoctor]
+    permission_classes = [permissions.IsAuthenticated]
 
     logger = logging.getLogger(__name__)
 

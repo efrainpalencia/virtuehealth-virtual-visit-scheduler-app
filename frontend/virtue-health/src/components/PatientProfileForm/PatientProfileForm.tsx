@@ -1,26 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { Card, Form, Input, Button, message, Select } from "antd";
 import {
-  Card,
-  Form,
-  Input,
-  Button,
-  message,
-  Spin,
-  Select,
-  Row,
-  Breadcrumb,
-  Upload,
-  Avatar,
-} from "antd";
-import {
-  getPatient,
-  getPatientProfile,
-  createPatientProfile,
-  updatePatientProfile,
   updatePatient,
-} from "../../services/patientService"; // Adjust path
-import { Patient, PatientProfile } from "../../services/patientService"; // Adjust path
-import { UploadOutlined } from "@ant-design/icons";
+  updatePatientProfile,
+  createPatientProfile,
+} from "../../services/patientService";
+import { Patient, PatientProfile } from "../../services/patientService";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -118,23 +103,42 @@ const PatientProfileForm: React.FC<PatientProfileFormProps> = ({
       }
 
       onSave(updatedProfile); // Notify parent component
-    } catch (error) {
-      message.error("Error saving profile. Please try again.");
+    } catch (error: any) {
+      if (error.response?.data) {
+        const backendErrors = error.response.data;
+        Object.keys(backendErrors).forEach((field) => {
+          form.setFields([
+            {
+              name: field,
+              errors: [backendErrors[field]],
+            },
+          ]);
+        });
+      } else {
+        message.error("Error saving profile. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  const handleCancel = () => {
+    form.resetFields(); // Reset form fields to initial values
+    onCancel();
+  };
+
+  const formTitle = profile
+    ? `Edit Profile of ${patient?.first_name || "Patient"}`
+    : "Create New Patient Profile";
+
   return (
-    <Card
-      title={
-        patient
-          ? `Edit Profile of ${patient.first_name}`
-          : "New Patient Profile"
-      }
-      style={{ width: 800 }}
-    >
-      <Form form={form} layout="horizontal" onFinish={handleSubmit}>
+    <Card title={formTitle} style={{ width: "100%", maxWidth: 800 }}>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        style={{ width: "100%", maxWidth: 800 }}
+      >
         <Form.Item
           label="First Name"
           name="first_name"
@@ -168,14 +172,6 @@ const PatientProfileForm: React.FC<PatientProfileFormProps> = ({
         </Form.Item>
 
         <Form.Item
-          label="Email"
-          name="email"
-          rules={[{ required: true, message: "Please enter email" }]}
-        >
-          <Input type="email" placeholder="Enter email" />
-        </Form.Item>
-
-        <Form.Item
           label="Address"
           name="address"
           rules={[{ required: true, message: "Please enter address" }]}
@@ -188,7 +184,7 @@ const PatientProfileForm: React.FC<PatientProfileFormProps> = ({
           name="gender"
           rules={[{ required: true, message: "Please select gender" }]}
         >
-          <Select placeholder="Select your gender">
+          <Select placeholder="Select gender">
             {genderOptions.map((option) => (
               <Option key={option.value} value={option.value}>
                 {option.label}
@@ -202,17 +198,13 @@ const PatientProfileForm: React.FC<PatientProfileFormProps> = ({
           name="race_ethnicity"
           rules={[{ required: true, message: "Please select race/ethnicity" }]}
         >
-          <Select placeholder="Select your race/ethnicity">
+          <Select placeholder="Select race/ethnicity">
             {raceEthnicityOptions.map((option) => (
               <Option key={option.value} value={option.value}>
                 {option.label}
               </Option>
             ))}
           </Select>
-        </Form.Item>
-
-        <Form.Item label="Insurance Provider" name="insurance_provider">
-          <Input placeholder="Enter insurance provider" />
         </Form.Item>
 
         <Form.Item
@@ -244,18 +236,18 @@ const PatientProfileForm: React.FC<PatientProfileFormProps> = ({
           rules={[
             {
               required: true,
-              message: "Please enter relationship to emergency contact",
+              message: "Please enter emergency contact relationship",
             },
           ]}
         >
-          <Input placeholder="Enter relationship to emergency contact" />
+          <Input placeholder="Enter emergency contact relationship" />
         </Form.Item>
 
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading}>
             {profile ? "Save Changes" : "Create Profile"}
           </Button>
-          <Button onClick={onCancel} style={{ marginLeft: 8 }}>
+          <Button onClick={handleCancel} style={{ marginLeft: 8 }}>
             Cancel
           </Button>
         </Form.Item>

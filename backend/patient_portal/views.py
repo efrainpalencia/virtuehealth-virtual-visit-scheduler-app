@@ -1,5 +1,5 @@
 from rest_framework import generics, permissions, authentication
-from user.permissions import IsAdmin, IsDoctor
+from user.permissions import IsAdmin, IsDoctor, IsPatient
 from user.models import Doctor
 from user.serializers import DoctorSerializer
 
@@ -10,7 +10,7 @@ class DoctorList(generics.ListAPIView):
         authentication.SessionAuthentication,
         authentication.TokenAuthentication
     ]
-    permission_classes = [permissions.IsAuthenticated, IsAdmin, IsDoctor]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         queryset = Doctor.objects.all()

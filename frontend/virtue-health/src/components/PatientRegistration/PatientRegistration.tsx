@@ -22,7 +22,15 @@ const PatientRegistration: React.FC = () => {
   return (
     <div style={{ textAlign: "center", marginTop: "50px", padding: "0 50px" }}>
       <h1>Patient Registration</h1>
-      <Form form={form} onFinish={onFinish}>
+      <Form
+        form={form}
+        onFinish={onFinish}
+        style={{
+          textAlign: "center",
+          marginTop: "50px",
+          padding: "0 240px",
+        }}
+      >
         <Form.Item
           name="email"
           rules={[

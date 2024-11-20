@@ -68,13 +68,31 @@ export const getPatientsMap = async (): Promise<{ [key: number]: Patient }> => {
     }, {});
 };
 
+// Utility: Transform array to map by key
+const arrayToMapByKey = <T, K extends keyof T>(
+    array: T[],
+    key: K
+  ): { [key: number]: T } => {
+    return array.reduce((acc, item) => {
+      const keyValue = item[key];
+      if (keyValue !== undefined && keyValue !== null) {
+        acc[keyValue as unknown as number] = item; // Ensure the key is a number
+      }
+      return acc;
+    }, {} as { [key: number]: T });
+  };
+
+// Use the updated utility for Patient Profiles Map
 export const getPatientProfilesMap = async (): Promise<{ [key: number]: PatientProfile }> => {
     const profilesArray = await getPatientProfiles();
-    return profilesArray.reduce((acc: { [key: number]: PatientProfile }, profile: PatientProfile) => {
-        acc[profile.user_id] = profile;
-        return acc;
-    }, {});
-};
+    console.log("Profiles Array:", profilesArray);
+  
+    // Use `arrayToMapByKey` with the `user` key
+    const profilesMap = arrayToMapByKey(profilesArray, "user");
+    console.log("Profiles Map:", profilesMap);
+  
+    return profilesMap;
+  };
 
 // Get a single patient from the hash map by id
 export const getPatient = async (id: number): Promise<Patient | null> => {
@@ -90,13 +108,15 @@ export const getPatient = async (id: number): Promise<Patient | null> => {
 // Get a single patient profile from the hash map by user_id
 export const getPatientProfile = async (user_id: number): Promise<PatientProfile | null> => {
     try {
-        const profilesMap = await getPatientProfilesMap();
-        return profilesMap[user_id] || null;
+      const profilesMap = await getPatientProfilesMap();
+      console.log("Fetched Profiles Map:", profilesMap); // Debug log
+      return profilesMap[user_id] || null;
     } catch (error) {
-        console.error(`Failed to fetch patient profile with id ${user_id}:`, error);
-        return null;
+      console.error(`Failed to fetch patient profile with user_id ${user_id}:`, error);
+      return null;
     }
-};
+  };
+  
 
 // Create a new patient
 export const createPatient = async (id: number, patient: Patient): Promise<Patient> => {
