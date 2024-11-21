@@ -16,7 +16,7 @@ import {
 } from "../../services/doctorService";
 import { getIdFromToken } from "../../services/authService";
 import { getPatient, Patient } from "../../services/patientService";
-import axios from "axios";
+import sendAppointmentEmail from "../../services/emailService";
 
 const reasonDisplayMap = {
   CHRONIC_CARE: "Chronic Care",
@@ -99,7 +99,13 @@ const PatientAppointments: React.FC = () => {
   const fetchDoctorDetails = async (doctorId: number) => {
     try {
       const doctorDetails = await getDoctor(doctorId);
-      setDoctor(doctorDetails);
+      const doctorProfile = await getDoctorProfile(doctorId);
+
+      setDoctor({
+        ...doctorDetails,
+        schedule:
+          doctorProfile?.schedule?.map((time: Date) => dayjs(time)) || [],
+      });
     } catch (error) {
       message.error("Failed to fetch doctor details.");
     }
@@ -111,7 +117,6 @@ const PatientAppointments: React.FC = () => {
     const doctorSchedule = doctorSchedules[appointment.doctor_id] || [];
     setAvailableTimes(doctorSchedule);
 
-    // Fetch doctor details
     await fetchDoctorDetails(appointment.doctor_id);
 
     setIsRescheduleModalVisible(true);
@@ -140,20 +145,24 @@ const PatientAppointments: React.FC = () => {
       return;
     }
 
-    const newDate = selectedDate
+    const newDate = dayjs(selectedDate)
       .hour(selectedTime.hour())
       .minute(selectedTime.minute())
       .second(0)
-      .millisecond(0);
-    const previousDate = dayjs(selectedAppointment.date); // Store previous date for re-adding to schedule
+      .millisecond(0)
+      .utc();
+
+    const previousDate = dayjs(selectedAppointment.date);
+
+    console.log("Rescheduling appointment...");
+    console.log("Previous date:", previousDate.toISOString());
+    console.log("New date:", newDate.toISOString());
 
     try {
-      // Update the appointment to the new date
       await updateAppointment(selectedAppointment.id!, {
         date: newDate.toISOString(),
       });
 
-      // Trigger the email for rescheduling
       const emailPayload = {
         type: "reschedule",
         patient_email: patient?.email,
@@ -163,23 +172,20 @@ const PatientAppointments: React.FC = () => {
           patient_name: `${patient?.first_name || ""} ${
             patient?.last_name || ""
           }`.trim(),
-          new_appointment_date: newDate.format("YYYY-MM-DD"),
-          new_appointment_time: newDate.format("HH:mm"),
+          patient_email: patient?.email,
+          doctor_email: doctor.email,
+          appointment_date: newDate.format("YYYY-MM-DD"),
+          appointment_time: newDate.format("HH:mm"),
         },
       };
+      console.log("emailPayload: ", emailPayload);
+      await sendAppointmentEmail(emailPayload);
 
-      await axios.post(
-        "http://127.0.0.1:8000/api/email/send-appointment/",
-        emailPayload
-      );
-
-      // Add previous appointment date back to doctor's schedule
       await addScheduleDate(
         selectedAppointment.doctor_id,
         previousDate.toISOString()
       );
 
-      // Remove the newly selected date from the doctor's schedule
       await removeScheduleDate(
         selectedAppointment.doctor_id,
         newDate.toISOString()
@@ -187,7 +193,7 @@ const PatientAppointments: React.FC = () => {
 
       message.success("Appointment rescheduled successfully.");
       setIsRescheduleModalVisible(false);
-      fetchAppointments(); // Refresh the appointment list
+      fetchAppointments();
     } catch (error) {
       console.error("Failed to reschedule appointment:", error);
       message.error("Failed to reschedule appointment.");
@@ -199,10 +205,7 @@ const PatientAppointments: React.FC = () => {
     if (!appointment) return;
 
     try {
-      // Fetch doctor details for email
       const doctorDetails = await getDoctor(appointment.doctor_id);
-
-      // Trigger the email for appointment cancellation
       const emailPayload = {
         type: "cancel",
         patient_email: patient?.email,
@@ -212,24 +215,22 @@ const PatientAppointments: React.FC = () => {
           patient_name: `${patient?.first_name || ""} ${
             patient?.last_name || ""
           }`.trim(),
+          patient_email: patient?.email,
+          doctor_email: doctorDetails?.email,
           appointment_date: dayjs(appointment.date).format("YYYY-MM-DD"),
           appointment_time: dayjs(appointment.date).format("HH:mm"),
+          reason: reasonDisplayMap[appointment.reason] || appointment.reason,
         },
       };
+      console.log("email payload: ", emailPayload);
+      await sendAppointmentEmail(emailPayload);
 
-      await axios.post(
-        "http://127.0.0.1:8000/api/email/send-appointment/",
-        emailPayload
-      );
-
-      // Delete the appointment
       await deleteAppointment(appointmentId);
 
-      // Add the canceled appointment date back to the doctor's schedule
       await addScheduleDate(appointment.doctor_id, appointment.date);
 
       message.success("Appointment canceled successfully and email sent.");
-      fetchAppointments(); // Refresh the appointment list
+      fetchAppointments();
     } catch (error) {
       console.error("Failed to cancel appointment:", error);
       message.error("Failed to cancel appointment.");

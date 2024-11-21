@@ -2,6 +2,7 @@ import axios from "axios";
 import {jwtDecode} from "jwt-decode";
 
 const API_URL = "http://localhost:8000/api/auth";
+const EMAIL_API_URL = "http://localhost:8000/api";
 
 interface RegisterResponse {
     user: unknown;
@@ -39,7 +40,7 @@ export const clearTokens = () => {
 export const isTokenExpired = (token: string): boolean => {
     try {
         const decoded = jwtDecode<DecodedToken>(token);
-        return decoded.exp * 1000 < Date.now();
+        return Date.now() >= decoded.exp * 1000;
     } catch {
         return true; // Treat invalid token as expired
     }
@@ -58,8 +59,8 @@ export const refreshAccessToken = async (): Promise<string | null> => {
         setTokens(response.data.access, refresh); // Update access token
         return response.data.access;
     } catch (error) {
-        clearTokens();
         console.error("Failed to refresh token:", error);
+        clearTokens();
         return null;
     }
 };
@@ -68,6 +69,23 @@ export const refreshAccessToken = async (): Promise<string | null> => {
 const API = axios.create({
     baseURL: API_URL,
 });
+
+// Create an Axios instance for email service
+export const EmailAPI = axios.create({
+    baseURL: EMAIL_API_URL,
+});
+
+// Email-specific interceptor (if needed)
+EmailAPI.interceptors.request.use(
+    async (config) => {
+        const token = localStorage.getItem("access_token");
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
 
 API.interceptors.request.use(
     async (config) => {
@@ -81,7 +99,21 @@ API.interceptors.request.use(
         }
         return config;
     },
-    (error) => Promise.reject(error)
+    (error) => {
+        console.error("Request error:", error);
+        return Promise.reject(error);
+    }
+);
+
+API.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        if (error.response?.status === 401) {
+            clearTokens();
+            window.location.href = "/login"; // Redirect to login on 401
+        }
+        return Promise.reject(error);
+    }
 );
 
 // Registration functions

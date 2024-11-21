@@ -1,11 +1,5 @@
-from datetime import timedelta, datetime
-from django.utils import timezone
-from django.conf import settings
-from user.models import Doctor, Patient, DoctorProfile
 from .models import Appointment
-from rest_framework import viewsets, permissions, authentication, status
-from rest_framework.response import Response
-from django.db import transaction
+from rest_framework import viewsets, permissions, authentication
 from .serializers import AppointmentSerializer
 
 

@@ -4,10 +4,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { createAppointment } from "../../services/appointmentService";
 import { getIdFromToken } from "../../services/authService";
 import { removeScheduleDate } from "../../services/doctorService";
+import { sendAppointmentEmail } from "../../services/emailService";
 import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { getPatient, Patient } from "../../services/patientService";
-import axios from "axios";
 
 const { Step } = Steps;
 const { Option } = Select;
@@ -100,7 +100,6 @@ const AppointmentForm: React.FC = () => {
     try {
       await createAppointment(appointmentData);
 
-      // Trigger the email after successful appointment creation
       const emailPayload = {
         type: "create",
         patient_email: patient?.email,
@@ -110,30 +109,39 @@ const AppointmentForm: React.FC = () => {
           patient_name: `${patient?.first_name || ""} ${
             patient?.last_name || ""
           }`.trim(),
+          patient_fullname: `${patient?.first_name} ${patient?.last_name}`,
+          patient_email: patient?.email,
+          doctor_email: doctor.email,
           appointment_date: selectedDate.format("YYYY-MM-DD"),
           appointment_time: selectedDate.format("HH:mm"),
+          reason: reasonDisplayMap[reason],
         },
       };
 
       try {
-        await axios.post(
-          "http://127.0.0.1:8000/api/email/send-appointment/",
-          emailPayload
-        );
+        await sendAppointmentEmail(emailPayload);
         message.success("Email sent successfully!");
       } catch (emailError) {
         console.error("Failed to send email:", emailError);
         message.error("Appointment created, but email notification failed.");
       }
 
-      // Format the date to UTC before sending it to the backend
-      const formattedDate: string = selectedDate.utc().toISOString();
-      await removeScheduleDate(doctor.id, formattedDate);
+      // Remove the selected date from the doctor's schedule
+      const formattedDate = selectedDate.utc().toISOString();
+      try {
+        await removeScheduleDate(doctor.id, selectedDate.toDate());
+        message.success("Doctor's schedule updated successfully!");
+      } catch (scheduleError) {
+        console.error("Failed to update doctor's schedule:", scheduleError);
+        message.warning(
+          "Appointment created, but doctor's schedule update failed."
+        );
+      }
 
       message.success("Appointment booked successfully!");
       navigate("/patient-portal");
     } catch (error) {
-      console.error("Failed to remove date from doctor's schedule:", error);
+      console.error("Failed to book appointment:", error);
       message.error("Failed to book appointment.");
     } finally {
       setLoading(false);
@@ -163,24 +171,6 @@ const AppointmentForm: React.FC = () => {
                   carefully. You must be at least 18 years old to use our
                   service. By using our service, you represent and warrant that
                   you meet this age requirement.
-                </p>
-                <p style={{ margin: 0 }}>
-                  Our virtual health appointment service allows you to schedule
-                  and conduct virtual consultations with healthcare providers.
-                  The service is intended for non-emergency medical issues. For
-                  emergencies, please call 911 or visit the nearest emergency
-                  room. As a user, you are responsible for providing accurate
-                  and complete information during registration and appointment
-                  scheduling.
-                </p>
-                <p style={{ margin: 0 }}>
-                  You must ensure a stable internet connection and a suitable
-                  device for virtual consultations. Additionally, you are
-                  expected to follow the healthcare provider’s instructions and
-                  recommendations. We are committed to protecting your privacy.
-                  All personal and medical information provided during the use
-                  of our service will be kept confidential in accordance with
-                  our Privacy Policy.
                 </p>
               </div>
             </Form.Item>

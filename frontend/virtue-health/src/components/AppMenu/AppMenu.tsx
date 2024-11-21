@@ -151,7 +151,7 @@ const AppMenu: React.FC<{ route: string }> = ({ route }) => {
     <div style={{ flex: 1, minWidth: 0 }}>
       <Row>
         <Col span={8}>{isPatientRoute(location.pathname) && <LogoLink />}</Col>
-        <Col span={24}>
+        <Col span={16}>
           <Menu
             onClick={onClick}
             mode="horizontal"

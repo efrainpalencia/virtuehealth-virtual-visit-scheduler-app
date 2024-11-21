@@ -1,33 +1,23 @@
 from user.serializers import DoctorSerializer, DoctorProfileSerializer
 from user.models import Doctor, DoctorProfile
-from rest_framework import viewsets, status, authentication, permissions
-from django.utils import timezone
+from rest_framework import viewsets, status, permissions
 from datetime import datetime, timezone
-from datetime import datetime
+from django.utils.timezone import now
+# from django.utils import timezone
 from VirtueHealthCore.settings import FRONTEND_URL, EMAIL_HOST_USER
 import logging
-import os
-from venv import logger
 from VirtueHealthCore.validators import validate_email
-from VirtueHealthCore import settings
-from medical_records.models import MedicalRecord
-from medical_records.serializers import MedicalRecordSerializer
 from user.serializers import DoctorRegisterSerializer, PatientRegisterSerializer, LoginSerializer, DoctorSerializer, PatientProfile, PatientProfileSerializer, PatientSerializer, DoctorProfileSerializer
 from .models import DoctorProfile, User, Doctor, Patient
-from user.permissions import IsAdmin, IsDoctor, IsPatient
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework import viewsets, permissions, authentication
-from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from django.urls import reverse
-from django.shortcuts import redirect
 from django.core.mail import send_mail
 from dotenv import load_dotenv
 load_dotenv()
@@ -236,7 +226,6 @@ class DoctorProfileViewSet(viewsets.ModelViewSet):
         except ValueError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Filter out the date to remove
         updated_schedule = [
             date
             for date in doctor_profile.schedule
@@ -282,15 +271,17 @@ class DoctorProfileViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if date_to_add_obj < timezone.now():
+        if date_to_add_obj < now():
             return Response(
                 {"error": "Cannot add a time slot in the past."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if self._convert_to_datetime(date_to_add_obj) in [
-            self._convert_to_datetime(date) for date in doctor_profile.schedule
-        ]:
+        # Avoid duplicates in schedule
+        if any(
+            self._convert_to_datetime(date) == date_to_add_obj
+            for date in doctor_profile.schedule
+        ):
             return Response(
                 {"error": "Date already in schedule."}, status=status.HTTP_400_BAD_REQUEST
             )
@@ -303,17 +294,28 @@ class DoctorProfileViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
-    def _convert_to_datetime(self, date_str):
+    def _convert_to_datetime(self, date_input):
         """
-        Helper method to convert ISO string to timezone-aware datetime.
+        Helper method to convert ISO string or datetime object to timezone-aware UTC datetime.
         """
-        try:
-            return datetime.fromisoformat(date_str.replace("Z", "+00:00")).astimezone(
-                timezone.utc
-            )
-        except ValueError:
-            raise ValueError(
-                "Invalid date format. Please provide an ISO format date string."
+        if isinstance(date_input, datetime):
+            # Return as-is if already timezone-aware
+            if date_input.tzinfo:
+                return date_input.astimezone(timezone.utc)
+            # Make naive datetime timezone-aware
+            return datetime.fromisoformat(date_input.isoformat()).replace(tzinfo=timezone.utc)
+        elif isinstance(date_input, str):
+            try:
+                # Handle ISO-8601 strings with or without 'Z'
+                return datetime.fromisoformat(date_input.replace("Z", "+00:00")).astimezone(
+                    timezone.utc
+                )
+            except ValueError as e:
+                raise ValueError(f"Invalid date string format. Error: {e}")
+        else:
+            raise TypeError(
+                f"Expected a string in ISO-8601 format or a datetime object, got {
+                    type(date_input)} instead."
             )
 
     def _is_valid_time_slot(self, date_obj):

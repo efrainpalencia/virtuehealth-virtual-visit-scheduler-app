@@ -29,8 +29,15 @@ const VideoCallComponent: React.FC<VideoCallComponentProps> = ({ roomUrl }) => {
   const participants = daily?.participants();
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <h2>Video Call</h2>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        textAlign: "center",
+      }}
+    >
+      <h1>Virtual Visit</h1>
       <div
         style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}
       >
@@ -49,8 +56,8 @@ const VideoCallComponent: React.FC<VideoCallComponentProps> = ({ roomUrl }) => {
                 }
               }}
               style={{
-                width: "200px",
-                height: "150px",
+                width: "800px",
+                height: "400px",
                 margin: "10px",
                 background: "black",
               }}

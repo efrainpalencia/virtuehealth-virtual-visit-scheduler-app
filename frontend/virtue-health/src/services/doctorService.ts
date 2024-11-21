@@ -1,4 +1,8 @@
-import API from './AuthService'; // Use centralized Axios instance
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import API from './AuthService';
+
+dayjs.extend(utc);
 
 const API_URL = 'http://localhost:8000/api/auth';
 
@@ -172,14 +176,33 @@ export const getBookedSlots = async (doctorProfileId: string): Promise<string[]>
     return response.data;
 };
 
+// Helper to format dates to ISO-8601 UTC
+const formatToUTC = (date: string | Date): string => {
+    return dayjs(date).utc().format();
+};
+
 // Add a schedule date to a doctor profile
-export const addScheduleDate = async (doctorId: number, dateToAdd: string): Promise<void> => {
-    const response = await API.patch(`${API_URL}/doctor-profiles/${doctorId}/add-schedule-date/`, { date: dateToAdd });
-    return response.data;
+export const addScheduleDate = async (doctorId: number, dateToAdd: string | Date): Promise<void> => {
+    const formattedDate = formatToUTC(dateToAdd);
+    try {
+        const response = await API.patch(`/doctor-profiles/${doctorId}/add-schedule-date/`, { date: formattedDate });
+        console.log(`Added schedule date for doctor ${doctorId}: ${formattedDate}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Failed to add schedule date for doctor ${doctorId}:`, error);
+        throw error;
+    }
 };
 
 // Remove a schedule date from a doctor profile
-export const removeScheduleDate = async (user_id: number, dateToRemove: string): Promise<void> => {
-    const response = await API.patch(`${API_URL}/doctor-profiles/${user_id}/remove-schedule-date/`, { date: dateToRemove });
-    return response.data;
+export const removeScheduleDate = async (doctorId: number, dateToRemove: string | Date): Promise<void> => {
+    const formattedDate = formatToUTC(dateToRemove);
+    try {
+        const response = await API.patch(`/doctor-profiles/${doctorId}/remove-schedule-date/`, { date: formattedDate });
+        console.log(`Removed schedule date for doctor ${doctorId}: ${formattedDate}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Failed to remove schedule date for doctor ${doctorId}:`, error);
+        throw error;
+    }
 };
