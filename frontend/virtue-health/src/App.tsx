@@ -24,8 +24,8 @@ import DoctorSchedule from "./components/DoctorSchedule/DoctorSchedule";
 import AppointmentForm from "./components/AppointmentForm/AppointmentForm";
 import PatientAppointments from "./components/PatientAppointments/PatientAppointments";
 import MedicalRecordCard from "./components/MedicalRecordCard/MedicalRecordCard";
-import VideoCallPage from "./components/VideoCallPage/VideoCallPage";
 import Home from "./components/Home/Home";
+import DoctorRoomPage from "./components/DoctorRoomPage/DoctorRoomPage";
 
 const App: React.FC = () => {
   return (
@@ -58,7 +58,7 @@ const App: React.FC = () => {
               path="view-profile/edit-profile"
               element={<DoctorProfileForm />}
             />
-            <Route path="virtual-session" element={<VideoCallPage />} />
+            <Route path="virtual-session" element={<DoctorRoomPage />} />
             <Route path="logout" element={<LogoutPage />} />
           </Route>
         </Route>
@@ -80,7 +80,6 @@ const App: React.FC = () => {
               element={<PatientProfileForm />}
             />
             <Route path="medical-records" element={<MedicalRecordCard />} />
-            <Route path="virtual-session" element={<VideoCallPage />} />
           </Route>
         </Route>
 

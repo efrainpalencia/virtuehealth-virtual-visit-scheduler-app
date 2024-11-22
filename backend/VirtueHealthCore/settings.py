@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'appointments',
     'medical_records',
     'email_service',
+    'daily_video',
 
 ]
 

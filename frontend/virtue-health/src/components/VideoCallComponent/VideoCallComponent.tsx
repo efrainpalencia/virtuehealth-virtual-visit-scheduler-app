@@ -1,19 +1,23 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   DailyProvider,
   useDaily,
+  useDailyEvent,
   useLocalSessionId,
 } from "@daily-co/daily-react";
+import { Row, Col, Card, Typography } from "antd";
 
-interface VideoCallComponentProps {
-  roomUrl: string; // The Daily room URL
+const { Text } = Typography;
+
+interface VideoCallProps {
+  roomUrl: string;
 }
 
-const VideoCallComponent: React.FC<VideoCallComponentProps> = ({ roomUrl }) => {
+const VideoCall: React.FC<VideoCallProps> = ({ roomUrl }) => {
   const daily = useDaily();
-  const localSessionId = useLocalSessionId(); // Get the local session ID
+  const localSessionId = useLocalSessionId();
+  const [participants, setParticipants] = useState<any[]>([]);
 
-  // Join the call when the component mounts
   useEffect(() => {
     if (daily) {
       daily.join({ url: roomUrl });
@@ -25,53 +29,60 @@ const VideoCallComponent: React.FC<VideoCallComponentProps> = ({ roomUrl }) => {
     };
   }, [daily, roomUrl]);
 
-  // Get all participants (local and remote)
-  const participants = daily?.participants();
+  useDailyEvent("participant-joined", () => {
+    setParticipants(Object.values(daily?.participants() || {}));
+  });
+
+  useDailyEvent("participant-updated", () => {
+    setParticipants(Object.values(daily?.participants() || {}));
+  });
+
+  useDailyEvent("participant-left", () => {
+    setParticipants(Object.values(daily?.participants() || {}));
+  });
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        textAlign: "center",
-      }}
-    >
-      <h1>Virtual Visit</h1>
-      <div
-        style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}
-      >
-        {/* Render participants */}
-        {participants &&
-          Object.values(participants).map((participant: any) => (
-            <video
-              key={participant.session_id}
-              autoPlay
-              muted={participant.session_id === localSessionId} // Mute the local participant's audio
-              ref={(ref) => {
-                if (ref && participant.videoTrack) {
-                  const mediaStream = new MediaStream([participant.videoTrack]);
-                  ref.srcObject = mediaStream;
-                  ref.play();
-                }
-              }}
-              style={{
-                width: "800px",
-                height: "400px",
-                margin: "10px",
-                background: "black",
-              }}
-            />
-          ))}
-      </div>
+    <div style={{ padding: "20px" }}>
+      <Row gutter={[16, 16]}>
+        {participants.map((participant) => (
+          <Col key={participant.session_id} xs={24} sm={12} md={8} lg={6}>
+            <Card
+              title={
+                participant.session_id === localSessionId
+                  ? "You"
+                  : participant.user_name || "Participant"
+              }
+              bordered={false}
+              style={{ background: "#f0f2f5" }}
+            >
+              <video
+                autoPlay
+                muted={participant.session_id === localSessionId}
+                ref={(ref) => {
+                  if (ref && participant.videoTrack) {
+                    const mediaStream = new MediaStream([
+                      participant.videoTrack,
+                    ]);
+                    ref.srcObject = mediaStream;
+                  }
+                }}
+                style={{ width: "100%", height: "150px", background: "black" }}
+              />
+            </Card>
+          </Col>
+        ))}
+      </Row>
+      {participants.length === 0 && (
+        <Text>No participants in the room yet.</Text>
+      )}
     </div>
   );
 };
 
-// Wrap the VideoCallComponent with DailyProvider
-const VideoCallWrapper: React.FC<VideoCallComponentProps> = ({ roomUrl }) => (
+// Wrap the component in DailyProvider
+const VideoCallWrapper: React.FC<VideoCallProps> = ({ roomUrl }) => (
   <DailyProvider>
-    <VideoCallComponent roomUrl={roomUrl} />
+    <VideoCall roomUrl={roomUrl} />
   </DailyProvider>
 );
 

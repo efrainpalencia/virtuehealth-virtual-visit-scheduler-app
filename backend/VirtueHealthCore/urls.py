@@ -41,4 +41,5 @@ urlpatterns = [
     path('api/auth/', include('user.urls')),
     path('api/medical-records/', include('medical_records.urls')),
     path("api/email/", include("email_service.urls")),
+    path("api/video/", include("daily_video.urls")),
 ]
