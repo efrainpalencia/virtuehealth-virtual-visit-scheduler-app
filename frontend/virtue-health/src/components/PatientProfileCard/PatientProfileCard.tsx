@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Card,
-  Button,
-  Spin,
-  message,
-  Descriptions,
-  Row,
-  Col,
-  Avatar,
-} from "antd";
+import { Card, Button, Spin, message, Descriptions, Row, Col } from "antd";
 import {
   getPatient,
   getPatientProfile,
@@ -18,7 +9,6 @@ import {
 import { Patient, PatientProfile } from "../../services/patientService";
 import { getIdFromToken } from "../../services/authService";
 import PatientProfileForm from "../PatientProfileForm/PatientProfileForm";
-import VirtueLogo from "../../assets/VirtueLogo.png";
 import { calculateAge } from "../../services/formatService";
 
 const genderMap = {
@@ -86,17 +76,6 @@ const PatientProfileCard: React.FC = () => {
     return <Spin tip="Loading data..." />;
   }
 
-  // if (!isEditing && !profile) {
-  //   return (
-  //     <Card title="No Profile Found" style={{ textAlign: "center" }}>
-  //       <p>No profile information is available.</p>
-  //       <Button type="primary" onClick={() => setIsEditing(true)}>
-  //         Create Profile
-  //       </Button>
-  //     </Card>
-  //   );
-  // }
-
   if (isEditing) {
     return (
       <PatientProfileForm
@@ -115,16 +94,13 @@ const PatientProfileCard: React.FC = () => {
   return (
     <Card title="My Profile">
       <Row>
-        <Col span={8}>
+        <Col span={24}>
           <h1>
             {patient?.first_name} {patient?.last_name}
           </h1>
           <h2>
             {genderMap[profile?.gender]}, {age} years old
           </h2>
-        </Col>
-        <Col span={8} offset={8}>
-          <Avatar src={profile?.img_url || VirtueLogo} size={224} />
         </Col>
       </Row>
       <Descriptions title="Contact Information">

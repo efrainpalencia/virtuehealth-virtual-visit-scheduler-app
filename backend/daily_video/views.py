@@ -3,7 +3,6 @@ import requests
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from django.core.mail import send_mail
 from .utils import send_virtual_invitation
 from .daily_utils import create_daily_room
 from django.conf import settings

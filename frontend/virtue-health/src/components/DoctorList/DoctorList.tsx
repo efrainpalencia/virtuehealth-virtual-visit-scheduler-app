@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
+import { Table, Select, Input, Row, Col, Spin, Empty } from "antd";
 import {
   getDoctorsMap,
   getDoctorProfilesMap,
   Doctor,
   DoctorProfile,
 } from "../../services/doctorService";
-import { Avatar, Col, List, Row, Select } from "antd";
-import man1 from "../../assets/man1.jpg";
-import SearchBar from "../SearchBar/SearchBar";
 import { Link } from "react-router-dom";
 
 const { Option } = Select;
+const { Search } = Input;
 
 const specialtyMap = {
   GENERAL_DOCTOR: "General Doctor",
@@ -29,18 +28,18 @@ const DoctorList: React.FC = () => {
     Array<Doctor & Partial<DoctorProfile>>
   >([]);
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>("ALL");
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDoctorsAndProfiles = async () => {
       try {
+        setLoading(true);
+
         const [doctorsMap, profilesMap] = await Promise.all([
           getDoctorsMap(),
           getDoctorProfilesMap(),
         ]);
-
-        console.log("Doctors Map:", doctorsMap);
-        console.log("Profiles Map:", profilesMap);
 
         const combinedList = Object.keys(doctorsMap).map((doctorId) => {
           const doctor = doctorsMap[parseInt(doctorId)];
@@ -55,6 +54,8 @@ const DoctorList: React.FC = () => {
         setError(
           "Failed to fetch doctors or profiles. Please try again later."
         );
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -83,18 +84,61 @@ const DoctorList: React.FC = () => {
     setFilteredDoctors(filtered);
   };
 
+  const columns = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      render: (_: any, doctor: Doctor) => (
+        <Link to={`doctor/${doctor.id}`}>
+          Dr. {doctor.last_name}, {doctor.first_name}
+        </Link>
+      ),
+    },
+    {
+      title: "Specialty",
+      dataIndex: "specialty",
+      key: "specialty",
+      render: (specialty: string) => specialtyMap[specialty] || "N/A",
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "Phone Number",
+      dataIndex: "phone_number",
+      key: "phone_number",
+      render: (phone_number: string | null) => phone_number || "N/A",
+    },
+  ];
+
+  if (loading) {
+    return (
+      <Spin size="large" style={{ display: "block", margin: "20% auto" }} />
+    );
+  }
+
+  if (error) {
+    return <div style={{ color: "red", textAlign: "center" }}>{error}</div>;
+  }
+
   return (
     <div>
       <h1>Doctors List</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+      <Row
+        gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}
+        style={{ marginBottom: "20px" }}
+      >
         <Col span={12}>
           <Select
-            style={{ width: 200, marginBottom: 20 }}
+            style={{ width: "100%" }}
             placeholder="Select Specialty"
             onChange={handleSpecialtyChange}
             value={selectedSpecialty}
+            allowClear
           >
             <Option value="ALL">All Specialties</Option>
             {Object.keys(specialtyMap).map((specialtyKey) => (
@@ -105,43 +149,26 @@ const DoctorList: React.FC = () => {
           </Select>
         </Col>
         <Col span={12}>
-          <SearchBar
+          <Search
             placeholder="Search doctors by name..."
             onSearch={handleSearch}
           />
         </Col>
       </Row>
 
-      <List
-        style={{ display: "grid", alignItems: "center", minWidth: "500px" }}
-        size="large"
-        itemLayout="horizontal"
-        dataSource={filteredDoctors}
-        renderItem={(doctor) => {
-          const imgSrc = doctor.img_url || man1;
-
-          return (
-            <List.Item style={{ padding: "15px 0" }}>
-              <List.Item.Meta
-                avatar={<Avatar src={imgSrc} size={64} />}
-                title={
-                  <Link
-                    to={`doctor/${doctor.id}`}
-                    style={{ fontSize: "1.2rem" }}
-                  >
-                    Dr. {doctor.last_name}
-                  </Link>
-                }
-                description={
-                  <p style={{ fontSize: "1rem" }}>
-                    Specialty: {specialtyMap[doctor.specialty] || "N/A"}
-                  </p>
-                }
-              />
-            </List.Item>
-          );
-        }}
-      />
+      {filteredDoctors.length > 0 ? (
+        <Table
+          dataSource={filteredDoctors}
+          columns={columns}
+          rowKey="id"
+          pagination={{ pageSize: 10 }}
+        />
+      ) : (
+        <Empty
+          description="No doctors found"
+          style={{ margin: "10% auto", fontSize: "1.5rem" }}
+        />
+      )}
     </div>
   );
 };

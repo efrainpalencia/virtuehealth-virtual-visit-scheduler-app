@@ -25,6 +25,13 @@ export const getAppointmentById = async (appointmentId: number): Promise<Appoint
   return response.data;
 };
 
+// Get all appointments for a specific doctor
+export const getAppointmentsByDoctorId = async (doctorId: number): Promise<Appointment[]> => {
+  const response = await axios.get(`${API_URL}?doctor_id=${doctorId}`);
+  return response.data;
+};
+
+
 export const createAppointment = async (appointmentData: Appointment): Promise<Appointment> => {
   try {
     const response = await axios.post(`${API_URL}/`, appointmentData, {

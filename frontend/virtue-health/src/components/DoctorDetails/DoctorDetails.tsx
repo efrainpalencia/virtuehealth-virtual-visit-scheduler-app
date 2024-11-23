@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import {
-  Avatar,
   Breadcrumb,
   Button,
   Card,
@@ -16,7 +15,6 @@ import {
   getDoctorsMap,
   getDoctorProfilesMap,
 } from "../../services/doctorService";
-import VirtueLogo from "../../assets/VirtueLogo.png";
 import { getRoleFromToken } from "../../services/authService";
 import BookAppointment from "../BookAppointment/BookAppointment";
 import { Dayjs } from "dayjs";
@@ -61,8 +59,6 @@ const DoctorDetails: React.FC = () => {
   if (!doctor) {
     return <div>Loading...</div>;
   }
-
-  const imgSrc = doctor?.img_url || VirtueLogo;
 
   const handleBookAppointmentClick = () => {
     setIsModalVisible(true);
@@ -110,11 +106,6 @@ const DoctorDetails: React.FC = () => {
       label: "Fax",
       children: doctor.fax_number || "Not provided",
     },
-    {
-      key: "6",
-      label: "Primary Location",
-      children: doctor.location || "Not provided",
-    },
   ];
 
   const aboutItems: DescriptionsProps["items"] = [
@@ -158,14 +149,11 @@ const DoctorDetails: React.FC = () => {
         style={{ textAlign: "start", marginTop: "10px" }}
       >
         <Row>
-          <Col span={8}>
+          <Col span={16}>
             <h1>
               Dr. {doctor.last_name}, {doctor.first_name}
             </h1>
             <h2>{specialtyMap[doctor.specialty]}</h2>
-          </Col>
-          <Col span={8} offset={8}>
-            <Avatar src={imgSrc} size={200} />
           </Col>
         </Row>
         <Row>

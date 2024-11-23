@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import {
   CalendarOutlined,
   CarryOutOutlined,
@@ -6,14 +6,13 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   TeamOutlined,
-  UploadOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
 } from "@ant-design/icons";
-import { Avatar, Button, Flex, Layout, Menu, MenuProps, theme } from "antd";
+import { Button, Flex, Layout, Menu, MenuProps, theme, message } from "antd";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import AppMenu from "../AppMenu/AppMenu";
 import VirtueLogo from "../../assets/VirtueLogo.png";
+import { getDoctor } from "../../services/doctorService";
+import { getIdFromToken } from "../../services/authService";
 
 const { Header, Sider, Content } = Layout;
 
@@ -22,6 +21,8 @@ interface DoctorDashboardLayoutProps {}
 const DoctorDashboardLayout: FC<DoctorDashboardLayoutProps> = () => {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+  const [doctorName, setDoctorName] = useState<string | null>(null);
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -31,11 +32,35 @@ const DoctorDashboardLayout: FC<DoctorDashboardLayoutProps> = () => {
     color: "#ffffff",
   };
 
+  useEffect(() => {
+    const fetchDoctor = async () => {
+      try {
+        const doctorId = getIdFromToken(
+          localStorage.getItem("access_token") || ""
+        );
+        if (!doctorId) {
+          message.error("Doctor ID not found. Please log in again.");
+          return;
+        }
+
+        const doctor = await getDoctor(Number(doctorId));
+        if (doctor) {
+          setDoctorName(`Dr. ${doctor.first_name} ${doctor.last_name}`);
+        } else {
+          message.error("Failed to load doctor details.");
+        }
+      } catch (error) {
+        console.error("Error fetching doctor details:", error);
+        message.error("An error occurred while fetching doctor details.");
+      }
+    };
+
+    fetchDoctor();
+  }, []);
+
   const onClick: MenuProps["onClick"] = (e) => {
     navigate(e.key);
   };
-
-  const imgSrc = VirtueLogo;
 
   return (
     <Layout>
@@ -51,18 +76,10 @@ const DoctorDashboardLayout: FC<DoctorDashboardLayoutProps> = () => {
             borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
           }}
         >
-          <Link to="view-profile">
-            <Avatar src={VirtueLogo} size={collapsed ? 40 : 80} />
-          </Link>
           {!collapsed && (
-            <>
-              <div style={{ color: "#ffffff", marginTop: 10 }}>
-                Dr. John Doe
-              </div>
-              <div style={{ color: "rgba(255, 255, 255, 0.6)" }}>
-                Cardiologist
-              </div>
-            </>
+            <div style={{ color: "#ffffff", marginTop: 10 }}>
+              {doctorName || "Doctor Name"}
+            </div>
           )}
         </div>
         <Menu

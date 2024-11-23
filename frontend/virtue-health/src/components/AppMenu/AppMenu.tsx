@@ -32,6 +32,11 @@ const doctorItems: MenuItem[] = [
     key: "/doctor-dashboard/virtual-session",
     icon: <VideoCameraOutlined />,
   },
+  {
+    label: "View My Profile",
+    key: "/doctor-dashboard/view-profile",
+    icon: <SettingOutlined />,
+  },
 ];
 
 const patientItems: MenuItem[] = [
@@ -45,11 +50,6 @@ const patientItems: MenuItem[] = [
     label: "Doctors",
     key: "/patient-portal/doctor-list",
     icon: <ProfileOutlined />,
-  },
-  {
-    label: "Video Chat",
-    key: "/patient-portal/virtual-session",
-    icon: <VideoCameraOutlined />,
   },
   {
     label: "My Profile",

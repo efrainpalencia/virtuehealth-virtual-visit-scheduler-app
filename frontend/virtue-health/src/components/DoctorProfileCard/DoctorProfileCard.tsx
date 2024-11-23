@@ -8,7 +8,6 @@ import {
   Descriptions,
   Row,
   Col,
-  Avatar,
   Breadcrumb,
 } from "antd";
 import { specialtyMap } from "../../services/doctorService";
@@ -20,7 +19,6 @@ import {
 } from "../../services/doctorService";
 import { getIdFromToken } from "../../services/authService";
 import DoctorProfileForm from "../DoctorProfileForm/DoctorProfileForm";
-import VirtueLogo from "../../assets/VirtueLogo.png";
 
 const DoctorProfileCard: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -107,27 +105,16 @@ const DoctorProfileCard: React.FC = () => {
       <Row style={{ paddingBottom: "0" }}>
         <Breadcrumb items={[{ title: "Home" }, { title: "My Profile" }]} />
       </Row>
-      <Row gutter={16}>
-        <Col span={8} offset={20} style={{ paddingTop: "5px" }}>
-          <Button type="primary" onClick={() => setIsEditing(true)}>
-            Edit Profile
-          </Button>
-        </Col>
-      </Row>
-
       <Card
         title={"My Profile"}
         style={{ textAlign: "start", marginTop: "10px" }}
       >
         <Row>
-          <Col span={8}>
+          <Col span={24}>
             <h1>
               {doctor?.last_name}, {doctor?.first_name}, MD
             </h1>
             <h2>{specialtyMap[profile?.specialty]}</h2>
-          </Col>
-          <Col span={8} offset={8}>
-            <Avatar src={VirtueLogo} size={224} />
           </Col>
         </Row>
         <Row>
@@ -146,6 +133,9 @@ const DoctorProfileCard: React.FC = () => {
               items={EducationItems}
               style={{ justifyContent: "center" }}
             />
+            <Button type="primary" onClick={() => setIsEditing(true)}>
+              Edit Profile
+            </Button>
           </Col>
         </Row>
       </Card>
