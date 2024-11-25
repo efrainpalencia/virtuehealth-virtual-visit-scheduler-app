@@ -115,7 +115,7 @@ API.interceptors.request.use(
 API.interceptors.response.use(
     (response) => response,
     async (error) => {
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401 && window.location.pathname !== "/login") {
             clearTokens();
             window.location.href = "/login"; // Redirect to login on 401
         }
@@ -139,9 +139,19 @@ export const registerDoctor = async (email: string, password: string): Promise<R
 export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
     try {
         const response = await API.post<LoginResponse>("/login/", { email, password });
+        
+        // Log response for debugging
+        console.log("Login successful:", response.data);
+
+        // Save tokens
         setTokens(response.data.access, response.data.refresh);
+
         return response.data;
     } catch (error: any) {
+        // Log error for debugging
+        console.error("Login error response:", error.response?.data);
+
+        // Extract meaningful error messages
         if (error.response && error.response.data) {
             const backendError = error.response.data;
             if (backendError.non_field_errors) {
@@ -151,9 +161,12 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
                 throw new Error(backendError.detail);
             }
         }
+
+        // Fallback error
         throw new Error("An unexpected error occurred. Please try again later.");
     }
 };
+
 
   
 // Logout function

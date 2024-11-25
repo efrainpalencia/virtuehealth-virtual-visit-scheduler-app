@@ -76,7 +76,8 @@ class PatientRegisterViewSet(viewsets.ModelViewSet, CustomTokenObtainPairSeriali
         return Response({"user": serializer.data, "refresh": res["refresh"], "token": res["access"]}, status=status.HTTP_201_CREATED)
 
 
-class LoginViewSet(viewsets.ModelViewSet, CustomTokenObtainPairSerializer):
+class LoginViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.AllowAny]
     serializer_class = LoginSerializer
 
     @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
@@ -161,7 +162,7 @@ class PasswordResetConfirmViewSet(viewsets.ViewSet):
 class RefreshViewSet(viewsets.ViewSet, TokenRefreshView):
     permission_classes = [permissions.AllowAny]
 
-    @ action(detail=True, methods=['post'])
+    @ action(detail=False, methods=['post'])
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
 
