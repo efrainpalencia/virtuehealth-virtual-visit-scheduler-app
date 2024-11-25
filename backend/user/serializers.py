@@ -8,6 +8,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import User
 from .models import Doctor, Patient, DoctorProfile, PatientProfile
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class UserSerializer(serializers.ModelSerializer):
 
@@ -122,14 +126,20 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         refresh_token = token
 
         # Log the token for debugging
-        print(f"Generated Token for User ID: {user.id}, Role: {user.role}")
-        print(f"Token Payload: {access_token}")
-        print(f"Generated Refresh Token: {refresh_token}")
+        # print(f"Generated Token for User ID: {user.id}, Role: {user.role}")
+        # print(f"Token Payload: {access_token}")
+        # print(f"Generated Refresh Token: {refresh_token}")
+        print("Token Payload:", token.payload)
+
+        logger.debug(f"Generated Token for User ID: {
+                     user.id}, Role: {user.role}")
+        logger.debug(f"Token Payload: {access_token}")
+        logger.debug(f"Generated Refresh Token: {refresh_token}")
 
         return token
 
 
-class LoginSerializer(TokenObtainPairSerializer):
+class LoginSerializer(CustomTokenObtainPairSerializer):
     email = serializers.EmailField(write_only=True)
     password = serializers.CharField(write_only=True)
 

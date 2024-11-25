@@ -29,6 +29,7 @@ const DoctorAppointments: React.FC = () => {
   );
 
   const doctorId = getIdFromToken(localStorage.getItem("access_token") || "");
+  console.log("doctorId", doctorId);
 
   useEffect(() => {
     if (!doctorId) {

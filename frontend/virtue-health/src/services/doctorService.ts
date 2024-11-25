@@ -78,7 +78,7 @@ const arrayToMap = <T extends { id: number }>(array: T[]): { [key: number]: T } 
 };
 
 export const getDoctorsMap = async (): Promise<{ [key: number]: Doctor }> => {
-//   console.log("Fetching Doctors with Authorization Header");
+  console.log("Fetching Doctors with Authorization Header");
   const response = await API.get<Doctor[]>('/doctor/');
   return arrayToMap(response.data); // Assuming `arrayToMap` is a utility function
 };
@@ -101,11 +101,11 @@ const arrayToMapByKey = <T, K extends keyof T>(
   export const getDoctorProfilesMap = async (): Promise<{ [key: number]: DoctorProfile }> => {
     try {
       const profilesArray = await getDoctorProfiles();
-    //   console.log("Profiles Array:", profilesArray);
+      console.log("Profiles Array:", profilesArray);
   
       // Use `arrayToMapByKey` with the `user` key
       const profilesMap = arrayToMapByKey(profilesArray, "user");
-    //   console.log("Profiles Map:", profilesMap);
+      console.log("Profiles Map:", profilesMap);
   
       return profilesMap;
     } catch (error) {
@@ -186,7 +186,7 @@ export const addScheduleDate = async (doctorId: number, dateToAdd: string | Date
     const formattedDate = formatToUTC(dateToAdd);
     try {
         const response = await API.patch(`/doctor-profiles/${doctorId}/add-schedule-date/`, { date: formattedDate });
-        // console.log(`Added schedule date for doctor ${doctorId}: ${formattedDate}`);
+        console.log(`Added schedule date for doctor ${doctorId}: ${formattedDate}`);
         return response.data;
     } catch (error) {
         console.error(`Failed to add schedule date for doctor ${doctorId}:`, error);
@@ -199,7 +199,7 @@ export const removeScheduleDate = async (doctorId: number, dateToRemove: string 
     const formattedDate = formatToUTC(dateToRemove);
     try {
         const response = await API.patch(`/doctor-profiles/${doctorId}/remove-schedule-date/`, { date: formattedDate });
-        // console.log(`Removed schedule date for doctor ${doctorId}: ${formattedDate}`);
+        console.log(`Removed schedule date for doctor ${doctorId}: ${formattedDate}`);
         return response.data;
     } catch (error) {
         console.error(`Failed to remove schedule date for doctor ${doctorId}:`, error);

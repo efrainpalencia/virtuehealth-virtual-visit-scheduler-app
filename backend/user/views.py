@@ -1,4 +1,4 @@
-from user.serializers import DoctorSerializer, DoctorProfileSerializer
+from user.serializers import CustomTokenObtainPairSerializer, DoctorSerializer, DoctorProfileSerializer
 from user.models import Doctor, DoctorProfile
 from rest_framework import viewsets, status, permissions
 from datetime import datetime, timezone
@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-class DoctorRegisterViewSet(viewsets.ModelViewSet, TokenObtainPairView):
+class DoctorRegisterViewSet(viewsets.ModelViewSet, CustomTokenObtainPairSerializer):
     queryset = Doctor.doctor.all()
     permission_classes = [permissions.AllowAny]
     serializer_class = DoctorRegisterSerializer
@@ -48,7 +48,7 @@ class DoctorRegisterViewSet(viewsets.ModelViewSet, TokenObtainPairView):
         return Response({"user": serializer.data, "refresh": res["refresh"], "token": res["access"]}, status=status.HTTP_201_CREATED)
 
 
-class PatientRegisterViewSet(viewsets.ModelViewSet, TokenObtainPairView):
+class PatientRegisterViewSet(viewsets.ModelViewSet, CustomTokenObtainPairSerializer):
     queryset = Patient.patient.all()
     permission_classes = [permissions.AllowAny]
     serializer_class = PatientRegisterSerializer
@@ -76,7 +76,7 @@ class PatientRegisterViewSet(viewsets.ModelViewSet, TokenObtainPairView):
         return Response({"user": serializer.data, "refresh": res["refresh"], "token": res["access"]}, status=status.HTTP_201_CREATED)
 
 
-class LoginViewSet(viewsets.ModelViewSet, TokenObtainPairView):
+class LoginViewSet(viewsets.ModelViewSet, CustomTokenObtainPairSerializer):
     serializer_class = LoginSerializer
 
     @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
