@@ -23,6 +23,6 @@ export const calculateAge = (dob: Date): number => {
   };
   
   // Example usage:
-  const dob = new Date("1990-10-15");
-  console.log(`Age is: ${calculateAge(dob)}`);
+  // const dob = new Date("1990-10-15");
+  // console.log(`Age is: ${calculateAge(dob)}`);
   

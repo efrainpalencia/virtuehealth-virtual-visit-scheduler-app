@@ -154,10 +154,6 @@ const PatientAppointments: React.FC = () => {
 
     const previousDate = dayjs(selectedAppointment.date);
 
-    console.log("Rescheduling appointment...");
-    console.log("Previous date:", previousDate.toISOString());
-    console.log("New date:", newDate.toISOString());
-
     try {
       await updateAppointment(selectedAppointment.id!, {
         date: newDate.toISOString(),
@@ -178,7 +174,6 @@ const PatientAppointments: React.FC = () => {
           appointment_time: newDate.format("HH:mm"),
         },
       };
-      console.log("emailPayload: ", emailPayload);
       await sendAppointmentEmail(emailPayload);
 
       await addScheduleDate(
@@ -222,7 +217,6 @@ const PatientAppointments: React.FC = () => {
           reason: reasonDisplayMap[appointment.reason] || appointment.reason,
         },
       };
-      console.log("email payload: ", emailPayload);
       await sendAppointmentEmail(emailPayload);
 
       await deleteAppointment(appointmentId);

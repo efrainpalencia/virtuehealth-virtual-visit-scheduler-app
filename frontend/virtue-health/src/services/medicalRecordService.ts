@@ -363,10 +363,10 @@ export const getMedicalRecord = async (patientProfileId?: number): Promise<Medic
   if (!token) throw new Error("Access token not found");
 
   const id = patientProfileId ?? getIdFromToken(token);
-  const role = getRoleFromToken(token);
+  // const role = getRoleFromToken(token);
 
-  console.log("User ID:", id);
-  console.log("User Role:", role);
+  // console.log("User ID:", id);
+  // console.log("User Role:", role);
 
   const url = `${API_BASE_URL}?patient_id=${id}`;
   try {

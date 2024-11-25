@@ -85,11 +85,11 @@ const arrayToMapByKey = <T, K extends keyof T>(
 // Use the updated utility for Patient Profiles Map
 export const getPatientProfilesMap = async (): Promise<{ [key: number]: PatientProfile }> => {
     const profilesArray = await getPatientProfiles();
-    console.log("Profiles Array:", profilesArray);
+    // console.log("Profiles Array:", profilesArray);
   
     // Use `arrayToMapByKey` with the `user` key
     const profilesMap = arrayToMapByKey(profilesArray, "user");
-    console.log("Profiles Map:", profilesMap);
+    // console.log("Profiles Map:", profilesMap);
   
     return profilesMap;
   };
@@ -109,7 +109,7 @@ export const getPatient = async (id: number): Promise<Patient | null> => {
 export const getPatientProfile = async (user_id: number): Promise<PatientProfile | null> => {
     try {
       const profilesMap = await getPatientProfilesMap();
-      console.log("Fetched Profiles Map:", profilesMap); // Debug log
+    //   console.log("Fetched Profiles Map:", profilesMap);
       return profilesMap[user_id] || null;
     } catch (error) {
       console.error(`Failed to fetch patient profile with user_id ${user_id}:`, error);

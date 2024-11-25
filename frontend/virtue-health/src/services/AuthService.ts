@@ -14,13 +14,20 @@ interface RegisterResponse {
 interface DecodedToken {
     role: string;
     id: number;
-    exp: number; // Expiration timestamp
+    exp: number;
 }
 
 interface LoginResponse {
     access: string;
     refresh: string;
+    user?: {
+        id: number;
+        email: string;
+        role: string;
+    };
+    role?: string;
 }
+
 
 // Utility functions for token management
 export const setTokens = (access: string, refresh: string) => {
@@ -108,7 +115,7 @@ API.interceptors.request.use(
 API.interceptors.response.use(
     (response) => response,
     async (error) => {
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401 && window.location.pathname !== "/login") {
             clearTokens();
             window.location.href = "/login"; // Redirect to login on 401
         }
@@ -127,13 +134,28 @@ export const registerDoctor = async (email: string, password: string): Promise<R
     return response.data;
 };
 
+
 // Login function
 export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
-    const response = await API.post<LoginResponse>("/login/", { email, password });
-    setTokens(response.data.access, response.data.refresh);
-    return response.data;
+    try {
+        const response = await API.post<LoginResponse>("/login/", { email, password });
+        setTokens(response.data.access, response.data.refresh);
+        return response.data;
+    } catch (error: any) {
+        if (error.response && error.response.data) {
+            const backendError = error.response.data;
+            if (backendError.non_field_errors) {
+                throw new Error(backendError.non_field_errors[0]);
+            }
+            if (backendError.detail) {
+                throw new Error(backendError.detail);
+            }
+        }
+        throw new Error("An unexpected error occurred. Please try again later.");
+    }
 };
 
+  
 // Logout function
 export const logoutUser = () => {
     clearTokens();

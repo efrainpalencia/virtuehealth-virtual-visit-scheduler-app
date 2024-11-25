@@ -49,9 +49,6 @@ const MedicalRecordCard: React.FC = () => {
       const roleFromToken = getRoleFromToken(token);
       const idFromToken = getIdFromToken(token);
 
-      console.log("User Role:", roleFromToken);
-      console.log("User ID:", idFromToken);
-
       setRole(roleFromToken);
       fetchRecord(idFromToken);
       fetchPatient(idFromToken);
@@ -64,10 +61,8 @@ const MedicalRecordCard: React.FC = () => {
   const fetchRecord = async (patientId: number) => {
     try {
       const record = await getMedicalRecord(patientId);
-      console.log("Fetched Medical Record:", record);
       setMedicalRecord(record);
     } catch (error) {
-      console.error("Error fetching medical record:", error);
       message.error("No medical record found.");
     } finally {
       setLoading(false);

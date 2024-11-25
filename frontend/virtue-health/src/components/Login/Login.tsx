@@ -10,10 +10,10 @@ const Login: React.FC = () => {
 
   const onFinish = async (values: { email: string; password: string }) => {
     try {
+      // Attempt to log in
       const response = await loginUser(values.email, values.password);
-      message.success("Login successful!");
 
-      // Store tokens
+      // If login succeeds, store tokens
       localStorage.setItem("refresh_token", response.refresh);
       localStorage.setItem("access_token", response.access);
 
@@ -21,21 +21,24 @@ const Login: React.FC = () => {
       const role = getRoleFromToken(response.access);
       switch (role) {
         case "DOCTOR":
+          message.success("Login successful!");
           navigate("/doctor-dashboard");
           break;
         case "PATIENT":
+          message.success("Login successful!");
           navigate("/patient-portal");
           break;
         case "ADMIN":
+          message.success("Login successful!");
           navigate("/admin");
           break;
         default:
           message.error("Unrecognized role. Please contact support.");
       }
-    } catch (error) {
-      message.error(
-        "Login failed. Please check your credentials and try again."
-      );
+    } catch (error: any) {
+      // Handle login errors or unexpected issues
+      console.error("Error during login:", error);
+      message.error(error.message || "Login failed. Please try again.");
     }
   };
 

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.settings import api_settings
 from django.contrib.auth.models import update_last_login
 from django.core.exceptions import ObjectDoesNotExist
@@ -128,21 +129,47 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
 
-class LoginSerializer(CustomTokenObtainPairSerializer):
+class LoginSerializer(TokenObtainPairSerializer):
     email = serializers.EmailField(write_only=True)
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        data = super().validate(attrs)
+        # Extract credentials from the request
+        email = attrs.get("email")
+        password = attrs.get("password")
 
-        refresh = self.get_token(self.user)
+        try:
+            # Attempt to find the user by email
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise AuthenticationFailed("User with this email does not exist.")
 
-        data['user'] = UserSerializer(self.user).data
-        data['refresh'] = str(refresh)
-        data['access'] = str(refresh.access_token)
-        data['role'] = self.user.role
+        # Verify the password
+        if not user.check_password(password):
+            raise AuthenticationFailed("Invalid password.")
 
+        # Ensure the user has a valid role
+        if not hasattr(user, "role") or not user.role:
+            raise AuthenticationFailed(
+                "User role is not assigned. Contact support.")
+
+        # Generate tokens
+        refresh = self.get_token(user)
+        access_token = refresh.access_token
+
+        # Optionally include role in the token payload
+        access_token["role"] = user.role
+
+        # Build response data
+        data = {
+            "refresh": str(refresh),
+            "access": str(access_token),
+            "user": UserSerializer(user).data,
+            "role": user.role,
+        }
+
+        # Update the last login time
         if api_settings.UPDATE_LAST_LOGIN:
-            update_last_login(None, self.user)
+            update_last_login(None, user)
 
         return data

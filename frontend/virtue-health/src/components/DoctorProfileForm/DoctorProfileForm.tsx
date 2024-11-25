@@ -49,6 +49,20 @@ const DoctorProfileForm: React.FC<DoctorProfileFormProps> = ({
   const handleSubmit = async (values: any) => {
     setLoading(true);
     try {
+      // Update doctor general information
+      if (doctor) {
+        const doctorData = {
+          first_name: values.first_name,
+          last_name: values.last_name,
+          email: values.email,
+          date_of_birth: values.date_of_birth,
+        };
+
+        await updateDoctor(doctor.id, doctorData);
+        message.success("Doctor information updated successfully!");
+      }
+
+      // Update doctor profile information
       const profileData = {
         specialty: values.specialty,
         location: values.location,
@@ -75,6 +89,7 @@ const DoctorProfileForm: React.FC<DoctorProfileFormProps> = ({
         message.success("Profile created successfully!");
       }
 
+      // Save the updated profile
       onSave(updatedProfile);
     } catch (error) {
       console.error("Error saving profile:", error.response?.data || error);

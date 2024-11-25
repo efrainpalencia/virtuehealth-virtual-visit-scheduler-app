@@ -9,7 +9,7 @@ import logging
 from VirtueHealthCore.validators import validate_email
 from user.serializers import DoctorRegisterSerializer, PatientRegisterSerializer, LoginSerializer, DoctorSerializer, PatientProfile, PatientProfileSerializer, PatientSerializer, DoctorProfileSerializer
 from .models import DoctorProfile, User, Doctor, Patient
-from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken, AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.decorators import action
@@ -79,14 +79,32 @@ class PatientRegisterViewSet(viewsets.ModelViewSet, TokenObtainPairView):
 class LoginViewSet(viewsets.ModelViewSet, TokenObtainPairView):
     serializer_class = LoginSerializer
 
-    @ action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
+    @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
     def login(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
 
         try:
             serializer.is_valid(raise_exception=True)
+        except AuthenticationFailed as e:
+            # Handle incorrect email/password
+            error_message = str(e.detail) if isinstance(
+                e.detail, str) else e.detail.get('detail', 'Authentication failed.')
+            return Response(
+                {"non_field_errors": [error_message]},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
         except TokenError as e:
-            raise InvalidToken(e.args[0])
+            # Handle token generation issues
+            return Response(
+                {"non_field_errors": ["Token generation failed."]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as e:
+            # Handle unexpected errors
+            return Response(
+                {"non_field_errors": ["An unexpected error occurred."]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
