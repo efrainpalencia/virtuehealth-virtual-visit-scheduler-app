@@ -136,7 +136,7 @@ class DoctorProfile(models.Model):
         GENERAL_DOCTOR = "GENERAL_DOCTOR", "general doctor"
         CARDIOLOGIST = "CARDIOLOGIST", "cardiologist"
         ORTHOPEDIST = "ORTHOPEDIST", "orthopedist"
-        NEUROLIGIST = "NEUROLIGIST", "neurologist"
+        NEUROLIGIST = "NEUROLOGIST", "neurologist"
         PSYCHIATRIST = "PSYCHIATRIST", "psychiatrist"
         PEDIATRICIAON = "PEDIATRICIAON", "pediatrician"
 

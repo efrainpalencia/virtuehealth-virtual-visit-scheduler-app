@@ -29,9 +29,9 @@ def send_appointment_email_to_patient(context):
     """
     Sends an email to the patient with their appointment details.
     """
-    subject = "Your VirtuHealth Appointment Confirmation"
+    subject = "Your VirtueHealth Appointment Confirmation"
     html_content = f"""
-    <h1>VirtuHealth Appointment Confirmation</h1>
+    <h1>VirtueHealth Appointment Confirmation</h1>
     <p>Dear {context['patient_name']},</p>
     <p>Your appointment with Dr. {context['doctor_name']} has been confirmed:</p>
     <ul>
@@ -47,7 +47,7 @@ def send_appointment_email_to_doctor(context):
     """
     Sends an email to the doctor with details about the patient and appointment.
     """
-    subject = "New VirtuHealth Appointment Scheduled"
+    subject = "New VirtueHealth Appointment Scheduled"
     html_content = f"""
     <h1>New VirtuHealth Appointment Scheduled</h1>
     <p>Dear Dr. {context['doctor_name']},</p>
@@ -68,9 +68,9 @@ def send_appointment_cancel_email_to_patient(context):
     Sends an email notification for a canceled appointment to patient.
     """
     # Patient notification
-    patient_subject = "Your VirtuHealth Appointment Has Been Canceled"
+    patient_subject = "Your VirtueHealth Appointment Has Been Canceled"
     patient_html_content = f"""
-    <h1>VirtuHealth Appointment Cancellation</h1>
+    <h1>VirtueHealth Appointment Cancellation</h1>
     <p>Dear {context['patient_name']},</p>
     <p>Your appointment with Dr. {context['doctor_name']} scheduled for {context['appointment_date']} at {context['appointment_time']} has been canceled.</p>
     """
@@ -83,9 +83,9 @@ def send_appointment_cancel_email_to_doctor(context):
     Sends an email notification for a canceled appointment to doctor.
     """
     # Doctor notification
-    doctor_subject = "VirtuHealth Appointment Cancellation Notification"
+    doctor_subject = "VirtueHealth Appointment Cancellation Notification"
     doctor_html_content = f"""
-    <h1>VirtuHealth Appointment Cancellation</h1>
+    <h1>VirtueHealth Appointment Cancellation</h1>
     <p>Dear Dr. {context['doctor_name']},</p>
     <p>The appointment with {context['patient_name']} scheduled for {context['appointment_date']} at {context['appointment_time']} has been canceled.</p>
     """
@@ -96,9 +96,9 @@ def send_appointment_reschedule_email_to_patient(context):
     """
     Sends an email notification for a rescheduled appointment to patient.
     """
-    patient_subject = "Your VirtuHealth Appointment Rescheduled"
+    patient_subject = "Your VirtueHealth Appointment Rescheduled"
     html_content = f"""
-    <h1>VirtuHealth Appointment Rescheduled</h1>
+    <h1>VirtueHealth Appointment Rescheduled</h1>
     <p>Dear {context['patient_name']},</p>
     <p>Your appointment with Dr. {context['doctor_name']} has been rescheduled:</p>
     <ul>
@@ -113,9 +113,9 @@ def send_appointment_reschedule_email_to_doctor(context):
     """
     Sends an email notification for a rescheduled appointment to doctor.
     """
-    doctor_subject = "Your VirtuHealth Appointment Rescheduled"
+    doctor_subject = "Your VirtueHealth Appointment Rescheduled"
     html_content = f"""
-    <h1>VirtuHealth Appointment Rescheduled</h1>
+    <h1>VirtueHealth Appointment Rescheduled</h1>
     <p>Dear Dr. {context['doctor_name']},</p>
     <p>Your appointment with {context['patient_name']} has been rescheduled:</p>
     <ul>
