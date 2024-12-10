@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@daily-co/daily-react": "^0.22.0",
+    "dayjs-plugin-utc": "^0.1.2"
+  }
+}
