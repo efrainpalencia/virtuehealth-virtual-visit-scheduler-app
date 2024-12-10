@@ -1,9 +1,10 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "target": "ES2015",
+    "lib": ["DOM", "ES2015"],
     "outDir": "./out-tsc/app",
     "types": []
   },
-  "files": ["src/main.ts", "src/polyfills.ts"],
   "include": ["src/**/*.d.ts"]
 }

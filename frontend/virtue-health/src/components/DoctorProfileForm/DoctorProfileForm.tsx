@@ -14,7 +14,6 @@ const { Option } = Select;
 
 interface DoctorProfileFormProps {
   doctor: Doctor | null;
-  profile: DoctorProfile | null;
   onSave: (updatedProfile: DoctorProfile) => void;
   onCancel: () => void;
 }
@@ -30,21 +29,34 @@ const specialtyOptions = [
 
 const DoctorProfileForm: React.FC<DoctorProfileFormProps> = ({
   doctor,
-  profile,
   onSave,
   onCancel,
 }) => {
   const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState<DoctorProfile | null>(null);
   const [form] = Form.useForm();
 
   useEffect(() => {
-    if (doctor || profile) {
-      form.setFieldsValue({
-        ...doctor,
-        ...profile,
-      });
-    }
-  }, [doctor, profile, form]);
+    const fetchDoctorProfile = async () => {
+      if (doctor) {
+        try {
+          console.log("DoctorId: ", doctor.id);
+          const fetchedProfile = await getDoctorProfile(doctor.id);
+          if (fetchedProfile) {
+            setProfile(fetchedProfile);
+            form.setFieldsValue({ ...doctor, ...fetchedProfile });
+          } else {
+            form.setFieldsValue({ ...doctor });
+          }
+        } catch (error) {
+          console.error("Error fetching doctor profile:", error);
+          message.error("Failed to load doctor profile.");
+        }
+      }
+    };
+
+    fetchDoctorProfile();
+  }, [doctor, form]);
 
   const handleSubmit = async (values: any) => {
     setLoading(true);
@@ -62,8 +74,9 @@ const DoctorProfileForm: React.FC<DoctorProfileFormProps> = ({
         message.success("Doctor information updated successfully!");
       }
 
-      // Update doctor profile information
+      // Update or create doctor profile information
       const profileData = {
+        user: doctor?.id, // Include the doctor user ID in the payload
         specialty: values.specialty,
         location: values.location,
         phone_number: values.phone_number,
@@ -71,21 +84,20 @@ const DoctorProfileForm: React.FC<DoctorProfileFormProps> = ({
         languages: values.languages,
         medical_school: values.medical_school,
         residency_program: values.residency_program,
-        ...(profile?.schedule?.length ? { schedule: profile.schedule } : {}), // Add schedule only if it's not empty
+        schedule: profile?.schedule || [], // Add schedule only if it's not empty
       };
 
       let updatedProfile;
       if (profile) {
+        // Update profile if it exists
         updatedProfile = await updateDoctorProfile(
           doctor?.id || 0,
           profileData
         );
         message.success("Profile updated successfully!");
       } else {
-        updatedProfile = await createDoctorProfile(
-          doctor?.id || 0,
-          profileData
-        );
+        // Create profile if it doesn't exist
+        updatedProfile = await createDoctorProfile(profileData);
         message.success("Profile created successfully!");
       }
 

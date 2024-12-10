@@ -1,10 +1,14 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import API from './AuthService';
+import API from './authService';
 
 dayjs.extend(utc);
 
-const API_URL = 'http://localhost:8000/api/auth';
+// Production
+const API_URL = 'http://184.72.127.33:8000/api/auth';
+
+// Development
+// const API_URL = 'http://localhost:8000/api/auth';
 
 export interface User {
     id: number;
@@ -35,7 +39,7 @@ export interface DoctorProfile {
     phone_number: string | null;
     fax_number: string | null;
     languages: string | null;
-    schedule: Date[] | string[]; // Allow both types
+    schedule: Date[] | string | null;
     medical_school: string | null;
     residency_program: string | null;
     img_url: string | null;
@@ -146,11 +150,18 @@ export const createDoctor = async (id: number, doctor: Doctor): Promise<Doctor> 
 };
 
 // Create a doctor profile
-export const createDoctorProfile = async (user_id: number, profile: Partial<DoctorProfile>): Promise<DoctorProfile> => {
-    const formattedProfile = { ...profile, schedule: formatScheduleDates(profile.schedule || []) };
-    const response = await API.post<DoctorProfile>(`${API_URL}/doctor-profiles/${user_id}/`, formattedProfile);
+export const createDoctorProfile = async (
+    profile: Partial<DoctorProfile>
+  ): Promise<DoctorProfile> => {
+    // Include the `user` field in the payload and format the schedule
+    const formattedProfile = {
+      ...profile,
+      user: profile.user, // Ensure `user` is included in the payload
+      schedule: formatScheduleDates(profile.schedule || []),
+    };
+    const response = await API.post<DoctorProfile>(`${API_URL}/doctor-profiles/`, formattedProfile);
     return response.data;
-};
+  };
 
 // Update a doctor
 export const updateDoctor = async (id: number, doctor: Partial<Doctor>): Promise<Doctor> => {

@@ -200,23 +200,29 @@ class DoctorProfileViewSet(viewsets.ModelViewSet):
     logger = logging.getLogger(__name__)
 
     def perform_create(self, serializer):
-        # Automatically set an empty list if schedule is not provided
-        serializer.save(schedule=serializer.validated_data.get("schedule", []))
+        """
+        Handle the creation of a doctor profile.
+        - Ensure `user` is set from the request payload.
+        - Default `schedule` to an empty list if not provided.
+        """
+        user_id = self.request.data.get("user")
+        if not user_id:
+            raise serializers.ValidationError(
+                {"user": ["This field is required."]})
+
+        # Default schedule to an empty list if not provided
+        schedule = self.request.data.get("schedule", [])
+
+        # Save the profile with the provided user ID and schedule
+        serializer.save(user_id=user_id, schedule=schedule)
 
     def perform_update(self, serializer):
-        # Allow updates with no changes to schedule
+        """
+        Handle updates to the doctor profile.
+        - Retain the current `schedule` if not explicitly updated.
+        """
         serializer.save(schedule=serializer.validated_data.get(
             "schedule", self.get_object().schedule))
-
-    # def create(self, request, *args, **kwargs):
-    #     # Ensure no duplicate profiles are created
-    #     user_id = request.data.get("user_id")
-    #     if DoctorProfile.objects.filter(user_id=user_id).exists():
-    #         return Response(
-    #             {"error": "Profile already exists. Use PATCH to update."},
-    #             status=status.HTTP_400_BAD_REQUEST,
-    #         )
-    #     return super().create(request, *args, **kwargs)
 
     @action(detail=True, methods=["get"], url_path="booked-slots")
     def booked_slots(self, request, pk=None):

@@ -126,10 +126,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         refresh_token = token
 
         # Log the token for debugging
-        # print(f"Generated Token for User ID: {user.id}, Role: {user.role}")
-        # print(f"Token Payload: {access_token}")
-        # print(f"Generated Refresh Token: {refresh_token}")
-        # print("Token Payload:", token.payload)
+        print(f"Generated Token for User ID: {user.id}, Role: {user.role}")
+        print(f"Token Payload: {access_token}")
+        print(f"Generated Refresh Token: {refresh_token}")
+        print("Token Payload:", token.payload)
 
         logger.debug(f"Generated Token for User ID: {
                      user.id}, Role: {user.role}")

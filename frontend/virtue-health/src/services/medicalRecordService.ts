@@ -1,7 +1,12 @@
 import axios from 'axios';
-import { getAccessToken, getIdFromToken, getRoleFromToken } from './authService';
+import { getAccessToken, getIdFromToken } from './authService';
 
-const API_BASE_URL = 'http://localhost:8000/api/medical-records/view-medical-records/';
+
+// Production
+const API_BASE_URL = 'http://184.72.127.33:8000/api/medical-records/view-medical-records/';
+
+// Development
+// const API_BASE_URL = 'http://localhost:8000/api/medical-records/view-medical-records/';
 
 export interface MedicalRecord {
   id?: number;

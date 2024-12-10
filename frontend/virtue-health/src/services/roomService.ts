@@ -13,10 +13,3 @@ export const notifyPatient = async (email: string, roomUrl: string): Promise<voi
         roomUrl,
     });
 };
-
-
-
-// export const createRoom = async (): Promise<{ url: string }> => {
-//     const response = await axios.post("/api/video/proxy-create-room/");
-//     return response.data;
-//   };

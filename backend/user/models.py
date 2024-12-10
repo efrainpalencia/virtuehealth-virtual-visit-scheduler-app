@@ -148,8 +148,12 @@ class DoctorProfile(models.Model):
     fax_number = models.CharField(max_length=15, validators=[RegexValidator(
         regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '9999999999'. Up to 15 digits allowed.")], null=True, blank=True)
     languages = models.TextField(null=True, blank=True)
-    schedule = ArrayField(models.DateTimeField(),
-                          default=list)
+    schedule = ArrayField(
+        base_field=models.DateTimeField(null=True, blank=True),
+        default=list,  # Ensures a default empty list is provided
+        blank=True,    # Allows blank values
+        null=True,     # Allows null in the database
+    )
     medical_school = models.TextField(null=True, blank=True)
     residency_program = models.TextField(null=True, blank=True)
     img_url = models.TextField(null=True, blank=True)

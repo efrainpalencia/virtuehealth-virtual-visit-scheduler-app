@@ -1,8 +1,18 @@
 import axios from "axios";
 import {jwtDecode} from "jwt-decode";
 
-const API_URL = "http://localhost:8000/api/auth";
-const EMAIL_API_URL = "http://localhost:8000/api";
+
+// Production
+const API_URL = "http://184.72.127.33:8000/api/auth";
+
+// Development
+// const API_URL = "http://localhost:8000/api/auth";
+
+// Production
+const EMAIL_API_URL = "http://184.72.127.33:8000/api";
+
+// Development
+// const EMAIL_API_URL = "http://localhost:8000/api";
 
 interface RegisterResponse {
     user: unknown;

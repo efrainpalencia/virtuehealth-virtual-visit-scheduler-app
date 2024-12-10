@@ -32,7 +32,7 @@ DEBUG = os.environ.get('DEBUG') == 'True'
 
 AUTH_USER_MODEL = 'user.User'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 
 # Application definition
@@ -205,12 +205,15 @@ REST_FRAMEWORK = {
     # ),
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
+CORS_ALLOW_HEADERS = [
+    "content-type",
+    "authorization",
+    "x-csrftoken",
+    # Add other headers if needed
 ]
+
+
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
 
 # CORS_ALLOW_ALL_ORIGINS = True
 

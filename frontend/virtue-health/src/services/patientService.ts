@@ -1,6 +1,10 @@
-import API from './AuthService'; // Import the configured Axios instance
+import API from './authService'; // Import the configured Axios instance
 
-const API_URL = 'http://localhost:8000/api/auth';
+// Production
+const API_URL = 'http://184.72.127.33:8000/api/auth';
+
+// development
+// const API_URL = 'http://localhost:8000/api/auth';
 
 export interface User {
     id: number;

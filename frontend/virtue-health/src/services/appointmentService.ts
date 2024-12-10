@@ -9,8 +9,11 @@ export interface Appointment {
   status: 'PENDING' | 'COMPLETED' | 'CANCELED';
 }
 
+// Production
+const API_URL = 'http://184.72.127.33:8000/api/appointments';
 
-const API_URL = 'http://localhost:8000/api/appointments';
+// Development
+// const API_URL = 'http://localhost:8000/api/appointments';
 
 // Get all appointments
 export const getAppointments = async (patientId: number): Promise<Appointment[]> => {
