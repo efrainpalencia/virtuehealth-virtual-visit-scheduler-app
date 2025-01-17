@@ -1,6 +1,5 @@
-# Virtuehealth: Virtual Healthcare Visit and Scheduler Application
-
 <img src="https://github.com/efrainpalencia/virtuehealth-virtual-visit-scheduler-app/blob/main/frontend/virtue-health/src/assets/VirtueLogo.png" alt="Virtue Health Homepage" width="200"/>
+# Virtuehealth: Virtual Healthcare Visit and Scheduler Application
 
 
 # User Guide
