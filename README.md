@@ -1,4 +1,4 @@
-# Virtuehealth: Virtual Visit and Scheduler Application
+# Virtuehealth: Virtual Healthcare Visit and Scheduler Application
 
 # User Guide
 
@@ -151,8 +151,9 @@ DAILY_API_KEY=<api_key>
 ### Registration and Login
 
 1. Navigate to “Patient Registration.”
-2. Enter email and password, then select “Register.”
-3. Navigate to “Login,” enter credentials, and log in.
+   ![Alt text]([https://your-onedrive-link](https://photos.onedrive.com/photo/F3A7916BF60CB800!808447?view=all))
+3. Enter email and password, then select “Register.”
+4. Navigate to “Login,” enter credentials, and log in.
 
 ### Creating a Profile
 
