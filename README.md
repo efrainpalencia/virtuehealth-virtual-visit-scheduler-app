@@ -1,4 +1,4 @@
-# virtuehealth-virtual-visit-scheduler-app
+# Virtuehealth: Virtual Visit and Scheduler Application
 
 # User Guide
 
