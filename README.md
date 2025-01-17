@@ -1,5 +1,7 @@
 # Virtuehealth: Virtual Healthcare Visit and Scheduler Application
 
+![Virtue Health Homepage](https://github.com/efrainpalencia/virtuehealth-virtual-visit-scheduler-app/blob/main/frontend/virtue-health/src/assets/VirtueLogo.png)
+
 # User Guide
 
 ## Introduction
@@ -151,12 +153,8 @@ DAILY_API_KEY=<api_key>
 ### Registration and Login
 
 1. Navigate to “Patient Registration.”
-
-![Virtue Health Homepage](https://1drv.ms/i/s!AgC4DPZrkafzsat_MdWWTOBZWHOOcw?e=JywGPZ)
-
-   
-3. Enter email and password, then select “Register.”
-4. Navigate to “Login,” enter credentials, and log in.
+2. Enter email and password, then select “Register.”
+3. Navigate to “Login,” enter credentials, and log in.
 
 ### Creating a Profile
 
