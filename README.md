@@ -151,7 +151,7 @@ DAILY_API_KEY=<api_key>
 ### Registration and Login
 
 1. Navigate to “Patient Registration.”
-   ![Alt text](https://1drv.ms/i/s!AgC4DPZrkafzsat_MdWWTOBZWHOOcw?e=JywGPZ)
+   !https://1drv.ms/i/s!AgC4DPZrkafzsat_MdWWTOBZWHOOcw?e=JywGPZ
 3. Enter email and password, then select “Register.”
 4. Navigate to “Login,” enter credentials, and log in.
 
